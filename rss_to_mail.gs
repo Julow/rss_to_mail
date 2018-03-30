@@ -115,38 +115,10 @@ function cached_fetch(url, cache_time)
 	var id = Utilities.base64Encode(url);
 	var cached = Cache.get(id);
 	if (cached)
-		return cached;
+		return JSON.parse(cached);
 	var data = fetch_feed(url);
-	Cache.put(id, data, cache_time);
+	Cache.put(id, JSON.stringify(data), cache_time);
 	return data;
-}
-
-// Process feeds
-// =============
-
-// Returns the list of new entries
-// Update the feed state
-// Entries are sorted by date, newest first
-// Returns 5 entries for feeds without history
-function new_entries(feed_states, id, entries)
-{
-	entries = entries.sort(function(a, b) { return a.date - b.date; });
-	if (entries.length == 0)
-		return [];
-	var i = 0;
-	if (!feed_states.hasOwnProperty(id))
-	{
-		feed_states[id] = {};
-		i = 5;
-	}
-	else
-	{
-		var newer_than = feed_states[id].last_update;
-		while (i < entries.length && newer_than < entries[i].date)
-			i++;
-	}
-	feed_states[id].last_update = entries[0].date;
-	return entries.slice(0, i);
 }
 
 // Sending mails
@@ -165,6 +137,49 @@ function email_format(feed_title, feed_url, entry)
 	return [ subject, body ];
 }
 
+// Process feeds
+// =============
+
+// Similar to Object.assign({}, defaults, obj) but modify `obj` in-place
+function obj_default(defaults, obj)
+{
+	for (var prop in defaults)
+	{
+		if (defaults.hasOwnProperty(prop)
+			&& !obj.hasOwnProperty(prop))
+			obj[prop] = defaults[prop];
+	}
+}
+
+// Returns the list of new entries
+// Entries are sorted by date, oldest first
+function new_entries(last_update, entries)
+{
+	entries = entries.sort(function(a, b) { return b.date - a.date; });
+	var i = entries.length;
+	while (i > 0 && last_update < entries[i - 1].date)
+		i--;
+	return entries.slice(i, entries.length);
+}
+
+var CACHE_BASE_TIME = 60*30;
+
+function update_feed(feed_states, user_email, feed_url, feed_options)
+{
+	var feed = cached_fetch(feed_url, feed_options.cache * CACHE_BASE_TIME);
+	// For feeds without history, returns the 5 last items
+	var entries = !feed_states.last_update.hasOwnProperty(feed_url)
+		? new_entries(0, feed.entries).slice(-5)
+		: new_entries(feed_states.last_update[feed_url], feed.entries);
+	entries.forEach(function(entry)
+	{
+		var [ subject, body ] = email_format(feed.title, feed.link, entry);
+		Logger.log("New entry in " + feed_url + ": " + entry.link);
+		MailApp.sendEmail(user_email, subject, body);
+		feed_states.last_update[feed_url] = entry.date;
+	});
+}
+
 // Feed list
 // =========
 // Feeds are stored in a Spreadsheet in two columns: feed url, options
@@ -180,16 +195,14 @@ function read_spreadsheet(sheet_id)
 	var ss = SpreadsheetApp.openById(sheet_id);
 	var sheet = ss.getSheets()[0];
 	var last_row = ss.getLastRow();
+	if (last_row <= 1)
+		return [];
 	return sheet.getRange(2, 1, last_row - 1, 2)
 		.getValues().map(function(row)
 		{
 			var url = row[0];
 			var options = JSON.parse(row[1]);
-			for (var opt in default_options)
-			{
-				if (!options.hasOwnProperty(opt))
-					options[opt] = default_options[opt];
-			}
+			obj_default(default_options, options);
 			return [ url, options ];
 		});
 }
@@ -204,62 +217,55 @@ function create_spreadsheet()
 	return ss.getId();
 }
 
-function load_feeds(feed_states)
-{
-	if (!feed_states.hasOwnProperty("sheet_id"))
-	{
-		feed_states.sheet_id = create_spreadsheet();
-		return [];
-	}
-	else
-	{
-		return read_spreadsheet(feed_states.sheet_id);
-	}
-}
-
 // Main
 // ====
-
-var Properties = PropertiesService.getUserProperties();
-
-// Calls `f` with the value of the property `name`
-// The value is expected to be an object, the default value is `{}`
-// If it is modified, the property is set back
-function with_property(name, f)
-{
-	var string_data = Properties.getProperty(name);
-	var data = (string_data === null) ? {} : JSON.parse(string_data);
-	f(data);
-	var data_string = JSON.stringify(data);
-	if (data_string != string_data)
-		Properties.setProperty(name, data_string);
-}
-
-// Configs
-var CACHE_BASE_TIME = 60*30;
 
 function update()
 {
 	var user_email = Session.getActiveUser().getEmail();
-	with_property("FEED_STATES", function(feed_states)
+	var properties = PropertiesService.getUserProperties();
+	var feed_states;
+	try
 	{
-		load_feeds(feed_states)
-			.forEach(function([ url, options ])
+		var data = properties.getProperty("FEED_STATES");
+		if (data == null) throw "Not set";
+		feed_states = JSON.parse(data);
+	}
+	catch (exn)
+	{
+		Logger.log("No feed states (" + exn + ")");
+		feed_states = {};
+	}
+	obj_default({
+		sheet_id: null,
+		last_update: {}
+	}, feed_states);
+	try
+	{
+		if (feed_states.sheet_id == null)
 		{
-			var feed = cached_fetch(url, options.cache * CACHE_BASE_TIME);
-			new_entries(feed_states, url, feed.entries).forEach(function(entry)
-			{
-				var [ subject, body ] = email_format(feed.title, feed.link, entry);
-				Logger.log("New entry in " + url + ": " + entry.link);
-				MailApp.sendEmail(user_email, subject, body);
-			});
-		});
-	});
+			// First use, just create the spreadsheet
+			feed_states.sheet_id = create_spreadsheet();
+			Logger.log("Created spreadsheet");
+		}
+		else
+		{
+			read_spreadsheet(feed_states.sheet_id)
+				.forEach(function(feed)
+				{
+					try { update_feed(feed_states, user_email, feed[0], feed[1]); }
+					catch (exn) { throw feed[0] + ": " + exn; }
+				});
+		}
+	}
+	finally {
+		properties.setProperty("FEED_STATES", JSON.stringify(feed_states));
+	}
 }
 
 function clear_props()
 {
-	Properties.deleteAllProperties();
+	PropertiesService.getUserProperties().deleteAllProperties();
 }
 
 function main()
