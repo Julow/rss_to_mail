@@ -110,18 +110,15 @@ var Cache = CacheService.getScriptCache();
 
 // Cached call to fetch_feed
 // `cache_time` is in second
-function cached_feed(url, cache_time)
+function cached_fetch(url, cache_time)
 {
 	var id = Utilities.base64Encode(url);
-	return function()
-	{
-		var cached = Cache.get(id);
-		// if (cached)
-			// return cached;	
-		var data = fetch_feed(url);
-		Cache.put(id, data, cache_time);
-		return data;
-	};
+	var cached = Cache.get(id);
+	if (cached)
+		return cached;
+	var data = fetch_feed(url);
+	Cache.put(id, data, cache_time);
+	return data;
 }
 
 // Process feeds
@@ -168,19 +165,60 @@ function email_format(feed_title, feed_url, entry)
 	return [ subject, body ];
 }
 
-// 
+// Feed list
+// =========
+// Feeds are stored in a Spreadsheet in two columns: feed url, options
+// Options use the JSON format
+
+var default_options = {
+	"cache": 1
+};
+
+// Load feeds stored in a Spreadsheet
+function read_spreadsheet(sheet_id)
+{
+	var ss = SpreadsheetApp.openById(sheet_id);
+	var sheet = ss.getSheets()[0];
+	var last_row = ss.getLastRow();
+	return sheet.getRange(2, 1, last_row - 1, 2)
+		.getValues().map(function(row)
+		{
+			var url = row[0];
+			var options = JSON.parse(row[1]);
+			for (var opt in default_options)
+			{
+				if (!options.hasOwnProperty(opt))
+					options[opt] = default_options[opt];
+			}
+			return [ url, options ];
+		});
+}
+
+// Create an empty spreadsheet
+function create_spreadsheet()
+{
+	var ss = SpreadsheetApp.create("Rss to mail", 1, 2);
+	var sheet = ss.getSheets()[0];
+	sheet.appendRow([ "Feed url", "Options" ]);
+	SpreadsheetApp.flush();
+	return ss.getId();
+}
+
+function load_feeds(feed_states)
+{
+	if (!feed_states.hasOwnProperty("sheet_id"))
+	{
+		feed_states.sheet_id = create_spreadsheet();
+		return [];
+	}
+	else
+	{
+		return read_spreadsheet(feed_states.sheet_id);
+	}
+}
 
 // Main
 // ====
-
-// Feeds
-// The `feed` is a function arguments are:
-// 	- feed url
-// 	- cache time multiplier
-function feeds(feed)
-{
-	feed("http://syndication.thedailywtf.com/TheDailyWtf", 1);
-}
 
 var Properties = PropertiesService.getUserProperties();
 
@@ -205,10 +243,10 @@ function update()
 	var user_email = Session.getActiveUser().getEmail();
 	with_property("FEED_STATES", function(feed_states)
 	{
-		feeds(function(url, cache_time_multi)
+		load_feeds(feed_states)
+			.forEach(function([ url, options ])
 		{
-			var fetch = cached_feed(url, cache_time_multi * CACHE_BASE_TIME);
-			var feed = fetch();
+			var feed = cached_fetch(url, options.cache * CACHE_BASE_TIME);
 			new_entries(feed_states, url, feed.entries).forEach(function(entry)
 			{
 				var [ subject, body ] = email_format(feed.title, feed.link, entry);
