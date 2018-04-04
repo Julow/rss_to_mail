@@ -1,13 +1,15 @@
-// RSS feed to inbox
+// Feed aggregator
 // Error handling is done by throwing strings
 
 // Retrieving feeds
 // ================
 
+var ATOM_NAMESPACE = XmlService.getNamespace('http://www.w3.org/2005/Atom');
+
 // Parse atom feeds
 function parse_atom(feed_elem)
 {
-	var ns = XmlService.getNamespace('http://www.w3.org/2005/Atom');
+	var ns = ATOM_NAMESPACE;
 	function get_alternate_link(feed_elem)
 	{
 		function is_alternate(link)
@@ -121,22 +123,6 @@ function cached_fetch(url, cache_time)
 	return data;
 }
 
-// Sending mails
-// =============
-
-function email_format(feed_title, feed_url, entry)
-{
-	var subject = feed_title + ": " + entry.title;
-	var categories = entry.categories.map(function(c){return c.label;}).join(" ");
-	var date = new Date(entry.date).toGMTString();
-	var body = "Via <a href=\"" + feed_url + "\">" + feed_title + "</a> (" + categories + ")\n"
-		+ "on " + date + " by " + entry.author + "\n"
-		+ "<a href=\"" + entry.link + "\">" + entry.title + "</a>\n"
-		+ "\n"
-		+ entry.content;
-	return [ subject, body ];
-}
-
 // Process feeds
 // =============
 
@@ -151,33 +137,48 @@ function obj_default(defaults, obj)
 	}
 }
 
-// Returns the list of new entries
-// Entries are sorted by date, oldest first
+// Comparaison function (to use with [].sort())
+// Sort by date, oldest first
+function entries_by_date(a, b)
+{
+	return a.date - b.date;
+}
+
+// Returns the list of new entries, sorted
 function new_entries(last_update, entries)
 {
-	entries = entries.sort(function(a, b) { return b.date - a.date; });
+	entries = entries.sort(entries_by_date);
 	var i = entries.length;
 	while (i > 0 && last_update < entries[i - 1].date)
 		i--;
 	return entries.slice(i, entries.length);
 }
 
-var CACHE_BASE_TIME = 60*30;
-
-function update_feed(feed_states, user_email, feed_url, feed_options)
+function entry_content(feed, feed_options, entry)
 {
-	var feed = cached_fetch(feed_url, feed_options.cache * CACHE_BASE_TIME);
-	// For feeds without history, returns the 5 last items
-	var entries = !feed_states.last_update.hasOwnProperty(feed_url)
-		? new_entries(0, feed.entries).slice(-5)
-		: new_entries(feed_states.last_update[feed_url], feed.entries);
-	entries.forEach(function(entry)
+	var categories = entry.categories.map(function(c){return c.label;}).join(" ");
+	var date = new Date(entry.date).toGMTString();
+	return "Via <a href=\"" + feed.link + "\">" + feed.title + "</a> (" + categories + ")<br/>"
+		+ "on " + date + " by " + entry.author + "<br/>"
+		+ "<a href=\"" + entry.link + "\">" + entry.title + "</a>\n"
+		+ "\n"
+		+ entry.content;
+}
+
+function extract_entries(feed, feed_options, since)
+{
+	function update_entry(entry)
 	{
-		var [ subject, body ] = email_format(feed.title, feed.link, entry);
-		Logger.log("New entry in " + feed_url + ": " + entry.link);
-		MailApp.sendEmail(user_email, subject, body);
-		feed_states.last_update[feed_url] = entry.date;
-	});
+		var feed_name = feed_options.name || feed.title;
+		var updated = {
+			id: feed.link + entry.id,
+			title: feed_name + ": " + entry.title,
+			content: entry_content(feed, feed_options, entry)
+		};
+		obj_default(entry, updated);
+		return updated;
+	}
+	return new_entries(since, feed.entries).map(update_entry);
 }
 
 // Feed list
@@ -185,12 +186,8 @@ function update_feed(feed_states, user_email, feed_url, feed_options)
 // Feeds are stored in a Spreadsheet in two columns: feed url, options
 // Options use the JSON format
 
-var default_options = {
-	"cache": 1
-};
-
 // Load feeds stored in a Spreadsheet
-function read_spreadsheet(sheet_id)
+function read_spreadsheet(sheet_id, default_options)
 {
 	var ss = SpreadsheetApp.openById(sheet_id);
 	var sheet = ss.getSheets()[0];
@@ -217,61 +214,101 @@ function create_spreadsheet()
 	return ss.getId();
 }
 
+// Output feed
+// ===========
+
+function new_elem(name)
+{
+	return XmlService.createElement(name, ATOM_NAMESPACE);
+}
+
+function format_entry(entry)
+{
+	var node = new_elem("entry")
+		.addContent(new_elem("author")
+			.addContent(new_elem("name")
+				.setText(entry.author)))
+		.addContent(new_elem("title")
+			.setText(entry.title))
+		.addContent(new_elem("content")
+			.setAttribute("type", "html")
+			.setText(entry.content))
+		.addContent(new_elem("id")
+			.setText(entry.id))
+		.addContent(new_elem("link")
+			.setAttribute("href", entry.link))
+		.addContent(new_elem("updated")
+			.setText(new Date(entry.date).toISOString()));
+	entry.categories.forEach(function(cat)
+	{
+		node.addContent(new_elem("category")
+				.setAttribute("label", cat.label)
+				.setAttribute("term", cat.term || ""));
+	});
+	return node;
+}
+
+function format_atom(entries)
+{
+	var root = new_elem("feed")
+			.addContent(new_elem("title").setText("Feed aggregator"));
+	entries.forEach(function(entry)
+	{
+		root.addContent(format_entry(entry));
+	});
+	var doc = XmlService.createDocument(root);
+	return XmlService.getPrettyFormat().format(doc);
+}
+
 // Main
 // ====
 
-function update()
+// in seconds
+var CACHE_BASE_TIME = 60*30;
+
+// in milliseconds
+var OLDEST_ENTRY = 1000*60*60*24*7;
+
+// Supported options and their default value
+var DEFAULT_OPTIONS = {
+	"cache": 1,
+	"name": null
+};
+
+var Properties = PropertiesService.getUserProperties();
+
+/*
+** Fetch the content of the spreadsheet
+** If it does not exits, it is created
+** Store the sheet id in the PropertiesService (UserProperties)
+*/
+function load_spreadsheet(default_options)
 {
-	var user_email = Session.getActiveUser().getEmail();
-	var properties = PropertiesService.getUserProperties();
-	var feed_states;
-	try
+	var sheet_id = JSON.parse(Properties.getProperty("SHEET_ID"));
+	if (sheet_id === null)
 	{
-		var data = properties.getProperty("FEED_STATES");
-		if (data == null) throw "Not set";
-		feed_states = JSON.parse(data);
+		var sheet_id = create_spreadsheet();
+		Properties.setProperty("SHEET_ID", JSON.stringify(sheet_id));
+		return [];
 	}
-	catch (exn)
+	else
 	{
-		Logger.log("No feed states (" + exn + ")");
-		feed_states = {};
-	}
-	obj_default({
-		sheet_id: null,
-		last_update: {}
-	}, feed_states);
-	try
-	{
-		if (feed_states.sheet_id == null)
-		{
-			// First use, just create the spreadsheet
-			feed_states.sheet_id = create_spreadsheet();
-			Logger.log("Created spreadsheet");
-		}
-		else
-		{
-			read_spreadsheet(feed_states.sheet_id)
-				.forEach(function(feed)
-				{
-					try { update_feed(feed_states, user_email, feed[0], feed[1]); }
-					catch (exn) { throw feed[0] + ": " + exn; }
-				});
-		}
-	}
-	finally {
-		properties.setProperty("FEED_STATES", JSON.stringify(feed_states));
+		return read_spreadsheet(sheet_id, default_options);
 	}
 }
 
-function clear_props()
+function doGet()
 {
-	PropertiesService.getUserProperties().deleteAllProperties();
-}
-
-function main()
-{
-	ScriptApp.newTrigger("update")
-		.timeBased()
-		.everyMinutes(45)
-		.create();
+	var feed_entries = load_spreadsheet(DEFAULT_OPTIONS).map(function(feed)
+	{
+		var feed_url = feed[0];
+		var feed_options = feed[1];
+		var feed = cached_fetch(feed_url, feed_options.cache * CACHE_BASE_TIME);
+		var since = new Date().getTime() - OLDEST_ENTRY;
+		return extract_entries(feed, feed_options, since);
+	});
+	var entries = [].concat.apply([], feed_entries).sort(entries_by_date);
+	Logger.log(entries.length + " entries");
+	return ContentService.createTextOutput(format_atom(entries))
+		.setMimeType(ContentService.MimeType.ATOM);
 }
