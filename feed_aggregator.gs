@@ -27,21 +27,21 @@ function parse_atom(feed_elem)
 		{
 			return {
 				term: cat.getAttribute("term").getValue(),
-				label: cat.getAttribute("label").getValue()
+				label: cat.getAttribute("label").getValue().toString()
 			};
 		}
 		return {
-			author: entry.getChild("author", ns).getChildText("name", ns),
+			author: entry.getChild("author", ns).getChildText("name", ns).toString(),
 			categories: entry.getChildren("category", ns).map(parse_category),
-			title: entry.getChildText("title", ns),
-			content: entry.getChildText("content", ns),
-			id: entry.getChildText("id", ns),
-			link: entry.getChild("link", ns).getAttribute("href").getValue(),
+			title: entry.getChildText("title", ns).toString(),
+			content: entry.getChildText("content", ns).toString(),
+			id: entry.getChildText("id", ns).toString(),
+			link: entry.getChild("link", ns).getAttribute("href").getValue().toString(),
 			date: new Date(entry.getChildText("updated", ns)).getTime()
 		};
 	}
 	return {
-		title: feed_elem.getChildText("title", ns),
+		title: feed_elem.getChildText("title", ns).toString(),
 		link: get_alternate_link(feed_elem),
 		entries: feed_elem.getChildren("entry", ns).map(parse_entry)
 	};
@@ -56,20 +56,20 @@ function parse_rss(rss_elem)
 	{
 		function parse_category(cat)
 		{
-			return { term: null, label: cat.getText() };
+			return { term: null, label: cat.getText().toString() };
 		}
 		return {
-			author: item.getChildText("creator", dc_ns),
+			author: item.getChildText("creator", dc_ns).toString(),
 			categories: item.getChildren("category").map(parse_category),
-			title: item.getChildText("title"),
-			content: item.getChildText("description"),
-			id: item.getChildText("guid"),
-			link: item.getChildText("link"),
+			title: item.getChildText("title").toString(),
+			content: item.getChildText("description").toString(),
+			id: item.getChildText("guid").toString(),
+			link: item.getChildText("link").toString(),
 			date: new Date(item.getChildText("pubDate")).getTime()
 		};
 	}
 	return {
-		title: channel_elem.getChildText("title"),
+		title: channel_elem.getChildText("title").toString(),
 		link: channel_elem.getChildText("link"),
 		entries: channel_elem.getChildren("item").map(parse_item)
 	};
@@ -199,7 +199,16 @@ function read_spreadsheet(sheet_id, default_options)
 		.getValues().map(function(row)
 		{
 			var url = row[0];
-			var options = JSON.parse(row[1]);
+			var options;
+			try
+			{
+				options = JSON.parse(row[1]);
+			}
+			catch (exn)
+			{
+				Logger.log("Malformed options (" + url + "): " + exn);
+				options = {};
+			}
 			obj_default(default_options, options);
 			return [ url, options ];
 		});
@@ -226,19 +235,19 @@ function new_elem(name)
 function format_entry(entry)
 {
 	var node = new_elem("entry")
-		.addContent(new_elem("author")
+	node.addContent(new_elem("author")
 			.addContent(new_elem("name")
-				.setText(entry.author)))
-		.addContent(new_elem("title")
-			.setText(entry.title))
-		.addContent(new_elem("content")
+				.setText(entry.author)));
+	node.addContent(new_elem("title")
+			.setText(entry.title));
+	node.addContent(new_elem("content")
 			.setAttribute("type", "html")
-			.setText(entry.content))
-		.addContent(new_elem("id")
-			.setText(entry.id))
-		.addContent(new_elem("link")
-			.setAttribute("href", entry.link))
-		.addContent(new_elem("updated")
+			.setText(entry.content));
+	node.addContent(new_elem("id")
+			.setText(entry.id));
+	node.addContent(new_elem("link")
+			.setAttribute("href", entry.link));
+	node.addContent(new_elem("updated")
 			.setText(new Date(entry.date).toISOString()));
 	entry.categories.forEach(function(cat)
 	{
@@ -304,9 +313,17 @@ function doGet()
 	{
 		var feed_url = feed[0];
 		var feed_options = feed[1];
-		var feed = cached_fetch(feed_url, feed_options.cache * CACHE_BASE_TIME);
-		var since = new Date().getTime() - OLDEST_ENTRY;
-		return extract_entries(feed, feed_options, since);
+		try
+		{
+			var feed = cached_fetch(feed_url, feed_options.cache * CACHE_BASE_TIME);
+			var since = new Date().getTime() - OLDEST_ENTRY;
+			return extract_entries(feed, feed_options, since);
+		}
+		catch (exn)
+		{
+			Logger.log("Error while processing feed " + feed_url + ": " + exn);
+			return [];
+		}
 	});
 	var entries = [].concat.apply([], feed_entries).sort(entries_by_date);
 	Logger.log(entries.length + " entries");
