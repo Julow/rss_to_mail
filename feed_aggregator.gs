@@ -119,6 +119,7 @@ function cached_fetch(url, cache_time)
 	if (cached)
 		return JSON.parse(cached);
 	var data = fetch_feed(url);
+	Logger.log("Fetched " + data.entries.length + " entries from " + url);
 	Cache.put(id, JSON.stringify(data), cache_time);
 	return data;
 }
@@ -138,20 +139,20 @@ function obj_default(defaults, obj)
 }
 
 // Comparaison function (to use with [].sort())
-// Sort by date, oldest first
+// Sort by date, newest first
 function entries_by_date(a, b)
 {
-	return a.date - b.date;
+	return b.date - a.date;
 }
 
 // Returns the list of new entries, sorted
 function new_entries(last_update, entries)
 {
 	entries = entries.sort(entries_by_date);
-	var i = entries.length;
-	while (i > 0 && last_update < entries[i - 1].date)
-		i--;
-	return entries.slice(i, entries.length);
+	var i = 0;
+	while (i < entries.length && entries[i].date > last_update)
+		i++;
+	return entries.slice(0, i);
 }
 
 function entry_content(feed, feed_options, entry)
