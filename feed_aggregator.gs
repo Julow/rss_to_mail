@@ -96,32 +96,67 @@ function parse_feed(contents)
 	}
 }
 
-// Fetch and parse a feed
-// If the fetch failed, throw an exception
-function fetch_feed(url)
+// Fetch
+// =====
+
+// : (url * (response -> 'a)) list -> 'a list
+function fetch_all(reqs)
 {
-	var re = UrlFetchApp.fetch(url);
-	var code = re.getResponseCode();
-	if (code == 200)
-		return parse_feed(re.getContentText());
-	else
-		throw "Fetch failed: " + code;
+	var urls = reqs.map(function(req)
+		{
+			return { url: req[0], muteHttpExceptions: true };
+		});
+	var results = UrlFetchApp.fetchAll(urls);
+	return reqs.map(function(req, i)
+		{
+			return req[1](results[i]);
+		});
 }
 
 var Cache = CacheService.getScriptCache();
 
-// Cached call to fetch_feed
-// `cache_time` is in second
-function cached_fetch(url, cache_time)
+function fuck_js(results, url, cache_timeout, index)
 {
-	var id = Utilities.base64Encode(url);
-	var cached = Cache.get(id);
-	if (cached)
-		return JSON.parse(cached);
-	var data = fetch_feed(url);
-	Logger.log("Fetched " + data.entries.length + " entries from " + url);
-	Cache.put(id, JSON.stringify(data), cache_time);
-	return data;
+	return function(res)
+		{
+			var code = res.getResponseCode();
+			var r;
+			try
+			{
+				if (code != 200)
+					throw "Fetch failed: " + code;
+				r = parse_feed(res.getContentText());
+				Logger.log("Fetched " + r.entries.length + " entries from " + url);
+			}
+			catch (exn)
+			{
+				r = exn;
+			}
+			results[index] = r;
+			try { Cache.put(url, JSON.stringify(r), cache_timeout); }
+			catch (exn) { Logger.log("Cannot cache feed " + url + ": " + exn); }
+		};
+}
+
+// `urls` is an array of the array `[ feed_url, cache_timeout ]`
+// Returns an array of the same size with corresponding `feed` records
+// On error, the corresponding result will be a string describing the error
+function cached_fetch_all(urls)
+{
+	var results = urls.map(function(url)
+		{
+			return JSON.parse(Cache.get(url[0]));
+		});
+	var to_fetch = [];
+	for (var i = 0; i < results.length; i++)
+		if (!results[i])
+		{
+			var url = urls[i][0];
+			to_fetch.push([ url, fuck_js(results, url, urls[i][1], i) ]);
+		}
+	if (to_fetch.length > 0)
+		fetch_all(to_fetch);
+	return results;
 }
 
 // Process feeds
@@ -234,7 +269,7 @@ function new_elem(name)
 
 function format_entry(entry)
 {
-	var node = new_elem("entry")
+	var node = new_elem("entry");
 	node.addContent(new_elem("author")
 			.addContent(new_elem("name")
 				.setText(entry.author)));
@@ -309,23 +344,27 @@ function load_spreadsheet(default_options)
 
 function doGet()
 {
-	var feed_entries = load_spreadsheet(DEFAULT_OPTIONS).map(function(feed)
-	{
-		var feed_url = feed[0];
-		var feed_options = feed[1];
-		try
-		{
-			var feed = cached_fetch(feed_url, feed_options.cache * CACHE_BASE_TIME);
-			var since = new Date().getTime() - OLDEST_ENTRY;
-			return extract_entries(feed, feed_options, since);
-		}
-		catch (exn)
-		{
-			Logger.log("Error while processing feed " + feed_url + ": " + exn);
-			return [];
-		}
-	});
-	var entries = [].concat.apply([], feed_entries).sort(entries_by_date);
+	var feeds = load_spreadsheet(DEFAULT_OPTIONS);
+	var feeds_entries = cached_fetch_all(feeds.map(function(feed)
+				{
+					return [ feed[0], feed[1].cache * CACHE_BASE_TIME ];
+				}))
+		.map(function(feed, i)
+			{
+				var feed_url = feeds[i][0];
+				var feed_options = feeds[i][1];
+				// If `feed` is a string, it is an exception
+				if (typeof feed == "string")
+				{
+					Logger.log("Error: " + feed_url + ": " + feed);
+					return [];
+				}
+				var since = Date.now() - OLDEST_ENTRY;
+				if (feed)
+					return extract_entries(feed, feed_options, since);
+				return [];
+			});
+	var entries = [].concat.apply([], feeds_entries).sort(entries_by_date);
 	Logger.log(entries.length + " entries");
 	return ContentService.createTextOutput(format_atom(entries))
 		.setMimeType(ContentService.MimeType.ATOM);
