@@ -2,10 +2,11 @@ open Xml_utils
 open Feed
 
 let parse rss_elem =
-	let dc_ns = namespace "http://purl.org/dc/elements/1.1/" in
+	let dc_ns = namespace "http://purl.org/dc/elements/1.1/"
+	and content_ns = namespace "http://purl.org/rss/1.0/modules/content/" in
 	let parse_item item =
-		let child_text_opt tag =
-			try Some (text (child tag item))
+		let child_text_opt ?ns tag =
+			try Some (text (child ?ns tag item))
 			with _ -> None
 		in
 		let date =
@@ -21,8 +22,8 @@ let parse rss_elem =
 		{	title = text (child "title" item);
 			link = child_text_opt "link";
 			id = child_text_opt "guid";
-			summary = None;
-			content = child_text_opt "description";
+			summary = child_text_opt "description";
+			content = child_text_opt ~ns:content_ns "encoded";
 			authors; date; categories }
 	in
 	let channel = child "channel" rss_elem in
