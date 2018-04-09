@@ -60,7 +60,7 @@ let cached_fetch_all reqs =
 	let cache_put url res cache_time =
 		let cache_time = int_of_float cache_time in
 		try
-			cache##put url (Js._JSON##stringify res) cache_time
+			cache##put url (Json.output res) cache_time
 		with Js.Error e ->
 			let e = Js.to_string e##.message in
 			Logger.log ("Cannot cache " ^ Js.to_string url ^ ": " ^ e)
@@ -69,7 +69,8 @@ let cached_fetch_all reqs =
 	let urls = Array.map (fun (url, _, _) -> Js.string url) reqs in
 	let cached = cache##getAll (Js.array urls) in
 	let cached = Array.map (fun url ->
-			Js.Optdef.to_option (Jstable.find cached url)
+			Js.Optdef.to_option
+			(Js.Unsafe.get cached url : Js.js_string Js.t Js.optdef)
 		) urls in
 	let requests = new%js Js.array_empty in
 	Array.iteri (fun index url ->
@@ -83,7 +84,7 @@ let cached_fetch_all reqs =
 		if index >= Array.length cached then []
 		else match cached.(index) with
 			| Some cached	->
-				(Js._JSON##parse cached) :: loop (index + 1) req_index
+				(Json.unsafe_input cached) :: loop (index + 1) req_index
 			| None			->
 				let _, cache_time, process = reqs.(index) in
 				let res =
