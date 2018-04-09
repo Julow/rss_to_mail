@@ -5,10 +5,15 @@ type category = {
 	term		: string option
 }
 
+type author = {
+	author_name	: string;
+	author_link	: string option
+}
+
 type entry = {
 	id			: string option;
 	title		: string;
-	authors		: string list;
+	authors		: author list;
 	categories	: category list;
 	summary		: string option;
 	content		: string option;

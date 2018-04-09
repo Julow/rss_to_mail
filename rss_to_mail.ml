@@ -134,9 +134,9 @@ let update_entry feed_url feed options entry =
 				| _ -> "") entry.categories in
 			if labels = [] then "" else " (" ^ String.concat ", " labels ^ ")"
 		and authors =
-			if entry.authors = []
-			then ""
-			else " by " ^ String.concat ", " entry.authors
+			let author a = opt_link a.author_name a.author_link in
+			if entry.authors = [] then ""
+			else " by " ^ String.concat ", " (List.map author entry.authors)
 		in
 		"Via " ^ opt_link feed.feed_title feed.feed_link ^ categories ^ "<br/>"
 		^ "on " ^ entry_date_string entry ^ authors ^ "<br/>"

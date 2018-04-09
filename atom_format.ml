@@ -5,30 +5,33 @@ let ns = namespace "http://www.w3.org/2005/Atom"
 
 let parse feed_elem =
 	let parse_entry entry =
-		let child_text_opt tag =
-			try Some (text (child ~ns tag entry))
+		let child_text_opt tag node =
+			try Some (text (child ~ns tag node))
 			with _ -> None
 		in
 		let date =
 			Int64.of_float @@
 			Js.date##parse (node (child ~ns "updated" entry))##getText
 		and authors =
-			List.map (fun author -> text (child ~ns "name" author)) @@
-			children ~ns "author" entry
+			let parse_author author =
+				{	author_name = text (child ~ns "name" author);
+					author_link = child_text_opt "uri" author }
+			in
+			List.map parse_author @@ children ~ns "author" entry
 		and categories =
 			let parse_category cat =
 				let attr_opt k = try Some (attribute k cat) with _ -> None in
 				{ term = attr_opt "term"; label = attr_opt "label" }
 			in
-			children ~ns "category" entry |> List.map parse_category
+			List.map parse_category @@ children ~ns "category" entry
 		and link =
 			try Some (attribute "href" (child ~ns "link" entry))
 			with _ -> None
 		in
-		{	id = child_text_opt "id";
+		{	id = child_text_opt "id" entry;
 			title = text (child ~ns "title" entry);
-			summary = child_text_opt "summary";
-			content = child_text_opt "content";
+			summary = child_text_opt "summary" entry;
+			content = child_text_opt "content" entry;
 			link; authors; date; categories }
 	in
 	let feed_title = text (child ~ns "title" feed_elem)
@@ -52,8 +55,12 @@ let generate feed =
 			let opt k = function Some v -> [ k, v ] | None -> [] in
 			let attr = opt "term" cat.term @ opt "label" cat.label in
 			create ~ns "category" ~attr []
-		and gen_author name =
-			create ~ns "author" [ create_text ~ns "name" name ]
+		and gen_author { author_name; author_link } =
+			let uri = match author_link with
+				| Some link	-> [ create_text ~ns "uri" link ]
+				| None		-> []
+			and name = create_text ~ns "name" author_name in
+			create ~ns "author" (name :: uri)
 		in
 		let content = match entry.content with
 			| Some content	->

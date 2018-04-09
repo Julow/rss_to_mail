@@ -17,7 +17,10 @@ let parse rss_elem =
 				{ term = None; label = Some (text cat) } in
 			List.map parse_category (children "category" item)
 		and authors =
-			List.map text (children ~ns:dc_ns "creator" item)
+			let author creator =
+				{ author_name = text creator; author_link = None }
+			in
+			List.map author (children ~ns:dc_ns "creator" item)
 		in
 		{	title = text (child "title" item);
 			link = child_text_opt "link";
