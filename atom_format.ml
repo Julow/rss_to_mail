@@ -8,9 +8,9 @@ let parse feed_elem =
 		let date =
 			Int64.of_float @@
 			Js.date##parse (node (child ~ns "updated" entry))##getText
-		and author =
-			try Some (text (child ~ns "name" (child ~ns "author" entry)))
-			with _ -> None
+		and authors =
+			List.map (fun author -> text (child ~ns "name" author)) @@
+			children ~ns "author" entry
 		and categories =
 			let parse_category cat =
 				let term = try Some (attribute "term" cat) with _ -> None
@@ -28,7 +28,7 @@ let parse feed_elem =
 		{	id = text (child ~ns "id" entry);
 			title = text (child ~ns "title" entry);
 			link = attribute "href" (child ~ns "link" entry);
-			summary; content; author; date; categories }
+			summary; content; authors; date; categories }
 	in
 	let feed_title = text (child ~ns "title" feed_elem)
 	and feed_link =
@@ -51,12 +51,10 @@ let generate feed =
 			let opt k = function Some v -> [ k, v ] | None -> [] in
 			let attr = opt "term" cat.term @ opt "label" cat.label in
 			create ~ns "category" ~attr []
+		and gen_author name =
+			create ~ns "author" [ create_text ~ns "name" name ]
 		in
-		let author = match entry.author with
-			| Some author	->
-				[ create ~ns "author" [ create_text ~ns "name" author ] ]
-			| None			-> []
-		and content = match entry.content with
+		let content = match entry.content with
 			| Some content	->
 				[ create_text ~ns "content" ~attr:[ "type", "html" ] content ]
 			| None			-> []
@@ -65,8 +63,10 @@ let generate feed =
 				[ create_text ~ns "summary" ~attr:[ "type", "html" ] sum ]
 			| None			-> []
 		in
-		create ~ns "entry" (
-			author @ summary @ content
+		create ~ns "entry" ([]
+			@ List.map gen_author entry.authors
+			@ summary
+			@ content
 			@ create_text ~ns "title" entry.title
 			:: create_text ~ns "id" entry.id
 			:: create ~ns "link" ~attr:[ "href", entry.link ] []

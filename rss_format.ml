@@ -3,10 +3,6 @@ open Feed
 
 let parse rss_elem =
 	let dc_ns = namespace "http://purl.org/dc/elements/1.1/" in
-	let child_text_opt ?ns tag node =
-		try Some (text (child ?ns tag node))
-		with _ -> None
-	in
 	let parse_item item =
 		let date =
 			Int64.of_float @@
@@ -15,14 +11,17 @@ let parse rss_elem =
 			let parse_category cat =
 				{ term = None; label = Some (text cat) } in
 			List.map parse_category (children "category" item)
+		and authors =
+			List.map text (children ~ns:dc_ns "creator" item)
+		and content =
+			try Some (text (child "description" item))
+			with _ -> None
 		in
 		{	id = text (child "guid" item);
 			title = text (child "title" item);
 			link = text (child "link" item);
-			author = child_text_opt ~ns:dc_ns "creator" item;
 			summary = None;
-			content = child_text_opt "description" item;
-			date; categories }
+			content; authors; date; categories }
 	in
 	let channel = child "channel" rss_elem in
 	let entries =

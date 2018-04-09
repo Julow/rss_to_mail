@@ -134,13 +134,13 @@ let update_entry feed_url feed options entry =
 			| Some link		->
 				"<a href=\"" ^ link ^ "\">" ^ feed.feed_title ^ "</a>"
 			| None			-> feed.feed_title
-		and author =
-			match entry.author with
-			| Some author	-> " by " ^ author
-			| None			-> ""
+		and authors =
+			if entry.authors = []
+			then ""
+			else " by " ^ String.concat ", " entry.authors
 		in
 		"Via " ^ title ^ categories ^ "<br/>"
-		^ "on " ^ entry_date_string entry ^ author ^ "<br/>"
+		^ "on " ^ entry_date_string entry ^ authors ^ "<br/>"
 		^ "<a href=\"" ^ entry.link ^ "\">" ^ entry.title ^ "</a>"
 	in
 	let content =
