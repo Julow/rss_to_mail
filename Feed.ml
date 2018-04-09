@@ -10,7 +10,8 @@ type entry = {
 	title		: string;
 	author		: string option;
 	categories	: category list;
-	content		: string;
+	summary		: string option;
+	content		: string option;
 	link		: string;
 	date		: Int64.t
 }

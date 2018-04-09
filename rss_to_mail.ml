@@ -122,7 +122,7 @@ let rec cut_entries i since entries =
 
 let update_entry feed_url feed options entry =
 	let open Feed in
-	let content =
+	let summary =
 		let categories =
 			let labels = List.map (function
 				| { label = Some l; _ }	-> l
@@ -141,10 +141,16 @@ let update_entry feed_url feed options entry =
 		in
 		"Via " ^ title ^ categories ^ "<br/>"
 		^ "on " ^ entry_date_string entry ^ author ^ "<br/>"
-		^ "<a href=\"" ^ entry.link ^ "\">" ^ entry.title ^ "</a>\n"
-		^ "\n" ^ entry.content
-	and id = feed_url ^ entry.id in
-	{ entry with id; content }
+		^ "<a href=\"" ^ entry.link ^ "\">" ^ entry.title ^ "</a>"
+	in
+	let content =
+		match entry.content, entry.summary with
+		| Some c, _
+		| None, Some c	-> Some (summary ^ "<br/><br/>" ^ c)
+		| _				-> None
+	in
+	let id = feed_url ^ entry.id in
+	{ entry with id; summary = Some summary; content }
 
 let parse_feed contents =
 	let open Xml_utils in

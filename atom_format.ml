@@ -18,12 +18,17 @@ let parse feed_elem =
 				{ label; term }
 			in
 			children ~ns "category" entry |> List.map parse_category
+		and content =
+			try Some (text (child ~ns "content" entry))
+			with _ -> None
+		and summary =
+			try Some (text (child ~ns "summary" entry))
+			with _ -> None
 		in
 		{	id = text (child ~ns "id" entry);
 			title = text (child ~ns "title" entry);
-			content = text (child ~ns "content" entry);
 			link = attribute "href" (child ~ns "link" entry);
-			author; date; categories }
+			summary; content; author; date; categories }
 	in
 	let feed_title = text (child ~ns "title" feed_elem)
 	and feed_link =
@@ -51,11 +56,18 @@ let generate feed =
 			| Some author	->
 				[ create ~ns "author" [ create_text ~ns "name" author ] ]
 			| None			-> []
+		and content = match entry.content with
+			| Some content	->
+				[ create_text ~ns "content" ~attr:[ "type", "html" ] content ]
+			| None			-> []
+		and summary = match entry.summary with
+			| Some sum		->
+				[ create_text ~ns "summary" ~attr:[ "type", "html" ] sum ]
+			| None			-> []
 		in
 		create ~ns "entry" (
-			author
+			author @ summary @ content
 			@ create_text ~ns "title" entry.title
-			:: create_text ~ns "content" ~attr:[ "type", "html" ] entry.content
 			:: create_text ~ns "id" entry.id
 			:: create ~ns "link" ~attr:[ "href", entry.link ] []
 			:: create_text ~ns "updated" (entry_date_string entry)
