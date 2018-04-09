@@ -110,23 +110,26 @@ let load_spreadsheet () =
 			[])
 		Feed_spreadsheet.read
 
-let sort_entries = List.sort (fun a b -> Int64.compare b.Feed.date a.date)
+let sort_entries entries =
+	let entries = Array.copy entries in
+	Array.sort (fun a b -> Int64.compare b.Feed.date a.date) entries;
+	entries
 
-let rec cut_entries since =
-	function
-	| entry :: _ as entries when entry.Feed.date <= since -> entries
-	| _ :: tl	-> cut_entries since tl
-	| []		-> []
+let rec cut_entries i since entries =
+	if i < Array.length entries && entries.(i).Feed.date > since
+	then cut_entries (i + 1) since entries
+	else Array.sub entries 0 i
 
 let update_entry feed_url feed options entry =
 	let open Feed in
 	let content =
 		let categories =
-			let labels = List.map (fun c -> c.label) entry.categories in
-			if labels = [] then ""
-			else " (" ^ String.concat ", " labels ^ ")"
-		in
-		let title =
+			let labels = List.map (function
+				| { label = Some l; _ }	-> l
+				| { term = Some t; _ }	-> t
+				| _ -> "") entry.categories in
+			if labels = [] then "" else " (" ^ String.concat ", " labels ^ ")"
+		and title =
 			match feed.feed_link with
 			| Some link		->
 				"<a href=\"" ^ link ^ "\">" ^ feed.feed_title ^ "</a>"
@@ -162,15 +165,15 @@ let doGet () =
 			begin try
 				let feed = parse_feed contents in
 				sort_entries feed.entries
-				|> cut_entries (Int64.(sub (of_float Js.date##now) oldest_entry))
-				|> List.map (update_entry url feed options)
+				|> cut_entries 0 (Int64.(sub (of_float Js.date##now) oldest_entry))
+				|> Array.map (update_entry url feed options)
 			with Failure err ->
 				Logger.log (Printf.sprintf "Parsing failed for %s: %s" url err);
-				[]
+				[||]
 			end
 		| `Error code	->
 			Logger.log (Printf.sprintf "Fetch error for %s: %d" url code);
-			[]
+			[||]
 	in
 	let entries =
 		load_spreadsheet ()
@@ -178,7 +181,7 @@ let doGet () =
 			let cache_time = options.Feed_options.cache *. cache_base_time in
 			( url, cache_time, process url options ))
 		|> cached_fetch_all
-		|> List.concat
+		|> Array.concat
 		|> sort_entries
 	in
 	let output = Xml_utils.node @@ Atom_format.generate {

@@ -13,8 +13,9 @@ let parse feed_elem =
 			with _ -> None
 		and categories =
 			let parse_category cat =
-				let term = try Some (attribute "term" cat) with _ -> None in
-				{ label = attribute "label" cat; term }
+				let term = try Some (attribute "term" cat) with _ -> None
+				and label = try Some (attribute "label" cat) with _ -> None in
+				{ label; term }
 			in
 			children ~ns "category" entry |> List.map parse_category
 		in
@@ -33,17 +34,18 @@ let parse feed_elem =
 			List.find alternate (children ~ns "link" feed_elem)
 			|> fun link -> Some (attribute "href" link)
 		with _ -> None
-	and entries = List.map parse_entry (children ~ns "entry" feed_elem) in
+	and entries =
+		Array.of_list (children ~ns "entry" feed_elem)
+		|> Array.map parse_entry
+	in
 	{ feed_title; feed_link; entries }
 
 let generate feed =
 	let gen_entry entry =
 		let gen_category cat =
-			let term = match cat.term with
-				| Some t	-> [ "term", t ]
-				| None		-> []
-			in
-			create ~ns "category" ~attr:(("label", cat.label) :: term) []
+			let opt k = function Some v -> [ k, v ] | None -> [] in
+			let attr = opt "term" cat.term @ opt "label" cat.label in
+			create ~ns "category" ~attr []
 		in
 		let author = match entry.author with
 			| Some author	->
@@ -66,4 +68,4 @@ let generate feed =
 	create ~ns "feed" (
 		[ create_text ~ns "title" feed.feed_title ] @
 		link @
-		List.map gen_entry feed.entries)
+		List.map gen_entry (Array.to_list feed.entries))

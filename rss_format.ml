@@ -9,7 +9,7 @@ let parse rss_elem =
 			Js.date##parse (node (child "pubDate" item))##getText
 		and categories =
 			let parse_category cat =
-				{ term = None; label = text cat } in
+				{ term = None; label = Some (text cat) } in
 			List.map parse_category (children "category" item)
 		and author =
 			try Some (text (child ~ns:dc_ns "creator" item))
@@ -22,6 +22,10 @@ let parse rss_elem =
 			author; date; categories }
 	in
 	let channel = child "channel" rss_elem in
+	let entries =
+		Array.of_list (children "item" channel)
+		|> Array.map parse_item
+	in
 	{	feed_title = text (child "title" channel);
 		feed_link = (try Some (text (child "link" channel)) with _ -> None);
-		entries = List.map parse_item (children "item" channel) }
+		entries }

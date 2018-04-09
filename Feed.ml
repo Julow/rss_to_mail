@@ -1,7 +1,7 @@
 open Script_API
 
 type category = {
-	label		: string;
+	label		: string option;
 	term		: string option
 }
 
@@ -18,7 +18,7 @@ type entry = {
 type t = {
 	feed_title	: string;
 	feed_link	: string option;
-	entries		: entry list
+	entries		: entry array
 }
 
 let entry_date_string t =
