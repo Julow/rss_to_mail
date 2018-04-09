@@ -1,0 +1,15 @@
+(jbuild_version 1)
+
+(executables
+ ((names (rss_to_mail))
+  (js_of_ocaml
+   ((flags (--wrap-with-fun --custom-header "var main ="))))
+  (preprocess (pps (js_of_ocaml-ppx)))))
+
+(rule
+ ((targets (rss_to_mail.gs))
+  (action (copy ${path:rss_to_mail.bc.js} ${@}))))
+
+(alias
+ ((name all)
+  (deps (rss_to_mail.gs main.gs))))
