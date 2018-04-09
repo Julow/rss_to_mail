@@ -12,7 +12,7 @@ type entry = {
 	categories	: category list;
 	summary		: string option;
 	content		: string option;
-	link		: string;
+	link		: string option;
 	date		: Int64.t
 }
 

@@ -123,25 +123,24 @@ let rec cut_entries i since entries =
 let update_entry feed_url feed options entry =
 	let open Feed in
 	let summary =
+		let opt_link title = function
+			| Some link	-> "<a href=\"" ^ link ^ "\">" ^ title ^ "</a>"
+			| None		-> title
+		in
 		let categories =
 			let labels = List.map (function
 				| { label = Some l; _ }	-> l
 				| { term = Some t; _ }	-> t
 				| _ -> "") entry.categories in
 			if labels = [] then "" else " (" ^ String.concat ", " labels ^ ")"
-		and title =
-			match feed.feed_link with
-			| Some link		->
-				"<a href=\"" ^ link ^ "\">" ^ feed.feed_title ^ "</a>"
-			| None			-> feed.feed_title
 		and authors =
 			if entry.authors = []
 			then ""
 			else " by " ^ String.concat ", " entry.authors
 		in
-		"Via " ^ title ^ categories ^ "<br/>"
+		"Via " ^ opt_link feed.feed_title feed.feed_link ^ categories ^ "<br/>"
 		^ "on " ^ entry_date_string entry ^ authors ^ "<br/>"
-		^ "<a href=\"" ^ entry.link ^ "\">" ^ entry.title ^ "</a>"
+		^ opt_link entry.title entry.link
 	in
 	let content =
 		match entry.content, entry.summary with
