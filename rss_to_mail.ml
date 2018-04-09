@@ -128,11 +128,16 @@ let update_entry feed_url feed options entry =
 		in
 		let title =
 			match feed.feed_link with
-			| Some link	-> "<a href=\"" ^ link ^ "\">" ^ feed.feed_title ^ "</a>"
-			| None		-> feed.feed_title
+			| Some link		->
+				"<a href=\"" ^ link ^ "\">" ^ feed.feed_title ^ "</a>"
+			| None			-> feed.feed_title
+		and author =
+			match entry.author with
+			| Some author	-> " by " ^ author
+			| None			-> ""
 		in
 		"Via " ^ title ^ categories ^ "<br/>"
-		^ "on " ^ entry_date_string entry ^ " by " ^ entry.author ^ "<br/>"
+		^ "on " ^ entry_date_string entry ^ author ^ "<br/>"
 		^ "<a href=\"" ^ entry.link ^ "\">" ^ entry.title ^ "</a>\n"
 		^ "\n" ^ entry.content
 	and id = feed_url ^ entry.id in

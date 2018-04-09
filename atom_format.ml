@@ -8,6 +8,9 @@ let parse feed_elem =
 		let date =
 			Int64.of_float @@
 			Js.date##parse (node (child ~ns "updated" entry))##getText
+		and author =
+			try Some (text (child ~ns "name" (child ~ns "author" entry)))
+			with _ -> None
 		and categories =
 			let parse_category cat =
 				let term = try Some (attribute "term" cat) with _ -> None in
@@ -18,9 +21,8 @@ let parse feed_elem =
 		{	id = text (child ~ns "id" entry);
 			title = text (child ~ns "title" entry);
 			content = text (child ~ns "content" entry);
-			author = text (child ~ns "name" (child ~ns "author" entry));
 			link = attribute "href" (child ~ns "link" entry);
-			date; categories }
+			author; date; categories }
 	in
 	let feed_title = text (child ~ns "title" feed_elem)
 	and feed_link =
@@ -43,9 +45,14 @@ let generate feed =
 			in
 			create ~ns "category" ~attr:(("label", cat.label) :: term) []
 		in
+		let author = match entry.author with
+			| Some author	->
+				[ create ~ns "author" [ create_text ~ns "name" author ] ]
+			| None			-> []
+		in
 		create ~ns "entry" (
-			create ~ns "author" [ create_text ~ns "name" entry.author ]
-			:: create_text ~ns "title" entry.title
+			author
+			@ create_text ~ns "title" entry.title
 			:: create_text ~ns "content" ~attr:[ "type", "html" ] entry.content
 			:: create_text ~ns "id" entry.id
 			:: create ~ns "link" ~attr:[ "href", entry.link ] []

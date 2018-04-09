@@ -11,13 +11,15 @@ let parse rss_elem =
 			let parse_category cat =
 				{ term = None; label = text cat } in
 			List.map parse_category (children "category" item)
+		and author =
+			try Some (text (child ~ns:dc_ns "creator" item))
+			with _ -> None
 		in
 		{	id = text (child "guid" item);
 			title = text (child "title" item);
 			content = text (child "description" item);
 			link = text (child "link" item);
-			author = text (child ~ns:dc_ns "creator" item);
-			date; categories }
+			author; date; categories }
 	in
 	let channel = child "channel" rss_elem in
 	{	feed_title = text (child "title" channel);

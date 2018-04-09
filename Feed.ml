@@ -8,7 +8,7 @@ type category = {
 type entry = {
 	id			: string;
 	title		: string;
-	author		: string;
+	author		: string option;
 	categories	: category list;
 	content		: string;
 	link		: string;
