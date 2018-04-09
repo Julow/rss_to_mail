@@ -149,7 +149,10 @@ let update_entry feed_url feed options entry =
 		| None, Some c	-> Some (summary ^ "<br/><br/>" ^ c)
 		| _				-> None
 	in
-	let id = feed_url ^ entry.id in
+	let id = match entry.id with
+		| Some id	-> Some (feed_url ^ id)
+		| None		-> Some (feed_url ^ entry.title)
+	in
 	{ entry with id; summary = Some summary; content }
 
 let parse_feed contents =

@@ -5,6 +5,10 @@ let ns = namespace "http://www.w3.org/2005/Atom"
 
 let parse feed_elem =
 	let parse_entry entry =
+		let child_text_opt tag =
+			try Some (text (child ~ns tag entry))
+			with _ -> None
+		in
 		let date =
 			Int64.of_float @@
 			Js.date##parse (node (child ~ns "updated" entry))##getText
@@ -13,22 +17,17 @@ let parse feed_elem =
 			children ~ns "author" entry
 		and categories =
 			let parse_category cat =
-				let term = try Some (attribute "term" cat) with _ -> None
-				and label = try Some (attribute "label" cat) with _ -> None in
-				{ label; term }
+				let attr_opt k = try Some (attribute k cat) with _ -> None in
+				{ term = attr_opt "term"; label = attr_opt "label" }
 			in
 			children ~ns "category" entry |> List.map parse_category
-		and content =
-			try Some (text (child ~ns "content" entry))
-			with _ -> None
-		and summary =
-			try Some (text (child ~ns "summary" entry))
-			with _ -> None
 		in
-		{	id = text (child ~ns "id" entry);
+		{	id = child_text_opt "id";
 			title = text (child ~ns "title" entry);
 			link = attribute "href" (child ~ns "link" entry);
-			summary; content; authors; date; categories }
+			summary = child_text_opt "summary";
+			content = child_text_opt "content";
+			authors; date; categories }
 	in
 	let feed_title = text (child ~ns "title" feed_elem)
 	and feed_link =
@@ -62,13 +61,16 @@ let generate feed =
 			| Some sum		->
 				[ create_text ~ns "summary" ~attr:[ "type", "html" ] sum ]
 			| None			-> []
+		and id = match entry.id with
+			| Some id		-> [ create_text ~ns "id" id ]
+			| None			-> []
 		in
 		create ~ns "entry" ([]
 			@ List.map gen_author entry.authors
 			@ summary
 			@ content
+			@ id
 			@ create_text ~ns "title" entry.title
-			:: create_text ~ns "id" entry.id
 			:: create ~ns "link" ~attr:[ "href", entry.link ] []
 			:: create_text ~ns "updated" (entry_date_string entry)
 			:: List.map gen_category entry.categories)

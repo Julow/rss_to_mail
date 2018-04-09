@@ -16,12 +16,14 @@ let parse rss_elem =
 		and content =
 			try Some (text (child "description" item))
 			with _ -> None
+		and id =
+			try Some (text (child "guid" item))
+			with _ -> None
 		in
-		{	id = text (child "guid" item);
-			title = text (child "title" item);
+		{	title = text (child "title" item);
 			link = text (child "link" item);
 			summary = None;
-			content; authors; date; categories }
+			id; content; authors; date; categories }
 	in
 	let channel = child "channel" rss_elem in
 	let entries =

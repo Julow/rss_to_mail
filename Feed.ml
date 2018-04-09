@@ -6,7 +6,7 @@ type category = {
 }
 
 type entry = {
-	id			: string;
+	id			: string option;
 	title		: string;
 	authors		: string list;
 	categories	: category list;
