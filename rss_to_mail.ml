@@ -57,43 +57,45 @@ end
 
 let cached_fetch_all reqs =
 	let cache = CacheService.t##getScriptCache in
-	let requests = new%js Js.array_empty
-	and callbacks = new%js Js.array_empty in
-	let fetch url cache_timeout callback =
-		let callback res =
-			let res =
-				let code = res##getResponseCode in
-				if code <> 200
-				then `Fetch_error code
-				else `Success res##getContentText
-			in
-			begin
-				try cache##put url (Js._JSON##stringify res) cache_timeout
-				with Js.Error e ->
-					let e = Js.to_string e##.message
-					and url = Js.to_string url in
-					Logger.log ("Cannot cache " ^ url ^ ": " ^ e)
-					| _ -> Logger.log "WTF, cache not Js.Error"
-			end;
-			callback res
-		in
-		ignore (requests##push (object%js
+	let cache_put url res cache_time =
+		let cache_time = int_of_float cache_time in
+		try
+			cache##put url (Js._JSON##stringify res) cache_time
+		with Js.Error e ->
+			let e = Js.to_string e##.message in
+			Logger.log ("Cannot cache " ^ Js.to_string url ^ ": " ^ e)
+	in
+	let reqs = Array.of_list reqs in
+	let urls = Array.map (fun (url, _, _) -> Js.string url) reqs in
+	let cached = cache##getAll (Js.array urls) in
+	let cached = Array.map (fun url ->
+			Js.Optdef.to_option (Jstable.find cached url)
+		) urls in
+	let requests = new%js Js.array_empty in
+	Array.iteri (fun index url ->
+		if cached.(index) = None
+		then ignore (requests##push (object%js
 				val url = url
 				val muteHttpExceptions = Js._true
-			end));
-		ignore (callbacks##push callback)
+			end))) urls;
+	let results = Js.to_array (UrlFetchApp.t##fetchAll requests) in
+	let rec loop index req_index =
+		if index >= Array.length cached then []
+		else match cached.(index) with
+			| Some cached	->
+				(Js._JSON##parse cached) :: loop (index + 1) req_index
+			| None			->
+				let _, cache_time, process = reqs.(index) in
+				let res =
+					let res = results.(req_index) in
+					if res##getResponseCode <> 200
+					then process (`Error res##getResponseCode)
+					else process (`Ok res##getContentText)
+				in
+				cache_put urls.(index) res cache_time;
+				res :: loop (index + 1) (req_index + 1)
 	in
-	List.iter (fun (url, cache_timeout, callback) ->
-		let url = Js.string url
-		and cache_timeout = int_of_float cache_timeout in
-		Js.Opt.case (cache##get url)
-			(fun () -> fetch url cache_timeout callback)
-			(fun data -> callback (Js._JSON##parse data))
-	) reqs;
-	if requests##.length > 0 then
-		let results = UrlFetchApp.t##fetchAll requests in
-		Array.iter2 (fun f res -> f res)
-			(Js.to_array callbacks) (Js.to_array results)
+	loop 0 0
 
 let cache_base_time = 60. *. 30.
 let oldest_entry = Int64.of_int (7 * 24 * 3600000)
@@ -150,29 +152,34 @@ let parse_feed contents =
 	| Attribute_not_found attr	-> failwith ("Missing attribute " ^ attr)
 
 let doGet () =
-	let entries = ref [] in
 	let process url options = function
-		| `Fetch_error code	->
-			Logger.log (Printf.sprintf "Fetch error for %s: %d" url code)
-		| `Success contents	->
-			try
+		| `Ok contents	->
+			begin try
 				let feed = parse_feed contents in
 				sort_entries feed.entries
 				|> cut_entries (Int64.(sub (of_float Js.date##now) oldest_entry))
 				|> List.map (update_entry url feed options)
-				|> fun e -> entries := e @ !entries
 			with Failure err ->
-				Logger.log (Printf.sprintf "Parsing failed for %s: %s" url err)
+				Logger.log (Printf.sprintf "Parsing failed for %s: %s" url err);
+				[]
+			end
+		| `Error code	->
+			Logger.log (Printf.sprintf "Fetch error for %s: %d" url code);
+			[]
 	in
-	load_spreadsheet ()
-	|> List.map (fun (url, options) ->
-		let cache = options.Feed_options.cache *. cache_base_time in
-		( url, cache, process url options ))
-	|> cached_fetch_all;
+	let entries =
+		load_spreadsheet ()
+		|> List.map (fun (url, options) ->
+			let cache_time = options.Feed_options.cache *. cache_base_time in
+			( url, cache_time, process url options ))
+		|> cached_fetch_all
+		|> List.concat
+		|> sort_entries
+	in
 	let output = Xml_utils.node @@ Atom_format.generate {
 			feed_title = "Feed aggregator";
 			feed_link = None;
-			entries = sort_entries !entries
+			entries
 		} in
 	let output = XmlService.t##getPrettyFormat##format_element output in
 	ContentService.t##(createTextOutput output)
