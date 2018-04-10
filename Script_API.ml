@@ -168,16 +168,20 @@ struct
 
 end
 
-module Logger =
+module Console =
 struct
 
 	class type t =
 	object
-		method log : Js.js_string Js.t -> unit Js.meth
+		method info : Js.js_string Js.t -> unit Js.meth
+		method error : Js.js_string Js.t -> unit Js.meth
+		method time : Js.js_string Js.t -> unit Js.meth
+		method timeEnd : Js.js_string Js.t -> unit Js.meth
 	end
 
-	let t : t Js.t = Js.Unsafe.js_expr "Logger"
+	let t : t Js.t = Js.Unsafe.js_expr "console"
 
-	let log s = t##log (Js.string s)
+	let info fmt = Printf.ksprintf (fun s -> t##info (Js.string s)) fmt
+	let error fmt = Printf.ksprintf (fun s -> t##error (Js.string s)) fmt
 
 end

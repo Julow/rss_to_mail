@@ -29,15 +29,15 @@ struct
 		let sheet = Js.Optdef.get sheet (fun () -> failwith "Empty spreadsheet") in
 		let last_row = sheet##getLastRow in
 		let process_row row =
-			let parse_options data =
-				try Feed_options.of_obj (Js._JSON##parse data)
+			let parse_options url options_data =
+				try Feed_options.of_obj (Js._JSON##parse options_data##toString)
 				with _ ->
-					Logger.log ("Malformed options: " ^ Js.to_string data);
+					Console.error "Malformed options: %s" (Js.to_string url##toString);
 					Feed_options.default
 			in
 			match Js.to_array row with
 			| [| url; options_data |] ->
-				( Js.to_string url##toString, parse_options options_data##toString )
+				(Js.to_string url##toString, parse_options url options_data)
 			| _ -> assert false
 		in
 		if last_row <= 1
@@ -62,8 +62,8 @@ let cached_fetch_all reqs =
 		try
 			cache##put url (Json.output res) cache_time
 		with Js.Error e ->
-			let e = Js.to_string e##.message in
-			Logger.log ("Cannot cache " ^ Js.to_string url ^ ": " ^ e)
+			let msg = Js.to_string e##.message and url = Js.to_string url in
+			Console.error "Cache put failed: %s: %s" msg url
 	in
 	let reqs = Array.of_list reqs in
 	let urls = Array.map (fun (url, _, _) -> Js.string url) reqs in
@@ -169,21 +169,28 @@ let parse_feed contents =
 	| Attribute_not_found attr	-> failwith ("Missing attribute " ^ attr)
 
 let doGet () =
+	let process_feed url options feed =
+		sort_entries feed.Feed.entries
+		|> cut_entries 0 (Int64.(sub (of_float Js.date##now) oldest_entry))
+		|> Array.map (update_entry url feed options)
+	in
 	let process url options = function
 		| `Ok contents	->
 			begin try
 				let feed = parse_feed contents in
-				sort_entries feed.entries
-				|> cut_entries 0 (Int64.(sub (of_float Js.date##now) oldest_entry))
-				|> Array.map (update_entry url feed options)
+				let entries = process_feed url options feed in
+				Console.info "Fetched %d entries (processed %d) from %s"
+					(Array.length feed.entries) (Array.length entries) url;
+				entries
 			with Failure err ->
-				Logger.log (Printf.sprintf "Parsing failed for %s: %s" url err);
+				Console.error "Parsing error: %s: %s" err url;
 				[||]
 			end
 		| `Error code	->
-			Logger.log (Printf.sprintf "Fetch error for %s: %d" url code);
+			Console.error "Fetch error: %d: %s" code url;
 			[||]
 	in
+	Console.t##time (Js.string "all");
 	let entries =
 		load_spreadsheet ()
 		|> List.map (fun (url, options) ->
@@ -198,6 +205,7 @@ let doGet () =
 			feed_link = None;
 			entries
 		} in
+	Console.t##timeEnd (Js.string "all");
 	let output = XmlService.t##getPrettyFormat##format_element output in
 	ContentService.t##(createTextOutput output)
 		##setMimeType ContentService.MimeType._ATOM
