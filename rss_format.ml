@@ -27,6 +27,7 @@ let parse rss_elem =
 			id = child_text_opt "guid";
 			summary = child_text_opt "description";
 			content = child_text_opt ~ns:content_ns "encoded";
+			thumbnail = None;
 			authors; date; categories }
 	in
 	let channel = child "channel" rss_elem in

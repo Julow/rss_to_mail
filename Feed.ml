@@ -18,6 +18,7 @@ type entry = {
 	summary		: string option;
 	content		: string option;
 	link		: string option;
+	thumbnail	: string option;
 	date		: Int64.t
 }
 

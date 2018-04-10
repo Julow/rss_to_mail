@@ -2,11 +2,12 @@ open Xml_utils
 open Feed
 
 let ns = namespace "http://www.w3.org/2005/Atom"
+let media_ns = namespace "http://search.yahoo.com/mrss/"
 
 let parse feed_elem =
 	let parse_entry entry =
-		let child_text_opt tag node =
-			try Some (text (child ~ns tag node))
+		let child_opt ?(ns=ns) map tag node =
+			try Some (map (child ~ns tag node))
 			with _ -> None
 		in
 		let date =
@@ -15,7 +16,7 @@ let parse feed_elem =
 		and authors =
 			let parse_author author =
 				{	author_name = text (child ~ns "name" author);
-					author_link = child_text_opt "uri" author }
+					author_link = child_opt text "uri" author }
 			in
 			List.map parse_author @@ children ~ns "author" entry
 		and categories =
@@ -24,15 +25,15 @@ let parse feed_elem =
 				{ term = attr_opt "term"; label = attr_opt "label" }
 			in
 			List.map parse_category @@ children ~ns "category" entry
-		and link =
-			try Some (attribute "href" (child ~ns "link" entry))
-			with _ -> None
+		and thumbnail =
+			child_opt (attribute "url") ~ns:media_ns "thumbnail" entry
 		in
-		{	id = child_text_opt "id" entry;
+		{	id = child_opt text "id" entry;
 			title = text (child ~ns "title" entry);
-			summary = child_text_opt "summary" entry;
-			content = child_text_opt "content" entry;
-			link; authors; date; categories }
+			summary = child_opt text "summary" entry;
+			content = child_opt text "content" entry;
+			link = child_opt (attribute "href") "link" entry;
+			thumbnail; authors; date; categories }
 	in
 	let feed_title = text (child ~ns "title" feed_elem)
 	and feed_link =
@@ -76,6 +77,10 @@ let generate feed =
 		and link = match entry.link with
 			| Some link		-> [ create ~ns "link" ~attr:[ "href", link ] [] ]
 			| None			-> []
+		and thumbnail = match entry.thumbnail with
+			| Some url		->
+				[ create ~ns:media_ns "thumbnail" ~attr:[ "url", url ] [] ]
+			| None			-> []
 		in
 		create ~ns "entry" ([]
 			@ List.map gen_author entry.authors
@@ -83,6 +88,7 @@ let generate feed =
 			@ content
 			@ id
 			@ link
+			@ thumbnail
 			@ create_text ~ns "title" entry.title
 			:: create_text ~ns "updated" (entry_date_string entry)
 			:: List.map gen_category entry.categories)
