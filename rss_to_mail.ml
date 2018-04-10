@@ -37,7 +37,7 @@ struct
 			let parse_options url options_data =
 				try Feed_options.of_obj (Js._JSON##parse options_data##toString)
 				with _ ->
-					Console.error "Malformed options: %s" (Js.to_string url##toString);
+					Console.error ("Malformed options: " ^ Js.to_string url##toString);
 					Feed_options.default ()
 			in
 			match Js.to_array row with
@@ -68,7 +68,7 @@ let cached_fetch_all reqs =
 			cache##put url (Json.output res) cache_time
 		with Js.Error e ->
 			let msg = Js.to_string e##.message and url = Js.to_string url in
-			Console.error "Cache put failed: %s: %s" msg url
+			Console.error ("Cache put failed: " ^ msg ^ ": " ^ url)
 	in
 	let reqs = Array.of_list reqs in
 	let urls = Array.map (fun (url, _, _) -> Js.string url) reqs in
@@ -188,15 +188,16 @@ let doGet () =
 			begin try
 				let feed = parse_feed contents in
 				let entries = process_feed url options feed in
-				Console.info "Fetched %d entries (processed %d) from %s"
-					(Array.length feed.entries) (Array.length entries) url;
+				Console.info ("Fetched " ^ string_of_int (Array.length feed.entries)
+					^ " entries (processed " ^ string_of_int (Array.length entries)
+					^ ") from " ^ url);
 				entries
 			with Failure err ->
-				Console.error "Parsing error: %s: %s" err url;
+				Console.error ("Parsing error: " ^ err ^ ": " ^ url);
 				[||]
 			end
 		| `Error code	->
-			Console.error "Fetch error: %d: %s" code url;
+			Console.error ("Fetch error: " ^ string_of_int code ^ ": " ^ url);
 			[||]
 	in
 	Console.t##time (Js.string "all");

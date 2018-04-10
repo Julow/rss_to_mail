@@ -181,7 +181,7 @@ struct
 
 	let t : t Js.t = Js.Unsafe.js_expr "console"
 
-	let info fmt = Printf.ksprintf (fun s -> t##info (Js.string s)) fmt
-	let error fmt = Printf.ksprintf (fun s -> t##error (Js.string s)) fmt
+	let info str = t##info (Js.string str)
+	let error str = t##info (Js.string str)
 
 end
