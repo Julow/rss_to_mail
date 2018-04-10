@@ -4,17 +4,22 @@ module Feed_options =
 struct
 
 	type t = {
-		cache	: float;
-		name	: string option
+		cache		: float;
+		name		: string option;
+		no_content	: bool
 	}
 
-	let default = { cache = 1.; name = None }
-
 	let of_obj obj =
-		let cache = Js.Optdef.get obj##.cache (fun () -> default.cache)
-		and name = Js.Optdef.case obj##.name (fun () -> default.name)
-			(fun name -> Some (Js.to_string name)) in
-		{ cache; name }
+		let prop name default map =
+			let v = Js.Unsafe.get obj (Js.string name) in
+			Js.Optdef.case v (fun () -> default) map
+		in
+		let some_string s = Some (Js.to_string s) in
+		{	cache		= prop "cache"		1.		Js.to_float;
+			name		= prop "name"		None	some_string;
+			no_content	= prop "no_content"	false	Js.to_bool }
+
+	let default () = of_obj (object%js end)
 
 end
 
@@ -33,7 +38,7 @@ struct
 				try Feed_options.of_obj (Js._JSON##parse options_data##toString)
 				with _ ->
 					Console.error "Malformed options: %s" (Js.to_string url##toString);
-					Feed_options.default
+					Feed_options.default ()
 			in
 			match Js.to_array row with
 			| [| url; options_data |] ->
@@ -138,22 +143,26 @@ let update_entry feed_url feed options entry =
 			let author a = opt_link a.author_name a.author_link in
 			if entry.authors = [] then ""
 			else " by " ^ String.concat ", " (List.map author entry.authors)
+		and summary =
+			match entry.summary with
+			| Some sum	-> "<br/>" ^ sum
+			| None		-> ""
 		in
 		"Via " ^ opt_link feed.feed_title feed.feed_link ^ categories ^ "<br/>"
 		^ "on " ^ entry_date_string entry ^ authors ^ "<br/>"
 		^ opt_link entry.title entry.link
+		^ summary
 	in
 	let content =
-		match entry.content, entry.summary with
-		| Some c, _
-		| None, Some c	-> Some (summary ^ "<br/><br/>" ^ c)
-		| _				-> None
+		match entry.content, options.Feed_options.no_content with
+		| Some c, false	-> Some (summary ^ "<br/><br/>" ^ c)
+		| _				-> Some summary
 	in
 	let id = match entry.id with
 		| Some id	-> Some (feed_url ^ id)
 		| None		-> Some (feed_url ^ entry.title)
 	in
-	{ entry with id; summary = Some summary; content }
+	{ entry with id; summary = None; content }
 
 let parse_feed contents =
 	let open Xml_utils in
