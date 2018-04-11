@@ -130,7 +130,7 @@ let rec cut_entries i since entries =
 
 let update_entry feed_url feed options entry =
 	let open Feed in
-	let summary =
+	let content =
 		let opt_link title = function
 			| Some link	-> "<a href=\"" ^ link ^ "\">" ^ title ^ "</a>"
 			| None		-> title
@@ -147,24 +147,39 @@ let update_entry feed_url feed options entry =
 			else " by " ^ String.concat ", " (List.map author entry.authors)
 		and summary =
 			match entry.summary with
-			| Some sum	-> "<br/>" ^ sum
+			| Some sum	-> "<p>" ^ sum ^ "</p>"
 			| None		-> ""
+		and feed_title =
+			let icon = match feed.feed_icon with
+				| Some url	->
+					"<img style=\"height:0.8em;\" src=\"" ^ url ^ "\" /> "
+				| None		-> ""
+			in
+			opt_link (icon ^ feed.feed_title) feed.feed_link
+		and entry_title =
+			let thumb = match entry.thumbnail with
+				| Some url	->
+					"<img style=\"display:block;max-width:25em;\" src=\""
+					^ url ^ "\" /> "
+				| None		-> ""
+			in
+			opt_link (entry.title ^ thumb) entry.link
+		and content =
+			match entry.content, options.Feed_options.no_content with
+			| Some c, false	-> c
+			| _				-> ""
 		in
-		"Via " ^ opt_link feed.feed_title feed.feed_link ^ categories ^ "<br/>"
-		^ "on " ^ entry_date_string entry ^ authors ^ "<br/>"
-		^ opt_link entry.title entry.link
+		"<p>Via " ^ feed_title ^ categories ^ "<br/>"
+		^ "on " ^ entry_date_string entry ^ authors ^ "</p>"
+		^ "<p>" ^ entry_title ^ "</p>"
 		^ summary
-	in
-	let content =
-		match entry.content, options.Feed_options.no_content with
-		| Some c, false	-> Some (summary ^ "<br/><br/>" ^ c)
-		| _				-> Some summary
+		^ content
 	in
 	let id = match entry.id with
 		| Some id	-> Some (feed_url ^ id)
 		| None		-> Some (feed_url ^ entry.title)
 	in
-	{ entry with id; summary = None; content }
+	{ entry with id; summary = None; content = Some content }
 
 let parse_feed contents =
 	let open Xml_utils in
