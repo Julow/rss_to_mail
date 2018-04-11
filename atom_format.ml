@@ -5,11 +5,11 @@ let ns = namespace "http://www.w3.org/2005/Atom"
 let media_ns = namespace "http://search.yahoo.com/mrss/"
 
 let parse feed_elem =
+	let child_opt ?(ns=ns) map tag node =
+		try Some (map (child ~ns tag node))
+		with _ -> None
+	in
 	let parse_entry entry =
-		let child_opt ?(ns=ns) map tag node =
-			try Some (map (child ~ns tag node))
-			with _ -> None
-		in
 		let date =
 			Int64.of_float @@
 			Js.date##parse (node (child ~ns "updated" entry))##getText
@@ -36,6 +36,7 @@ let parse feed_elem =
 			thumbnail; authors; date; categories }
 	in
 	let feed_title = text (child ~ns "title" feed_elem)
+	and feed_icon = child_opt text "icon" feed_elem
 	and feed_link =
 		try
 			let alternate link =
@@ -48,7 +49,7 @@ let parse feed_elem =
 		Array.of_list (children ~ns "entry" feed_elem)
 		|> Array.map parse_entry
 	in
-	{ feed_title; feed_link; entries }
+	{ feed_title; feed_link; feed_icon; entries }
 
 let generate feed =
 	let gen_entry entry =
@@ -96,8 +97,12 @@ let generate feed =
 	let link = match feed.feed_link with
 		| Some link	-> [ create ~ns "link" ~attr:[ "href", link ] [] ]
 		| None		-> []
+	and icon = match feed.feed_icon with
+		| Some icon	-> [ create_text ~ns "icon" icon ]
+		| None		-> []
 	in
 	create ~ns "feed" (
-		[ create_text ~ns "title" feed.feed_title ] @
-		link @
-		List.map gen_entry (Array.to_list feed.entries))
+		create_text ~ns "title" feed.feed_title
+		:: link
+		@ icon
+		@ List.map gen_entry (Array.to_list feed.entries))

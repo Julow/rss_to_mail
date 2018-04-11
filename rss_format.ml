@@ -34,7 +34,12 @@ let parse rss_elem =
 	let entries =
 		Array.of_list (children "item" channel)
 		|> Array.map parse_item
+	and feed_icon =
+		try Some (text (child "url" (child "image" channel)))
+		with _ -> None
+	and feed_link =
+		try Some (text (child "link" channel))
+		with _ -> None
 	in
 	{	feed_title = text (child "title" channel);
-		feed_link = (try Some (text (child "link" channel)) with _ -> None);
-		entries }
+		feed_link; feed_icon; entries }

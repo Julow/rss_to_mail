@@ -25,6 +25,7 @@ type entry = {
 type t = {
 	feed_title	: string;
 	feed_link	: string option;
+	feed_icon	: string option;
 	entries		: entry array
 }
 

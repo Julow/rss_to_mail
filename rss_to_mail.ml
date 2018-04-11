@@ -213,6 +213,7 @@ let doGet () =
 	let output = Xml_utils.node @@ Atom_format.generate {
 			feed_title = "Feed aggregator";
 			feed_link = None;
+			feed_icon = None;
 			entries
 		} in
 	Console.t##timeEnd (Js.string "all");
