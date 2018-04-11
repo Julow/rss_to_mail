@@ -60,7 +60,7 @@ struct
 
 end
 
-let cached_fetch_all reqs =
+let cached_fetch_all clear_cache reqs =
 	let cache = CacheService.t##getScriptCache in
 	let cache_put url res cache_time =
 		let cache_time = int_of_float cache_time in
@@ -72,22 +72,24 @@ let cached_fetch_all reqs =
 	in
 	let reqs = Array.of_list reqs in
 	let urls = Array.map (fun (url, _, _) -> Js.string url) reqs in
-	let cached = cache##getAll (Js.array urls) in
-	let cached = Array.map (fun url ->
-			Js.Optdef.to_option
-			(Js.Unsafe.get cached url : Js.js_string Js.t Js.optdef)
-		) urls in
+	let cached =
+		if clear_cache
+		then fun _ -> None
+		else
+			let cached = cache##getAll (Js.array urls) in
+			fun index -> Js.Optdef.to_option (Js.Unsafe.get cached urls.(index))
+	in
 	let requests = new%js Js.array_empty in
 	Array.iteri (fun index url ->
-		if cached.(index) = None
+		if cached index = None
 		then ignore (requests##push (object%js
 				val url = url
 				val muteHttpExceptions = Js._true
 			end))) urls;
 	let results = Js.to_array (UrlFetchApp.t##fetchAll requests) in
 	let rec loop index req_index =
-		if index >= Array.length cached then []
-		else match cached.(index) with
+		if index >= Array.length reqs then []
+		else match cached index with
 			| Some cached	->
 				(Json.unsafe_input cached) :: loop (index + 1) req_index
 			| None			->
@@ -177,7 +179,12 @@ let parse_feed contents =
 	| Child_not_found tag		-> failwith ("Missing tag " ^ tag)
 	| Attribute_not_found attr	-> failwith ("Missing attribute " ^ attr)
 
-let doGet () =
+class type params =
+object
+	method clear_cache_ : 'a. 'a Js.optdef Js.prop
+end
+
+let doGet (params : params Js.t) =
 	let process_feed url options feed =
 		sort_entries feed.Feed.entries
 		|> cut_entries 0 (Int64.(sub (of_float Js.date##now) oldest_entry))
@@ -201,12 +208,13 @@ let doGet () =
 			[||]
 	in
 	Console.t##time (Js.string "all");
+	let clear_cache = Js.Optdef.test params##.clear_cache_ in
 	let entries =
 		load_spreadsheet ()
 		|> List.map (fun (url, options) ->
 			let cache_time = options.Feed_options.cache *. cache_base_time in
-			( url, cache_time, process url options ))
-		|> cached_fetch_all
+			(url, cache_time, process url options))
+		|> cached_fetch_all clear_cache
 		|> Array.concat
 		|> sort_entries
 	in
@@ -223,5 +231,5 @@ let doGet () =
 
 let () = Js.export "rss_to_mail"
 	(object%js
-		method doGet = doGet ()
+		method doGet params = doGet params##.parameter
 	end)
