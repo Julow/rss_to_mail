@@ -12,7 +12,7 @@ let parse feed_elem =
 		and authors =
 			let parse_author author =
 				{	author_name = text (child ~ns "name" author);
-					author_link = child_opt text "uri" author }
+					author_link = child_opt text ~ns "uri" author }
 			in
 			List.map parse_author @@ children ~ns "author" entry
 		and categories =
@@ -24,15 +24,15 @@ let parse feed_elem =
 		and thumbnail =
 			child_opt (attribute "url") ~ns:media_ns "thumbnail" entry
 		in
-		{	id = child_opt text "id" entry;
+		{	id = child_opt text ~ns "id" entry;
 			title = text (child ~ns "title" entry);
-			summary = child_opt text "summary" entry;
-			content = child_opt (fun n -> (node n)##getText) "content" entry;
-			link = child_opt (attribute "href") "link" entry;
+			summary = child_opt text ~ns "summary" entry;
+			content = child_opt (fun n -> (node n)##getText) ~ns "content" entry;
+			link = child_opt (attribute "href") ~ns "link" entry;
 			thumbnail; authors; date; categories }
 	in
 	let feed_title = text (child ~ns "title" feed_elem)
-	and feed_icon = child_opt text "icon" feed_elem
+	and feed_icon = child_opt text ~ns "icon" feed_elem
 	and feed_link =
 		try
 			let alternate link =
