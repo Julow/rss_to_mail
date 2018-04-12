@@ -16,7 +16,7 @@ type entry = {
 	authors		: author list;
 	categories	: category list;
 	summary		: string option;
-	content		: string option;
+	content		: Js.js_string Js.t option;
 	link		: string option;
 	thumbnail	: string option;
 	date		: Int64.t

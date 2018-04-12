@@ -1,14 +1,12 @@
 open Xml_utils
 open Feed
 
+let ($) f g x = f (g x)
+
 let parse rss_elem =
 	let dc_ns = namespace "http://purl.org/dc/elements/1.1/"
 	and content_ns = namespace "http://purl.org/rss/1.0/modules/content/" in
 	let parse_item item =
-		let child_text_opt ?ns tag =
-			try Some (text (child ?ns tag item))
-			with _ -> None
-		in
 		let date =
 			Int64.of_float @@
 			Js.date##parse (node (child "pubDate" item))##getText
@@ -22,11 +20,12 @@ let parse rss_elem =
 			in
 			List.map author (children ~ns:dc_ns "creator" item)
 		in
+		let raw_text n = (node n)##getText in
 		{	title = text (child "title" item);
-			link = child_text_opt "link";
-			id = child_text_opt "guid";
-			summary = child_text_opt "description";
-			content = child_text_opt ~ns:content_ns "encoded";
+			link = child_opt text "link" item;
+			id = child_opt text "guid" item;
+			summary = child_opt text "description" item;
+			content = child_opt raw_text ~ns:content_ns "encoded" item;
 			thumbnail = None;
 			authors; date; categories }
 	in
@@ -34,12 +33,8 @@ let parse rss_elem =
 	let entries =
 		Array.of_list (children "item" channel)
 		|> Array.map parse_item
-	and feed_icon =
-		try Some (text (child "url" (child "image" channel)))
-		with _ -> None
-	and feed_link =
-		try Some (text (child "link" channel))
-		with _ -> None
 	in
 	{	feed_title = text (child "title" channel);
-		feed_link; feed_icon; entries }
+		feed_link = child_opt text "link" channel;
+		feed_icon = child_opt (text $ child "url") "image" channel;
+		entries }

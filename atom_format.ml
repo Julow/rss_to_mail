@@ -5,10 +5,6 @@ let ns = namespace "http://www.w3.org/2005/Atom"
 let media_ns = namespace "http://search.yahoo.com/mrss/"
 
 let parse feed_elem =
-	let child_opt ?(ns=ns) map tag node =
-		try Some (map (child ~ns tag node))
-		with _ -> None
-	in
 	let parse_entry entry =
 		let date =
 			Int64.of_float @@
@@ -31,7 +27,7 @@ let parse feed_elem =
 		{	id = child_opt text "id" entry;
 			title = text (child ~ns "title" entry);
 			summary = child_opt text "summary" entry;
-			content = child_opt text "content" entry;
+			content = child_opt (fun n -> (node n)##getText) "content" entry;
 			link = child_opt (attribute "href") "link" entry;
 			thumbnail; authors; date; categories }
 	in
@@ -64,32 +60,19 @@ let generate feed =
 			and name = create_text ~ns "name" author_name in
 			create ~ns "author" (name :: uri)
 		in
-		let content = match entry.content with
-			| Some content	->
-				[ create_text ~ns "content" ~attr:[ "type", "html" ] content ]
-			| None			-> []
-		and summary = match entry.summary with
-			| Some sum		->
-				[ create_text ~ns "summary" ~attr:[ "type", "html" ] sum ]
-			| None			-> []
-		and id = match entry.id with
-			| Some id		-> [ create_text ~ns "id" id ]
-			| None			-> []
-		and link = match entry.link with
-			| Some link		-> [ create ~ns "link" ~attr:[ "href", link ] [] ]
-			| None			-> []
-		and thumbnail = match entry.thumbnail with
-			| Some url		->
-				[ create ~ns:media_ns "thumbnail" ~attr:[ "url", url ] [] ]
-			| None			-> []
-		in
+		(** option map to_list *)
+		let m t f = match t with Some v -> [ f v ] | None -> [] in
 		create ~ns "entry" ([]
 			@ List.map gen_author entry.authors
-			@ summary
-			@ content
-			@ id
-			@ link
-			@ thumbnail
+			@ m entry.summary
+				(create_text ~ns "summary" ~attr:[ "type", "html" ])
+			@ m entry.content
+				(create_raw_text ~ns "content" ~attr:[ "type", "html" ])
+			@ m entry.id (create_text ~ns "id")
+			@ m entry.link (fun link ->
+				create ~ns "link" ~attr:[ "href", link ] [])
+			@ m entry.thumbnail (fun url ->
+				create ~ns:media_ns "thumbnail" ~attr:[ "url", url ] [])
 			@ create_text ~ns "title" entry.title
 			:: create_text ~ns "updated" (entry_date_string entry)
 			:: List.map gen_category entry.categories)

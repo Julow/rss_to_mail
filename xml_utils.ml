@@ -15,6 +15,10 @@ let child ?ns tag node =
 	in
 	Js.Opt.get child (fun () -> raise (Child_not_found tag))
 
+let child_opt map ?ns tag node =
+	try Some (map (child ?ns tag node))
+	with Child_not_found _ -> None
+
 let children ?ns tag (node : node) =
 	let childs =
 		let tag = Js.string tag in
@@ -26,6 +30,7 @@ let children ?ns tag (node : node) =
 
 let tag node = Js.to_string node##getName
 let text node = Js.to_string node##getText
+let raw_text node = node##getText
 let node node = node
 
 let attribute attr node =
@@ -53,7 +58,10 @@ let create ?ns tag ?(attr=[]) childs =
 	List.iter add_child childs;
 	elem
 
-let create_text ?ns tag ?(attr=[]) text =
+let create_raw_text ?ns tag ?(attr=[]) text =
 	let elem = create ?ns tag ~attr [] in
-	ignore (elem##setText (Js.string text));
+	ignore (elem##setText text);
 	elem
+
+let create_text ?ns tag ?(attr=[]) text =
+	create_raw_text ?ns tag ~attr (Js.string text)

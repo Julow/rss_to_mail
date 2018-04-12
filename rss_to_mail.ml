@@ -130,7 +130,7 @@ let rec cut_entries i since entries =
 
 let update_entry feed_url feed options entry =
 	let open Feed in
-	let content =
+	let summary =
 		let opt_link title = function
 			| Some link	-> "<a href=\"" ^ link ^ "\">" ^ title ^ "</a>"
 			| None		-> title
@@ -164,18 +164,17 @@ let update_entry feed_url feed options entry =
 				| None		-> ""
 			in
 			opt_link (entry.title ^ thumb) entry.link
-		and content =
-			match entry.content, options.Feed_options.no_content with
-			| Some c, false	-> c
-			| _				-> ""
 		in
 		"<p>Via " ^ feed_title ^ categories ^ "<br/>"
 		^ "on " ^ entry_date_string entry ^ authors ^ "</p>"
 		^ "<p>" ^ entry_title ^ "</p>"
 		^ summary
-		^ content
 	in
-	let id = match entry.id with
+	let content =
+		match entry.content, options.Feed_options.no_content with
+		| Some c, false	-> (Js.string summary)##concat c
+		| _				-> Js.string summary
+	and id = match entry.id with
 		| Some id	-> Some (feed_url ^ id)
 		| None		-> Some (feed_url ^ entry.title)
 	in
