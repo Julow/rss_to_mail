@@ -152,15 +152,21 @@ let update_entry feed_url feed options entry =
 		and feed_title =
 			let icon = match feed.feed_icon with
 				| Some url	->
-					"<img style=\"height:0.8em;\" src=\"" ^ url ^ "\" /> "
+					"<img style=\""
+						^ "display: inline !important;"
+						^ "height: 1em !important;"
+						^ "margin: 0 0 -0.1em 0 !important;"
+						^ "\" src=\"" ^ url ^ "\" /> "
 				| None		-> ""
 			in
 			opt_link (icon ^ feed.feed_title) feed.feed_link
 		and entry_title =
 			let thumb = match entry.thumbnail with
 				| Some url	->
-					"<img style=\"display:block;max-width:25em;\" src=\""
-					^ url ^ "\" /> "
+					"<img style=\""
+						^ "display: block !important;"
+						^ "max-width: 25em;"
+						^ "\" src=\"" ^ url ^ "\" /> "
 				| None		-> ""
 			in
 			opt_link (entry.title ^ thumb) entry.link
