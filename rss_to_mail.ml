@@ -5,7 +5,7 @@ struct
 
 	type t = {
 		cache		: float; (** Cache timeout in hours *)
-		name		: string option; (** Unused *)
+		label		: string option; (** Appended to the content *)
 		no_content	: bool (** If the content should be removed *)
 	}
 
@@ -21,8 +21,9 @@ struct
 				| "often"		-> 1.5
 				| "sometimes"	-> 6.
 				| "daily"		-> 24.
-				| "rarely"		-> 72.);
-			name		= prop "name"		None	some_string;
+				| "rarely"		-> 72.
+				| _				-> failwith "cache: Invalid value");
+			label		= prop "label"		None	some_string;
 			no_content	= prop "no_content"	false	Js.to_bool }
 
 	let default () = of_obj (object%js end)
@@ -41,9 +42,12 @@ struct
 		let last_row = sheet##getLastRow in
 		let process_row row =
 			let parse_options url options_data =
-				try Feed_options.of_obj (Js._JSON##parse options_data##toString)
-				with _ ->
-					Console.error ("Malformed options: " ^ Js.to_string url##toString);
+				try
+					try Feed_options.of_obj (Js._JSON##parse options_data##toString)
+					with Js.Error e -> failwith (Js.string_of_error e)
+				with Failure e ->
+					Console.error ("Malformed options: "
+						^ Js.to_string url##toString ^ ": " ^ e);
 					Feed_options.default ()
 			in
 			match Js.to_array row with
@@ -178,9 +182,13 @@ let update_entry feed_url feed options entry =
 				| None		-> ""
 			in
 			opt_link (entry.title ^ thumb) entry.link
+		and label =
+			match options.Feed_options.label with
+			| Some l	-> "<br />Label: " ^ l
+			| None		-> ""
 		in
 		"<p>Via " ^ feed_title ^ categories ^ "<br/>"
-		^ "on " ^ entry_date_string entry ^ authors ^ "</p>"
+		^ "on " ^ entry_date_string entry ^ authors ^ label ^ "</p>"
 		^ "<p>" ^ entry_title ^ "</p>"
 		^ summary
 	in
