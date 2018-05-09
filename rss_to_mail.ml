@@ -4,9 +4,9 @@ module Feed_options =
 struct
 
 	type t = {
-		cache		: float;
-		name		: string option;
-		no_content	: bool
+		cache		: float; (** Cache timeout in hours *)
+		name		: string option; (** Unused *)
+		no_content	: bool (** If the content should be removed *)
 	}
 
 	let of_obj obj =
@@ -15,7 +15,13 @@ struct
 			Js.Optdef.case v (fun () -> default) map
 		in
 		let some_string s = Some (Js.to_string s) in
-		{	cache		= prop "cache"		1.		Js.to_float;
+		{	cache		= prop "cache"		6.		(fun v ->
+				match Js.to_string v with
+				| "always"		-> 0.2
+				| "often"		-> 1.5
+				| "sometimes"	-> 6.
+				| "daily"		-> 24.
+				| "rarely"		-> 72.);
 			name		= prop "name"		None	some_string;
 			no_content	= prop "no_content"	false	Js.to_bool }
 
@@ -60,6 +66,9 @@ struct
 
 end
 
+(** `reqs` is an array of `(url, cache_timeout, process)`
+	`cache_timeout` is in second
+	`process` is a function that can process the result before it is cached *)
 let cached_fetch_all clear_cache reqs =
 	let cache = CacheService.t##getScriptCache in
 	let cache_put url res cache_time =
@@ -105,7 +114,6 @@ let cached_fetch_all clear_cache reqs =
 	in
 	loop 0 0
 
-let cache_base_time = 60. *. 30.
 let oldest_entry = Int64.of_int (7 * 24 * 3600000)
 
 let load_spreadsheet () =
@@ -232,7 +240,7 @@ let doGet (params : params Js.t) =
 	let entries =
 		load_spreadsheet ()
 		|> List.map (fun (url, options) ->
-			let cache_time = options.Feed_options.cache *. cache_base_time in
+			let cache_time = options.Feed_options.cache *. 3600. in
 			(url, cache_time, process url options))
 		|> cached_fetch_all clear_cache
 		|> Array.concat
