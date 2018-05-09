@@ -3,7 +3,7 @@
 (executables
  ((names (rss_to_mail))
   (js_of_ocaml
-   ((flags (--wrap-with-fun --custom-header "var main ="))))
+   ((flags (--wrap-with-fun=main))))
   (preprocess (pps (js_of_ocaml-ppx)))))
 
 (rule
