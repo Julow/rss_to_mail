@@ -184,7 +184,7 @@ let update_entry feed_url feed options entry =
 			opt_link (entry.title ^ thumb) entry.link
 		and label =
 			match options.Feed_options.label with
-			| Some l	-> "<br />Label: " ^ l
+			| Some l	-> " with label " ^ l
 			| None		-> ""
 		in
 		"<p>Via " ^ feed_title ^ categories ^ "<br/>"
