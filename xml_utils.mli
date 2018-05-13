@@ -25,6 +25,8 @@ val raw_text : node -> Js.js_string Js.t
 (** Raises `Attribute_not_found` *)
 val attribute : string -> node -> string
 
+val attribute_opt : (string -> 'a) -> string -> node -> 'a option
+
 val namespace : string -> namespace
 val parse : Js.js_string Js.t -> node
 

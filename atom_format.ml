@@ -23,13 +23,31 @@ let parse feed_elem =
 			List.map parse_category @@ children ~ns "category" entry
 		and thumbnail =
 			child_opt (attribute "url") ~ns:media_ns "thumbnail" entry
+		and link, attachments =
+			let filter (alt, enc) l =
+				match attribute "rel" l with
+				| exception Attribute_not_found _ -> l :: alt, enc
+				| "alternate"		-> l :: alt, enc
+				| "enclosure"		-> alt, l :: enc
+				| _					-> alt, enc
+			in
+			let alternates, enclosures = children ~ns "link" entry
+				|> List.fold_left filter ([], []) in
+			let link = match alternates with
+				| []		-> None
+				| l :: _	-> Some (attribute "href" l)
+			and attachment e =
+				{	attach_url = attribute "href" e;
+					attach_size = attribute_opt Int64.of_string "length" e;
+					attach_type = attribute_opt (fun t -> t) "type" e }
+			in
+			link, List.map attachment enclosures
 		in
 		{	id = child_opt text ~ns "id" entry;
 			title = text (child ~ns "title" entry);
 			summary = child_opt text ~ns "summary" entry;
 			content = child_opt (fun n -> (node n)##getText) ~ns "content" entry;
-			link = child_opt (attribute "href") ~ns "link" entry;
-			thumbnail; authors; date; categories }
+			link; attachments; thumbnail; authors; date; categories }
 	in
 	let feed_title = text (child ~ns "title" feed_elem)
 	and feed_icon = child_opt text ~ns "icon" feed_elem
@@ -49,19 +67,27 @@ let parse feed_elem =
 
 let generate feed =
 	let gen_entry entry =
+		let m t f = match t with Some v -> [ f v ] | None -> [] in
 		let gen_category cat =
-			let opt k = function Some v -> [ k, v ] | None -> [] in
-			let attr = opt "term" cat.term @ opt "label" cat.label in
+			let attr =
+				m cat.term (fun v -> "term", v)
+				@ m cat.label (fun v -> "label", v)
+			in
 			create ~ns "category" ~attr []
-		and gen_author { author_name; author_link } =
-			let uri = match author_link with
-				| Some link	-> [ create_text ~ns "uri" link ]
-				| None		-> []
-			and name = create_text ~ns "name" author_name in
+		and gen_author t =
+			let uri = m t.author_link (create_text ~ns "uri")
+			and name = create_text ~ns "name" t.author_name in
 			create ~ns "author" (name :: uri)
+		and gen_attachment t =
+			let attr =
+				("href", t.attach_url)
+				:: ("rel", "enclosure")
+				:: m t.attach_size (fun s -> "length", Int64.to_string s)
+				@ m t.attach_type (fun t -> "type", t)
+			in
+			create ~ns "link" ~attr []
 		in
 		(** option map to_list *)
-		let m t f = match t with Some v -> [ f v ] | None -> [] in
 		create ~ns "entry" ([]
 			@ List.map gen_author entry.authors
 			@ m entry.summary
@@ -71,6 +97,7 @@ let generate feed =
 			@ m entry.id (create_text ~ns "id")
 			@ m entry.link (fun link ->
 				create ~ns "link" ~attr:[ "href", link ] [])
+			@ List.map gen_attachment entry.attachments
 			@ m entry.thumbnail (fun url ->
 				create ~ns:media_ns "thumbnail" ~attr:[ "url", url ] [])
 			@ create_text ~ns "title" entry.title

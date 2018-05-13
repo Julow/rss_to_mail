@@ -10,6 +10,12 @@ type author = {
 	author_link	: string option
 }
 
+type attachment = {
+	attach_url	: string;
+	attach_size	: Int64.t option;
+	attach_type	: string option
+}
+
 type entry = {
 	id			: string option;
 	title		: string;
@@ -19,7 +25,8 @@ type entry = {
 	content		: Js.js_string Js.t option;
 	link		: string option;
 	thumbnail	: string option;
-	date		: Int64.t
+	date		: Int64.t;
+	attachments	: attachment list
 }
 
 type t = {

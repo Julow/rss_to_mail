@@ -38,6 +38,10 @@ let attribute attr node =
 		(fun () -> raise (Attribute_not_found attr))
 		(fun attr -> Js.to_string attr##getValue)
 
+let attribute_opt map attr node =
+	try Some (map (attribute attr node))
+	with Attribute_not_found _ -> None
+
 let namespace ns = XmlService.t##getNamespace (Js.string ns)
 let parse data =
 	let doc = XmlService.t##parse data in

@@ -10,15 +10,14 @@ let parse rss_elem =
 		let date =
 			Int64.of_float @@
 			Js.date##parse (node (child "pubDate" item))##getText
-		and categories =
-			let parse_category cat =
-				{ term = None; label = Some (text cat) } in
-			List.map parse_category (children "category" item)
-		and authors =
-			let author creator =
-				{ author_name = text creator; author_link = None }
-			in
-			List.map author (children ~ns:dc_ns "creator" item)
+		and author creator =
+			{ author_name = text creator; author_link = None }
+		and category cat =
+			{ term = None; label = Some (text cat) }
+		and attachment e =
+			{	attach_url = attribute "url" e;
+				attach_size = attribute_opt Int64.of_string "length" e;
+				attach_type = attribute_opt (fun t -> t) "type" e }
 		in
 		let raw_text n = (node n)##getText in
 		{	title = text (child "title" item);
@@ -27,7 +26,10 @@ let parse rss_elem =
 			summary = child_opt text "description" item;
 			content = child_opt raw_text ~ns:content_ns "encoded" item;
 			thumbnail = None;
-			authors; date; categories }
+			categories = List.map category (children "category" item);
+			authors = List.map author (children ~ns:dc_ns "creator" item);
+			attachments = List.map attachment (children "enclosure" item);
+			date }
 	in
 	let channel = child "channel" rss_elem in
 	let entries =
