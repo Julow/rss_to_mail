@@ -189,10 +189,23 @@ let update_entry feed_url feed options entry =
 			match options.Feed_options.label with
 			| Some l	-> " with label " ^ l
 			| None		-> ""
+		and attachments =
+			let attachment t =
+				let info =
+					match Option.(to_list (map Utils.size t.attach_size))
+						@ Option.to_list t.attach_type with
+					| []		-> ""
+					| i			-> " (" ^ String.concat ", " i ^ ")"
+				in
+				"<p>Attachment: <a href=\"" ^ t.attach_url ^ "\">"
+				^ t.attach_url ^ "</a>" ^ info ^ "</p>"
+			in
+			String.concat "" (List.map attachment entry.attachments)
 		in
 		"<p>Via " ^ feed_title ^ categories ^ "<br/>"
 		^ "on " ^ entry_date_string entry ^ authors ^ label ^ "</p>"
 		^ "<p>" ^ entry_title ^ "</p>"
+		^ attachments
 		^ summary
 	in
 	let content =
