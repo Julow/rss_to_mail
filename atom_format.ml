@@ -38,7 +38,7 @@ let parse feed_elem =
 				| l :: _	-> Some (attribute "href" l)
 			and attachment e =
 				{	attach_url = attribute "href" e;
-					attach_size = attribute_opt Int64.of_string "length" e;
+					attach_size = attribute_opt Int64.of_string_exn "length" e;
 					attach_type = attribute_opt (fun t -> t) "type" e }
 			in
 			link, List.map attachment enclosures
@@ -54,7 +54,7 @@ let parse feed_elem =
 	and feed_link =
 		try
 			let alternate link =
-				try attribute "rel" link = "alternate"
+				try String.equal (attribute "rel" link) "alternate"
 				with _ -> false in
 			List.find alternate (children ~ns "link" feed_elem)
 			|> fun link -> Some (attribute "href" link)

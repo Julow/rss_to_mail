@@ -94,7 +94,7 @@ let cached_fetch_all clear_cache reqs =
 	in
 	let requests = new%js Js.array_empty in
 	Array.iteri (fun index url ->
-		if cached index = None
+		if Option.is_none (cached index)
 		then ignore (requests##push (object%js
 				val url = url
 				val muteHttpExceptions = Js._true
@@ -136,7 +136,7 @@ let sort_entries entries =
 	entries
 
 let rec cut_entries i since entries =
-	if i < Array.length entries && entries.(i).Feed.date > since
+	if i < Array.length entries && Int64.Infix.(>) entries.(i).Feed.date since
 	then cut_entries (i + 1) since entries
 	else Array.sub entries 0 i
 
@@ -152,11 +152,14 @@ let update_entry feed_url feed options entry =
 				| { label = Some l; _ }	-> l
 				| { term = Some t; _ }	-> t
 				| _ -> "") entry.categories in
-			if labels = [] then "" else " (" ^ String.concat ", " labels ^ ")"
+			match labels with
+			| []		-> ""
+			| l			-> " (" ^ String.concat ", " l ^ ")"
 		and authors =
 			let author a = opt_link a.author_name a.author_link in
-			if entry.authors = [] then ""
-			else " by " ^ String.concat ", " (List.map author entry.authors)
+			match List.map author entry.authors with
+			| []		-> ""
+			| authors	-> " by " ^ String.concat ", " authors
 		and summary =
 			match entry.summary with
 			| Some sum	-> "<p>" ^ sum ^ "</p>"

@@ -16,7 +16,7 @@ let parse rss_elem =
 			{ term = None; label = Some (text cat) }
 		and attachment e =
 			{	attach_url = attribute "url" e;
-				attach_size = attribute_opt Int64.of_string "length" e;
+				attach_size = attribute_opt Int64.of_string_exn "length" e;
 				attach_type = attribute_opt (fun t -> t) "type" e }
 		in
 		let raw_text n = (node n)##getText in
