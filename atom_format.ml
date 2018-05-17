@@ -6,9 +6,8 @@ let media_ns = namespace "http://search.yahoo.com/mrss/"
 
 let parse feed_elem =
 	let parse_entry entry =
-		let date =
-			Int64.of_float @@
-			Js.date##parse (node (child ~ns "updated" entry))##getText
+		let date node =
+			Int64.of_float @@ Js.date##parse (raw_text node)
 		and authors =
 			let parse_author author =
 				let author_link =
@@ -46,10 +45,11 @@ let parse feed_elem =
 			link, List.map attachment enclosures
 		in
 		{	id = child_opt text ~ns "id" entry;
-			title = text (child ~ns "title" entry);
+			title = child_opt text ~ns "title" entry;
 			summary = child_opt text ~ns "summary" entry;
-			content = child_opt (fun n -> (node n)##getText) ~ns "content" entry;
-			link; attachments; thumbnail; authors; date; categories }
+			content = child_opt raw_text ~ns "content" entry;
+			date = child_opt date ~ns "updated" entry;
+			link; attachments; thumbnail; authors; categories }
 	in
 	let feed_title = text (child ~ns "title" feed_elem)
 	and feed_icon = child_opt (Uri.of_string % text) ~ns "icon" feed_elem
@@ -103,9 +103,9 @@ let generate feed =
 			@ m entry.thumbnail (fun url ->
 				let url = Uri.to_string url in
 				create ~ns:media_ns "thumbnail" ~attr:[ "url", url ] [])
-			@ create_text ~ns "title" entry.title
-			:: create_text ~ns "updated" (entry_date_string entry)
-			:: List.map gen_category entry.categories)
+			@ m entry.title (create_text ~ns "title")
+			@ m entry.date (create_text ~ns "updated" % date_string)
+			@ List.map gen_category entry.categories)
 	in
 	let link = match feed.feed_link with
 		| Some link	->

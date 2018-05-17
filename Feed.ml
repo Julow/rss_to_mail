@@ -16,14 +16,14 @@ type attachment = {
 
 type entry = {
 	id			: string option;
-	title		: string;
+	title		: string option;
 	authors		: author list;
 	categories	: category list;
 	summary		: string option;
 	content		: Js.js_string Js.t option;
 	link		: Uri.t option;
 	thumbnail	: Uri.t option;
-	date		: Int64.t;
+	date		: Int64.t option;
 	attachments	: attachment list
 }
 
@@ -34,8 +34,8 @@ type t = {
 	entries		: entry array
 }
 
-let entry_date_string t =
-	let date = new%js Js.date_fromTimeValue (Int64.to_float t.date) in
+let date_string date =
+	let date = new%js Js.date_fromTimeValue (Int64.to_float date) in
 	Js.to_string date##toLocaleString
 
 let resolve_urls feed_urls t =

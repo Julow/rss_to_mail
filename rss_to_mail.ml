@@ -131,12 +131,22 @@ let load_spreadsheet () =
 		Feed_spreadsheet.read
 
 let sort_entries entries =
+	let cmp b a =
+		match Feed.(a.date, b.date) with
+		| Some a, Some b	-> Int64.compare a b
+		| None, Some _		-> ~+1
+		| Some _, None		-> ~-1
+		| None, None		-> 0
+	in
 	let entries = Array.copy entries in
-	Array.sort (fun a b -> Int64.compare b.Feed.date a.date) entries;
+	Array.sort cmp entries;
 	entries
 
 let rec cut_entries i since entries =
-	if i < Array.length entries && Int64.Infix.(>) entries.(i).Feed.date since
+	if i < Array.length entries
+		&& (match entries.(i).Feed.date with
+			| Some d	-> Int64.Infix.(>) d since
+			| None		-> false)
 	then cut_entries (i + 1) since entries
 	else Array.sub entries 0 i
 
@@ -164,6 +174,10 @@ let update_entry feed_url feed options entry =
 			match List.map author entry.authors with
 			| []		-> ""
 			| authors	-> " by " ^ String.concat ", " authors
+		and date =
+			match entry.date with
+			| Some d	-> "on " ^ date_string d
+			| None		-> ""
 		and summary =
 			match entry.summary with
 			| Some sum	-> "<p>" ^ sum ^ "</p>"
@@ -184,7 +198,11 @@ let update_entry feed_url feed options entry =
 					"max-width: 25em;" ]
 				| None		-> ""
 			in
-			opt_link (entry.title ^ thumb) entry.link
+			let p t = "<p>" ^ opt_link (t ^ thumb) entry.link ^ "</p>" in
+			match entry.title, entry.link with
+			| Some t, _		-> p t
+			| None, Some l	-> p (Uri.to_string l)
+			| None, None	-> ""
 		and label =
 			match options.Feed_options.label with
 			| Some l	-> " with label " ^ l
@@ -207,21 +225,29 @@ let update_entry feed_url feed options entry =
 			in
 			String.concat "" (List.map attachment entry.attachments)
 		in
-		"<p>Via " ^ feed_title ^ categories ^ "<br/>"
-		^ "on " ^ entry_date_string entry ^ authors ^ label ^ "</p>"
-		^ "<p>" ^ entry_title ^ "</p>"
-		^ attachments
-		^ summary
+		String.concat "" [
+			"<p>Via "; feed_title; categories; "<br/>";
+			date; authors; label; "</p>";
+			entry_title;
+			attachments;
+			summary
+		]
 	in
 	let content =
 		match entry.content, options.Feed_options.no_content with
-		| Some c, false	-> (Js.string summary)##concat c
-		| _				-> Js.string summary
-	and id = match entry.id with
-		| Some id	-> Some (feed_url ^ id)
-		| None		-> Some (feed_url ^ entry.title)
+		| Some c, false	-> Some ((Js.string summary)##concat c)
+		| _				-> Some (Js.string summary)
+	and id = match entry.id, entry.link, entry.title with
+		| Some id, _, _				-> Some (feed_url ^ id)
+		| None, Some link, _		-> Some (feed_url ^ Uri.to_string link)
+		| None, None, Some title	-> Some (feed_url ^ title)
+		| None, None, None			-> None
+	and title = match entry.title, entry.link with
+		| Some _ as title, _	-> title
+		| None, Some link		-> Some (Uri.to_string link)
+		| None, None			-> Some feed_url
 	in
-	{ entry with id; summary = None; content = Some content }
+	{ entry with id; title; summary = None; content }
 
 let parse_feed contents =
 	let open Xml_utils in

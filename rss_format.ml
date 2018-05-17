@@ -5,9 +5,8 @@ let parse rss_elem =
 	let dc_ns = namespace "http://purl.org/dc/elements/1.1/"
 	and content_ns = namespace "http://purl.org/rss/1.0/modules/content/" in
 	let parse_item item =
-		let date =
-			Int64.of_float @@
-			Js.date##parse (node (child "pubDate" item))##getText
+		let date node =
+			Int64.of_float @@ Js.date##parse (raw_text node)
 		and author creator =
 			{ author_name = text creator; author_link = None }
 		and category cat =
@@ -17,8 +16,7 @@ let parse rss_elem =
 				attach_size = attribute_opt Int64.of_string_exn "length" e;
 				attach_type = attribute_opt (fun t -> t) "type" e }
 		in
-		let raw_text n = (node n)##getText in
-		{	title = text (child "title" item);
+		{	title = child_opt text "title" item;
 			link = child_opt (Uri.of_string % text) "link" item;
 			id = child_opt text "guid" item;
 			summary = child_opt text "description" item;
@@ -27,7 +25,7 @@ let parse rss_elem =
 			categories = List.map category (children "category" item);
 			authors = List.map author (children ~ns:dc_ns "creator" item);
 			attachments = List.map attachment (children "enclosure" item);
-			date }
+			date = child_opt date "pubDate" item }
 	in
 	let channel = child "channel" rss_elem in
 	let entries =
