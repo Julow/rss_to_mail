@@ -11,8 +11,9 @@ let parse feed_elem =
 			Js.date##parse (node (child ~ns "updated" entry))##getText
 		and authors =
 			let parse_author author =
-				{	author_name = text (child ~ns "name" author);
-					author_link = child_opt text ~ns "uri" author }
+				let author_link =
+					child_opt (Uri.of_string % text) ~ns "uri" author in
+				{ author_name = text (child ~ns "name" author); author_link }
 			in
 			List.map parse_author @@ children ~ns "author" entry
 		and categories =
@@ -22,7 +23,8 @@ let parse feed_elem =
 			in
 			List.map parse_category @@ children ~ns "category" entry
 		and thumbnail =
-			child_opt (attribute "url") ~ns:media_ns "thumbnail" entry
+			let f node = Uri.of_string (attribute "url" node) in
+			child_opt f ~ns:media_ns "thumbnail" entry
 		and link, attachments =
 			let filter (alt, enc) l =
 				match attribute "rel" l with
@@ -35,9 +37,9 @@ let parse feed_elem =
 				|> List.fold_left filter ([], []) in
 			let link = match alternates with
 				| []		-> None
-				| l :: _	-> Some (attribute "href" l)
+				| l :: _	-> Some (Uri.of_string (attribute "href" l))
 			and attachment e =
-				{	attach_url = attribute "href" e;
+				{	attach_url = Uri.of_string (attribute "href" e);
 					attach_size = attribute_opt Int64.of_string_exn "length" e;
 					attach_type = attribute_opt (fun t -> t) "type" e }
 			in
@@ -50,14 +52,14 @@ let parse feed_elem =
 			link; attachments; thumbnail; authors; date; categories }
 	in
 	let feed_title = text (child ~ns "title" feed_elem)
-	and feed_icon = child_opt text ~ns "icon" feed_elem
+	and feed_icon = child_opt (Uri.of_string % text) ~ns "icon" feed_elem
 	and feed_link =
 		try
 			let alternate link =
 				try String.equal (attribute "rel" link) "alternate"
 				with _ -> false in
 			List.find alternate (children ~ns "link" feed_elem)
-			|> fun link -> Some (attribute "href" link)
+			|> fun link -> Some (Uri.of_string (attribute "href" link))
 		with _ -> None
 	and entries =
 		Array.of_list (children ~ns "entry" feed_elem)
@@ -75,12 +77,12 @@ let generate feed =
 			in
 			create ~ns "category" ~attr []
 		and gen_author t =
-			let uri = m t.author_link (create_text ~ns "uri")
+			let uri = m t.author_link (create_text ~ns "uri" % Uri.to_string)
 			and name = create_text ~ns "name" t.author_name in
 			create ~ns "author" (name :: uri)
 		and gen_attachment t =
 			let attr =
-				("href", t.attach_url)
+				("href", Uri.to_string t.attach_url)
 				:: ("rel", "enclosure")
 				:: m t.attach_size (fun s -> "length", Int64.to_string s)
 				@ m t.attach_type (fun t -> "type", t)
@@ -96,19 +98,21 @@ let generate feed =
 				(create_raw_text ~ns "content" ~attr:[ "type", "html" ])
 			@ m entry.id (create_text ~ns "id")
 			@ m entry.link (fun link ->
-				create ~ns "link" ~attr:[ "href", link ] [])
+				create ~ns "link" ~attr:[ "href", Uri.to_string link ] [])
 			@ List.map gen_attachment entry.attachments
 			@ m entry.thumbnail (fun url ->
+				let url = Uri.to_string url in
 				create ~ns:media_ns "thumbnail" ~attr:[ "url", url ] [])
 			@ create_text ~ns "title" entry.title
 			:: create_text ~ns "updated" (entry_date_string entry)
 			:: List.map gen_category entry.categories)
 	in
 	let link = match feed.feed_link with
-		| Some link	-> [ create ~ns "link" ~attr:[ "href", link ] [] ]
+		| Some link	->
+			[ create ~ns "link" ~attr:[ "href", Uri.to_string link ] [] ]
 		| None		-> []
 	and icon = match feed.feed_icon with
-		| Some icon	-> [ create_text ~ns "icon" icon ]
+		| Some icon	-> [ create_text ~ns "icon" (Uri.to_string icon) ]
 		| None		-> []
 	in
 	create ~ns "feed" (

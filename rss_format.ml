@@ -1,8 +1,6 @@
 open Xml_utils
 open Feed
 
-let ($) f g x = f (g x)
-
 let parse rss_elem =
 	let dc_ns = namespace "http://purl.org/dc/elements/1.1/"
 	and content_ns = namespace "http://purl.org/rss/1.0/modules/content/" in
@@ -15,13 +13,13 @@ let parse rss_elem =
 		and category cat =
 			{ term = None; label = Some (text cat) }
 		and attachment e =
-			{	attach_url = attribute "url" e;
+			{	attach_url = Uri.of_string (attribute "url" e);
 				attach_size = attribute_opt Int64.of_string_exn "length" e;
 				attach_type = attribute_opt (fun t -> t) "type" e }
 		in
 		let raw_text n = (node n)##getText in
 		{	title = text (child "title" item);
-			link = child_opt text "link" item;
+			link = child_opt (Uri.of_string % text) "link" item;
 			id = child_opt text "guid" item;
 			summary = child_opt text "description" item;
 			content = child_opt raw_text ~ns:content_ns "encoded" item;
@@ -37,6 +35,6 @@ let parse rss_elem =
 		|> Array.map parse_item
 	in
 	{	feed_title = text (child "title" channel);
-		feed_link = child_opt text "link" channel;
-		feed_icon = child_opt (text $ child "url") "image" channel;
+		feed_link = child_opt (Uri.of_string % text) "link" channel;
+		feed_icon = child_opt (Uri.of_string % text % child "url") "image" channel;
 		entries }

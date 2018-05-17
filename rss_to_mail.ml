@@ -140,13 +140,17 @@ let rec cut_entries i since entries =
 	then cut_entries (i + 1) since entries
 	else Array.sub entries 0 i
 
+let opt_link title = function
+	| Some link	-> "<a href=\"" ^ Uri.to_string link ^ "\">" ^ title ^ "</a>"
+	| None		-> title
+
+let img url styles =
+	let styles = String.concat ";" styles in
+	"<img style=\"" ^ styles ^ "\" src=\"" ^ Uri.to_string url ^ "\" />"
+
 let update_entry feed_url feed options entry =
 	let open Feed in
 	let summary =
-		let opt_link title = function
-			| Some link	-> "<a href=\"" ^ link ^ "\">" ^ title ^ "</a>"
-			| None		-> title
-		in
 		let categories =
 			let labels = List.map (function
 				| { label = Some l; _ }	-> l
@@ -166,22 +170,18 @@ let update_entry feed_url feed options entry =
 			| None		-> ""
 		and feed_title =
 			let icon = match feed.feed_icon with
-				| Some url	->
-					"<img style=\""
-						^ "display: inline !important;"
-						^ "height: 1em !important;"
-						^ "margin: 0 0 -0.1em 0 !important;"
-						^ "\" src=\"" ^ url ^ "\" /> "
+				| Some url	-> img url [
+					"display: inline !important";
+					"height: 1em !important;";
+					"margin: 0 0 -0.1em 0 !important;" ]
 				| None		-> ""
 			in
 			opt_link (icon ^ feed.feed_title) feed.feed_link
 		and entry_title =
 			let thumb = match entry.thumbnail with
-				| Some url	->
-					"<img style=\""
-						^ "display: block !important;"
-						^ "max-width: 25em;"
-						^ "\" src=\"" ^ url ^ "\" /> "
+				| Some url	-> img url [
+					"display: block !important;";
+					"max-width: 25em;" ]
 				| None		-> ""
 			in
 			opt_link (entry.title ^ thumb) entry.link
@@ -197,8 +197,13 @@ let update_entry feed_url feed options entry =
 					| []		-> ""
 					| i			-> " (" ^ String.concat ", " i ^ ")"
 				in
-				"<p>Attachment: <a href=\"" ^ t.attach_url ^ "\">"
-				^ t.attach_url ^ "</a>" ^ info ^ "</p>"
+				let title =
+					match String.Split.right ~by:"/" (Uri.path t.attach_url) with
+					| Some (_, title) when String.contains title '.' -> title
+					| _			-> Uri.to_string t.attach_url
+				in
+				let link = opt_link title (Some t.attach_url) in
+				"<p>Attachment: " ^ link ^ info ^ "</p>"
 			in
 			String.concat "" (List.map attachment entry.attachments)
 		in
