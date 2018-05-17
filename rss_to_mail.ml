@@ -251,6 +251,7 @@ let doGet (params : params Js.t) =
 		| `Ok contents	->
 			begin try
 				let feed = parse_feed contents in
+				let feed = Feed.resolve_urls (Uri.of_string url) feed in
 				let entries = process_feed url options feed in
 				Console.info ("Fetched " ^ string_of_int (Array.length feed.entries)
 					^ " entries (processed " ^ string_of_int (Array.length entries)
