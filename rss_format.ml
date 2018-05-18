@@ -32,7 +32,7 @@ let parse rss_elem =
 		Array.of_list (children "item" channel)
 		|> Array.map parse_item
 	in
-	{	feed_title = text (child "title" channel);
+	{	feed_title = child_opt text "title" channel;
 		feed_link = child_opt (Uri.of_string % text) "link" channel;
 		feed_icon = child_opt (Uri.of_string % text % child "url") "image" channel;
 		entries }

@@ -28,7 +28,7 @@ type entry = {
 }
 
 type t = {
-	feed_title	: string;
+	feed_title	: string option;
 	feed_link	: Uri.t option;
 	feed_icon	: Uri.t option;
 	entries		: entry array

@@ -51,7 +51,7 @@ let parse feed_elem =
 			date = child_opt date ~ns "updated" entry;
 			link; attachments; thumbnail; authors; categories }
 	in
-	let feed_title = text (child ~ns "title" feed_elem)
+	let feed_title = child_opt text ~ns "title" feed_elem
 	and feed_icon = child_opt (Uri.of_string % text) ~ns "icon" feed_elem
 	and feed_link =
 		try
@@ -68,8 +68,8 @@ let parse feed_elem =
 	{ feed_title; feed_link; feed_icon; entries }
 
 let generate feed =
+	let m t f = match t with Some v -> [ f v ] | None -> [] in
 	let gen_entry entry =
-		let m t f = match t with Some v -> [ f v ] | None -> [] in
 		let gen_category cat =
 			let attr =
 				m cat.term (fun v -> "term", v)
@@ -111,12 +111,9 @@ let generate feed =
 		| Some link	->
 			[ create ~ns "link" ~attr:[ "href", Uri.to_string link ] [] ]
 		| None		-> []
-	and icon = match feed.feed_icon with
-		| Some icon	-> [ create_text ~ns "icon" (Uri.to_string icon) ]
-		| None		-> []
 	in
 	create ~ns "feed" (
-		create_text ~ns "title" feed.feed_title
-		:: link
-		@ icon
+		m feed.feed_title (create_text ~ns "title")
+		@ link
+		@ m feed.feed_icon (create_text ~ns "icon" % Uri.to_string)
 		@ List.map gen_entry (Array.to_list feed.entries))

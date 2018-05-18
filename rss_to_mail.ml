@@ -189,8 +189,11 @@ let update_entry feed_url feed options entry =
 					"height: 1em !important;";
 					"margin: 0 0 -0.1em 0 !important;" ]
 				| None		-> ""
+			and title = match feed.feed_title with
+				| Some title	-> title
+				| None			-> feed_url
 			in
-			opt_link (icon ^ feed.feed_title) feed.feed_link
+			opt_link (icon ^ title) feed.feed_link
 		and entry_title =
 			let thumb = match entry.thumbnail with
 				| Some url	-> img url [
@@ -303,7 +306,7 @@ let doGet (params : params Js.t) =
 		|> sort_entries
 	in
 	let output = Xml_utils.node @@ Atom_format.generate {
-			feed_title = "Feed aggregator";
+			feed_title = Some "Feed aggregator";
 			feed_link = None;
 			feed_icon = None;
 			entries
