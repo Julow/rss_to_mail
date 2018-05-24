@@ -30,7 +30,7 @@ val attribute_opt : (string -> 'a) -> string -> node -> 'a option
 val namespace : string -> namespace
 val parse : Js.js_string Js.t -> node
 
-val node : node -> Script_API.XmlService.element Js.t
+val node : node -> XmlService.element Js.t
 
 val create : ?ns : namespace -> string
 	-> ?attr : (string * string) list

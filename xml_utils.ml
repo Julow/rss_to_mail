@@ -1,5 +1,3 @@
-open Script_API
-
 exception Child_not_found of string
 exception Attribute_not_found of string
 
