@@ -174,7 +174,7 @@ let update_entry feed_url feed options entry =
 			| authors	-> " by " ^ String.concat ", " authors
 		and date =
 			match entry.date with
-			| Some d	-> "on " ^ date_string d
+			| Some d	-> "on " ^ Utils.date_string d
 			| None		-> ""
 		and summary =
 			match entry.summary with

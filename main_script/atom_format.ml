@@ -104,7 +104,7 @@ let generate feed =
 				let url = Uri.to_string url in
 				create ~ns:media_ns "thumbnail" ~attr:[ "url", url ] [])
 			@ m entry.title (create_text ~ns "title")
-			@ m entry.date (create_text ~ns "updated" % date_string)
+			@ m entry.date (create_text ~ns "updated" % Utils.date_string)
 			@ List.map gen_category entry.categories)
 	in
 	let link = match feed.feed_link with

@@ -14,29 +14,25 @@ type attachment = {
 	attach_type	: string option
 }
 
-type entry = {
+type 'a entry = {
 	id			: string option;
 	title		: string option;
 	authors		: author list;
 	categories	: category list;
 	summary		: string option;
-	content		: Js.js_string Js.t option;
+	content		: 'a option;
 	link		: Uri.t option;
 	thumbnail	: Uri.t option;
 	date		: Int64.t option;
 	attachments	: attachment list
 }
 
-type t = {
+type 'a t = {
 	feed_title	: string option;
 	feed_link	: Uri.t option;
 	feed_icon	: Uri.t option;
-	entries		: entry array
+	entries		: 'a entry array
 }
-
-let date_string date =
-	let date = new%js Js.date_fromTimeValue (Int64.to_float date) in
-	Js.to_string date##toLocaleString
 
 let resolve_urls feed_urls t =
 	let res = Uri.resolve "" feed_urls in

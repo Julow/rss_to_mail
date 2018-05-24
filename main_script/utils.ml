@@ -6,3 +6,7 @@ let rec size s u =
 	| u' :: tl			-> size (Int64.div s 1024L) u' tl
 
 let size s = size s "b" [ "Kb"; "Mb"; "Gb" ]
+
+let date_string date =
+	let date = new%js Js.date_fromTimeValue (Int64.to_float date) in
+	Js.to_string date##toLocaleString

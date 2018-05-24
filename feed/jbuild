@@ -1,0 +1,6 @@
+(jbuild_version 1)
+(library
+ ((name feed)
+  (wrapped false)
+  (flags (:standard -open Containers))
+  (libraries (containers uri))))
