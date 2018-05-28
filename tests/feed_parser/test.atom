@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+	xmlns:media="http://search.yahoo.com/mrss/">
+
+	<title>Atom Test</title>
+	<link href="self url" rel="self" />
+	<link href="feed link url" />
+	<icon>icon uri</icon>
+
+	<entry>
+		<id>id here</id>
+		<title>title</title>
+		<summary>summary</summary>
+		<content type="html">Some content here</content>
+		<updated>Some date</updated>
+		<link href="link url" />
+		<link href="attach 1" type="truc" rel="enclosure" />
+		<link href="attach 2" length="2" rel="enclosure" />
+		<media:thumbnail url="some url" />
+		<author>
+			<name>Author 1</name>
+			<uri>uri</uri>
+		</author>
+		<author></author>
+		<author><name>Author 2</name></author>
+		<category label="Cat 1" />
+		<category label="Cat 2" term="a b c" />
+	</entry>
+
+</feed>

@@ -1,0 +1,18 @@
+(jbuild_version 1)
+
+(executables
+ ((names (test_parser))
+  (flags (:standard -open Std))
+  (libraries (feed_parser std))))
+
+(rule
+ ((targets (output))
+  (action
+   (with-stdout-to ${@}
+    (progn
+     (run ${path:test_parser.exe} ${path:test.rss})
+     (run ${path:test_parser.exe} ${path:test.atom}))))))
+
+(alias
+ ((name runtest)
+  (action (diff ${path:output} ${path:ref}))))
