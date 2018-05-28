@@ -2,5 +2,5 @@
 (library
  ((name feed)
   (wrapped false)
-  (flags (:standard -open Containers))
-  (libraries (containers uri))))
+  (flags (:standard -open Std))
+  (libraries (std uri))))
