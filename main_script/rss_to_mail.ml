@@ -116,7 +116,7 @@ let cached_fetch_all clear_cache reqs =
 	in
 	loop 0 0
 
-let oldest_entry = Int64.of_int (7 * 24 * 3600000)
+(* let oldest_entry = Int64.of_int (7 * 24 * 3600000) *)
 
 let load_spreadsheet () =
 	let properties = PropertiesService.t##getUserProperties in
@@ -128,7 +128,7 @@ let load_spreadsheet () =
 			[])
 		Feed_spreadsheet.read
 
-let sort_entries entries =
+(* let sort_entries entries =
 	let cmp b a =
 		match Feed.(a.date, b.date) with
 		| Some a, Some b	-> Int64.compare a b
@@ -146,7 +146,7 @@ let rec cut_entries i since entries =
 			| Some d	-> Int64.Infix.(>) d since
 			| None		-> false)
 	then cut_entries (i + 1) since entries
-	else Array.sub entries 0 i
+	else Array.sub entries 0 i *)
 
 let opt_link title = function
 	| Some link	-> "<a href=\"" ^ Uri.to_string link ^ "\">" ^ title ^ "</a>"
@@ -172,10 +172,7 @@ let update_entry feed_url feed options entry =
 			match List.map author entry.authors with
 			| []		-> ""
 			| authors	-> " by " ^ String.concat ", " authors
-		and date =
-			match entry.date with
-			| Some d	-> "on " ^ Utils.date_string d
-			| None		-> ""
+		and date = Option.map_or "" ((^) "on ") entry.date
 		and summary =
 			match entry.summary with
 			| Some sum	-> "<p>" ^ sum ^ "</p>"
@@ -270,8 +267,8 @@ end
 
 let doGet (params : params Js.t) =
 	let process_feed url options feed =
-		sort_entries feed.Feed.entries
-		|> cut_entries 0 (Int64.(sub (of_float Js.date##now) oldest_entry))
+		(* sort_entries *) feed.Feed.entries
+		(* |> cut_entries 0 (Int64.(sub (of_float Js.date##now) oldest_entry)) *)
 		|> Array.map (update_entry url feed options)
 	in
 	let process url options = function
@@ -301,7 +298,7 @@ let doGet (params : params Js.t) =
 			(url, cache_time, process url options))
 		|> cached_fetch_all clear_cache
 		|> Array.concat
-		|> sort_entries
+		(* |> sort_entries *)
 	in
 	let output = Xml_utils.node @@ Atom_format.generate {
 			feed_title = Some "Feed aggregator";

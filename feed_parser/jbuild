@@ -1,0 +1,7 @@
+(jbuild_version 1)
+
+(library
+ ((name feed_parser)
+  (wrapped false)
+  (libraries (std uri xmlm feed))
+  (flags (:standard -open Std))))

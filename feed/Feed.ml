@@ -23,7 +23,7 @@ type 'a entry = {
 	content		: 'a option;
 	link		: Uri.t option;
 	thumbnail	: Uri.t option;
-	date		: Int64.t option;
+	date		: string option;
 	attachments	: attachment list
 }
 

@@ -5,9 +5,7 @@ let parse rss_elem =
 	let dc_ns = namespace "http://purl.org/dc/elements/1.1/"
 	and content_ns = namespace "http://purl.org/rss/1.0/modules/content/" in
 	let parse_item item =
-		let date node =
-			Int64.of_float @@ Js.date##parse (raw_text node)
-		and author creator =
+		let author creator =
 			{ author_name = text creator; author_link = None }
 		and category cat =
 			{ term = None; label = Some (text cat) }
@@ -25,7 +23,7 @@ let parse rss_elem =
 			categories = List.map category (children "category" item);
 			authors = List.map author (children ~ns:dc_ns "creator" item);
 			attachments = List.map attachment (children "enclosure" item);
-			date = child_opt date "pubDate" item }
+			date = child_opt text "pubDate" item }
 	in
 	let channel = child "channel" rss_elem in
 	let entries =

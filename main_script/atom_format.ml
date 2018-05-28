@@ -6,9 +6,7 @@ let media_ns = namespace "http://search.yahoo.com/mrss/"
 
 let parse feed_elem =
 	let parse_entry entry =
-		let date node =
-			Int64.of_float @@ Js.date##parse (raw_text node)
-		and authors =
+		let authors =
 			let parse_author author =
 				let author_link =
 					child_opt (Uri.of_string % text) ~ns "uri" author in
@@ -48,7 +46,7 @@ let parse feed_elem =
 			title = child_opt text ~ns "title" entry;
 			summary = child_opt text ~ns "summary" entry;
 			content = child_opt raw_text ~ns "content" entry;
-			date = child_opt date ~ns "updated" entry;
+			date = child_opt text ~ns "updated" entry;
 			link; attachments; thumbnail; authors; categories }
 	in
 	let feed_title = child_opt text ~ns "title" feed_elem
@@ -104,7 +102,7 @@ let generate feed =
 				let url = Uri.to_string url in
 				create ~ns:media_ns "thumbnail" ~attr:[ "url", url ] [])
 			@ m entry.title (create_text ~ns "title")
-			@ m entry.date (create_text ~ns "updated" % Utils.date_string)
+			@ m entry.date (create_text ~ns "updated")
 			@ List.map gen_category entry.categories)
 	in
 	let link = match feed.feed_link with
