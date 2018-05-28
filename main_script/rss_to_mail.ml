@@ -71,7 +71,7 @@ end
 (** `reqs` is an array of `(url, cache_timeout, process)`
 	`cache_timeout` is in second
 	`process` is a function that can process the result before it is cached *)
-let cached_fetch_all clear_cache reqs =
+let cached_fetch_all reqs =
 	let cache = CacheService.t##getScriptCache in
 	let cache_put url res cache_time =
 		let cache_time = int_of_float cache_time in
@@ -84,11 +84,8 @@ let cached_fetch_all clear_cache reqs =
 	let reqs = Array.of_list reqs in
 	let urls = Array.map (fun (url, _, _) -> Js.string url) reqs in
 	let cached =
-		if clear_cache
-		then fun _ -> None
-		else
-			let cached = cache##getAll (Js.array urls) in
-			fun index -> Js.Optdef.to_option (Js.Unsafe.get cached urls.(index))
+		let cached = cache##getAll (Js.array urls) in
+		fun index -> Js.Optdef.to_option (Js.Unsafe.get cached urls.(index))
 	in
 	let requests = new%js Js.array_empty in
 	Array.iteri (fun index url ->
@@ -116,7 +113,7 @@ let cached_fetch_all clear_cache reqs =
 	in
 	loop 0 0
 
-(* let oldest_entry = Int64.of_int (7 * 24 * 3600000) *)
+let oldest_entry = Int64.of_int (7 * 24 * 3600000)
 
 let load_spreadsheet () =
 	let properties = PropertiesService.t##getUserProperties in
@@ -128,25 +125,13 @@ let load_spreadsheet () =
 			[])
 		Feed_spreadsheet.read
 
-(* let sort_entries entries =
-	let cmp b a =
-		match Feed.(a.date, b.date) with
-		| Some a, Some b	-> Int64.compare a b
-		| None, Some _		-> ~+1
-		| Some _, None		-> ~-1
-		| None, None		-> 0
-	in
-	let entries = Array.copy entries in
-	Array.sort cmp entries;
-	entries
-
-let rec cut_entries i since entries =
-	if i < Array.length entries
-		&& (match entries.(i).Feed.date with
-			| Some d	-> Int64.Infix.(>) d since
-			| None		-> false)
-	then cut_entries (i + 1) since entries
-	else Array.sub entries 0 i *)
+let cut_entries since entries =
+	Array.filter (fun e ->
+		match e.Feed.date with
+		| Some d	->
+			let d = Int64.of_float (Js.date##parse (Js.string d)) in
+			Int64.Infix.(>) d since
+		| None		-> true) entries
 
 let opt_link title = function
 	| Some link	-> "<a href=\"" ^ Uri.to_string link ^ "\">" ^ title ^ "</a>"
@@ -265,10 +250,18 @@ object
 	method clear_cache_ : 'a. 'a Js.optdef Js.prop
 end
 
+let clear_cache data =
+	let cache = CacheService.t##getScriptCache in
+	let keys =
+		Array.of_list data
+		|> Array.map (fun (url, _) -> Js.string url)
+		|> Js.array in
+	cache##removeAll keys
+
 let doGet (params : params Js.t) =
 	let process_feed url options feed =
-		(* sort_entries *) feed.Feed.entries
-		(* |> cut_entries 0 (Int64.(sub (of_float Js.date##now) oldest_entry)) *)
+		feed.Feed.entries
+		|> cut_entries (Int64.(sub (of_float Js.date##now) oldest_entry))
 		|> Array.map (update_entry url feed options)
 	in
 	let process url options = function
@@ -290,15 +283,14 @@ let doGet (params : params Js.t) =
 			[||]
 	in
 	Console.t##time (Js.string "all");
-	let clear_cache = Js.Optdef.test params##.clear_cache_ in
+	let data = load_spreadsheet () in
+	(if Js.Optdef.test params##.clear_cache_ then clear_cache data);
 	let entries =
-		load_spreadsheet ()
-		|> List.map (fun (url, options) ->
+		data |> List.map (fun (url, options) ->
 			let cache_time = options.Feed_options.cache *. 3600. in
 			(url, cache_time, process url options))
-		|> cached_fetch_all clear_cache
+		|> cached_fetch_all
 		|> Array.concat
-		(* |> sort_entries *)
 	in
 	let output = Xml_utils.node @@ Atom_format.generate {
 			feed_title = Some "Feed aggregator";
