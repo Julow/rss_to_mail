@@ -143,7 +143,7 @@ let img url styles =
 
 let update_entry feed_url feed options entry =
 	let open Feed in
-	let summary =
+	let content =
 		let categories =
 			let labels = List.map (function
 				| { label = Some l; _ }	-> l
@@ -159,9 +159,10 @@ let update_entry feed_url feed options entry =
 			| authors	-> " by " ^ String.concat ", " authors
 		and date = Option.map_or "" ((^) "on ") entry.date
 		and summary =
-			match entry.summary with
-			| Some sum	-> "<p>" ^ sum ^ "</p>"
-			| None		-> ""
+			match entry.content, entry.summary with
+			| Some cont, _		-> cont
+			| None, Some sum	-> "<p>" ^ sum ^ "</p>"
+			| None, None		-> ""
 		and feed_title =
 			let icon = match feed.feed_icon with
 				| Some url	-> img url [
@@ -216,11 +217,7 @@ let update_entry feed_url feed options entry =
 			summary
 		]
 	in
-	let content =
-		match entry.content, options.Feed_options.no_content with
-		| Some c, false	-> Some ((Js.string summary)##concat c)
-		| _				-> Some (Js.string summary)
-	and id = match entry.id, entry.link, entry.title with
+	let id = match entry.id, entry.link, entry.title with
 		| Some id, _, _				-> Some (feed_url ^ id)
 		| None, Some link, _		-> Some (feed_url ^ Uri.to_string link)
 		| None, None, Some title	-> Some (feed_url ^ title)
@@ -230,20 +227,10 @@ let update_entry feed_url feed options entry =
 		| None, Some link		-> Some (Uri.to_string link)
 		| None, None			-> Some feed_url
 	in
-	{ entry with id; title; summary = None; content }
+	{ entry with id; title; summary = None; content = Some content }
 
 let parse_feed contents =
-	let open Xml_utils in
-	try
-		let root = parse contents in
-		match tag root with
-		| "rss"		-> Rss_format.parse root
-		| "feed"	-> Atom_format.parse root
-		| _			-> failwith "Unexpected format"
-	with
-	| Js.Error err				-> failwith (Js.to_string err##.message)
-	| Child_not_found tag		-> failwith ("Missing tag " ^ tag)
-	| Attribute_not_found attr	-> failwith ("Missing attribute " ^ attr)
+	Feed_parser.parse (Xmlm.make_input (`String (0, Js.to_string contents)))
 
 class type params =
 object
@@ -292,7 +279,7 @@ let doGet (params : params Js.t) =
 		|> cached_fetch_all
 		|> Array.concat
 	in
-	let output = Xml_utils.node @@ Atom_format.generate {
+	let output = Atom_format.generate {
 			feed_title = Some "Feed aggregator";
 			feed_link = None;
 			feed_icon = None;
