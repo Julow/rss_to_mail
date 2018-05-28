@@ -10,8 +10,12 @@
 
 (rule
  ((targets (rss_to_mail.gs))
-  (action (copy ${path:rss_to_mail.bc.js} ${@}))))
+  (action
+   (with-stdout-to ${@}
+    (progn
+     (cat ${path:rss_to_mail.bc.js})
+     (cat ${path:main.gs}))))))
 
 (alias
  ((name all)
-  (deps (rss_to_mail.gs main.gs))))
+  (deps (rss_to_mail.gs))))
