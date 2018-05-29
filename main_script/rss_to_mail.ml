@@ -1,32 +1,12 @@
-module Feed_options =
-struct
-
-	type t = {
-		cache		: float; (** Cache timeout in hours *)
-		label		: string option; (** Appended to the content *)
-		no_content	: bool (** If the content should be removed *)
-	}
-
-	let of_obj obj =
-		let prop name default map =
-			let v = Js.Unsafe.get obj (Js.string name) in
-			Js.Optdef.case v (fun () -> default) map
-		in
-		let some_string s = Some (Js.to_string s) in
-		{	cache		= prop "cache"		6.		(fun v ->
-				match Js.to_string v with
-				| "always"		-> 0.2
-				| "often"		-> 1.5
-				| "sometimes"	-> 6.
-				| "daily"		-> 24.
-				| "rarely"		-> 72.
-				| _				-> failwith "cache: Invalid value");
-			label		= prop "label"		None	some_string;
-			no_content	= prop "no_content"	false	Js.to_bool }
-
-	let default () = of_obj (object%js end)
-
-end
+let options_of_obj obj =
+	let (=>) name f =
+		let v = Js.Unsafe.get obj (Js.string name) in
+		Js.Optdef.(to_option (map v f))
+	in
+	Feed_options.make ()
+		?cache:("cache" => (Feed_options.cache_of_string % Js.to_string))
+		?label:("label" => Js.to_string)
+		?no_content:("no_content" => Js.to_bool)
 
 module Feed_spreadsheet =
 struct
@@ -41,12 +21,12 @@ struct
 		let process_row row =
 			let parse_options url options_data =
 				try
-					try Feed_options.of_obj (Js._JSON##parse options_data##toString)
+					try options_of_obj (Js._JSON##parse options_data##toString)
 					with Js.Error e -> failwith (Js.string_of_error e)
 				with Failure e ->
 					Console.error ("Malformed options: "
 						^ Js.to_string url##toString ^ ": " ^ e);
-					Feed_options.default ()
+					Feed_options.make ()
 			in
 			match Js.to_array row with
 			| [| url; options_data |] ->

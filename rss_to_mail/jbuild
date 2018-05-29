@@ -1,0 +1,6 @@
+(jbuild_version 1)
+(library
+ ((name rss_to_mail)
+  (wrapped false)
+  (flags (:standard -open Std))
+  (libraries (std uri))))
