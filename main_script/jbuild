@@ -1,7 +1,7 @@
 (jbuild_version 1)
 
-(executables
- ((names (rss_to_mail))
+(executable
+ ((name rss_to_mail)
   (js_of_ocaml
    ((flags (--wrap-with-fun=main))))
   (libraries (std uri appsscript feed feed_parser xmlm rss_to_mail))
@@ -15,6 +15,10 @@
     (progn
      (cat ${path:rss_to_mail.bc.js})
      (cat ${path:main.gs}))))))
+
+(install
+ ((section share)
+  (files (rss_to_mail.gs))))
 
 (alias
  ((name all)
