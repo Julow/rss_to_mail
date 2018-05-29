@@ -24,21 +24,41 @@ struct
 
 end
 
+module Float =
+struct
+	include Float
+	include Float.Infix
+end
+
+module Int =
+struct
+	include Int
+	include Int.Infix
+end
+
+module Int32 =
+struct
+	include Int32
+	include Int32.Infix
+end
+
+module Int64 =
+struct
+	include Int64
+	include Int64.Infix
+end
+
 module Array = Array
 module ArrayLabels = ArrayLabels
 module Array_slice = Array_slice
 module Bool = Bool
 module Char = Char
 module Equal = Equal
-module Float = Float
 module Format = Format
 module Fun = Fun
 module Hash = Hash
 module Hashtbl = Hashtbl
 module Heap = Heap
-module Int = Int
-module Int32 = Int32
-module Int64 = Int64
 module IO = IO
 module ListLabels = ListLabels
 module Map = Map
