@@ -1,43 +1,35 @@
-module SeenSet = Map.Make (String)
+module StringMap = Map.Make (String)
 
-(** Store the pair (date, ID) but sort only on the date *)
-module RemovedQueue = Heap.Make (struct
-	type t = int64 * string
-	let leq (a, _) (b, _) = Int64.(<=) a b
-end)
+type t = int64 option StringMap.t
 
-type t = {
-	seen		: int64 option SeenSet.t;
-	removed		: RemovedQueue.t
-}
+let empty = StringMap.empty
 
-let empty = { seen = SeenSet.empty; removed = RemovedQueue.empty }
+let is_seen id t = StringMap.mem id t
 
-let is_seen id t = SeenSet.mem id t.seen
+let add id t = StringMap.add id None t
 
-let add id t = { t with seen = SeenSet.add id None t.seen }
+let remove date id t = StringMap.add id (Some date) t
 
-(** Add the date to the [removed] queue
-	Also set the date in the [seen] set,
-	in case the same ID is added or removed again *)
-let remove date id t =
-	let removed = RemovedQueue.add t.removed (date, id)
-	and seen = SeenSet.add id (Some date) t.seen in
-	{ seen; removed }
+let remove_now id t = StringMap.remove id t
 
-let remove_now id t = { t with seen = SeenSet.remove id t.seen }
-
-(** Take from the [removed] queue
-	while the removed date is lower than [since]
-	Before removing, re-check the date in the [seen] set *)
 let rec filter_removed since t =
-	match RemovedQueue.take t.removed with
-	| Some (removed, (date, id)) when Int64.(<) date since ->
-		let seen =
-			match SeenSet.get id t.seen with
-			| Some (Some date') when Int64.(<) date' since ->
-				SeenSet.remove id t.seen
-			| _ -> t.seen
-		in
-		filter_removed since { seen; removed }
-	| _ -> t
+	StringMap.filter (fun _ -> function
+		| Some date when Int64.(<) date since -> false
+		| _ -> true) t
+
+let new_ids date new_ids t =
+	let remove = Some date in
+	let t = StringMap.map (function
+		| Some _ as removed	-> removed
+		| None				-> remove) t in
+	List.fold_left (fun t id -> add id t) t new_ids
+
+let of_list lst = StringMap.of_list lst
+let to_list t = StringMap.to_list t
+
+let of_list_filter since lst =
+	let filter_add t = function
+		| _, Some date when Int64.(<) date since -> t
+		| id, removed -> StringMap.add id removed t
+	in
+	List.fold_left filter_add StringMap.empty lst
