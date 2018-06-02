@@ -1,6 +1,6 @@
 main(this);
 
-function doGet(params)
+function doUpdate(params)
 {
-	return rss_to_mail.doGet(params);
+	return rss_to_mail.doUpdate(params);
 }

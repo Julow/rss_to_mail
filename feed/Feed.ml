@@ -34,6 +34,17 @@ type 'a t = {
 	entries		: 'a entry array
 }
 
+(** Try to returns the ID of an entry
+	If the ID is None, try the link, title and date *)
+let entry_id e =
+	match e.id with
+	| Some _ as id	-> id
+	| None			->
+		match e.link, e.title with
+		| Some link, _				-> Some (Uri.to_string link)
+		| None, (Some _ as title)	-> title
+		| None, None				-> e.date
+
 let resolve_urls feed_urls t =
 	let res = Uri.resolve "" feed_urls in
 	let res' = Option.map res in

@@ -17,12 +17,12 @@ let rec filter_removed since t =
 		| Some date when Int64.(<) date since -> false
 		| _ -> true) t
 
-let new_ids date new_ids t =
+let new_ids date ids t =
 	let remove = Some date in
 	let t = StringMap.map (function
 		| Some _ as removed	-> removed
 		| None				-> remove) t in
-	List.fold_left (fun t id -> add id t) t new_ids
+	List.fold_left (flip add) t ids
 
 let of_list lst = StringMap.of_list lst
 let to_list t = StringMap.to_list t

@@ -3,8 +3,9 @@
 	Silently ignore errors as much as possible
 	Raise [Failure] on fatal error *)
 
-let fatal_error line col msg =
-	failwith (Printf.sprintf "Error: %d:%d: %s" line col msg)
+(** Raised on parsing error
+	(line * column) * message *)
+exception Error of (int * int) * string
 
 let parse inp =
 	try
@@ -14,7 +15,6 @@ let parse inp =
 		| "feed"	-> Atom.parse node
 		| _			-> failwith "Unsupported format"
 	with Failure msg ->
-		let line, col = Xmlm.pos inp in
-		fatal_error line col msg
-	| Xmlm.Error ((line, col), err) ->
-		fatal_error line col (Xmlm.error_message err)
+		raise (Error (Xmlm.pos inp, msg))
+	| Xmlm.Error (pos, err) ->
+		raise (Error (pos, Xmlm.error_message err))

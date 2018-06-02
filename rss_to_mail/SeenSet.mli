@@ -25,7 +25,7 @@ val remove_now : string -> t -> t
 val filter_removed : int64 -> t -> t
 
 (** Adds (or cancels remove) of the IDs in [new_ids]
-	Remove IDs that are not in [new_ids] at [date] *)
+	IDs that are not in [new_ids] are removed at [date] *)
 val new_ids : int64 -> string list -> t -> t
 
 (** Build a SeenSet from a list of (ID * remove date) *)
