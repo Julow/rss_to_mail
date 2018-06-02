@@ -46,17 +46,24 @@ let new_entries remove_date seen_ids entries =
 	SeenSet.new_ids remove_date ids seen_ids, news
 
 let should_update now last_update options =
-	Int64.(last_update + of_float (options.cache *. 3600.) >= now)
+	Int64.(last_update + of_float (options.cache *. 3600.) < now)
 
 let feed_data props url =
 	Properties.get_feed_data props url |> Option.get (SeenSet.empty, 0L)
 
 let fmt = Printf.sprintf
 
+let get_user_email () =
+	let email = Session.t##getActiveUser##getEmail in
+	(if email##.length = 0 then failwith "Can't access user's email");
+	email
+
+let date_now () =
+	Int64.of_float ((new%js Js.date_now)##getTime /. 1000.)
+
 let update props =
-	let user_email = Session.t##getActiveUser##getEmail in
-	(if user_email##.length = 0 then failwith "Can't access user's email");
-	let now = 0L in
+	let user_email = get_user_email () in
+	let now = date_now () in
 	(* Remove date for IDs that disapeared from the feed: 1 month *)
 	let remove_date = Int64.(+) now 2678400L in
 	load_spreadsheet props
@@ -67,6 +74,7 @@ let update props =
 		else Some (Fetch.url url (function
 			| Error code		-> Error (fmt "%s: Fetch error: %d" url code)
 			| Ok contents		->
+				Console.t##time (Js.string url);
 				let inp = Xmlm.make_input (`String (0, contents)) in
 				match Feed_parser.parse inp with
 				| exception Feed_parser.Error ((line, col), msg) ->
@@ -76,19 +84,26 @@ let update props =
 					let seen_ids, entries =
 						new_entries remove_date seen_ids feed.entries in
 					let mails = List.map (prepare_mail url feed options) entries in
-					Ok (url, (seen_ids, now), mails)
+					let mails =
+						if Int64.(=) last_update 0L
+						then [] (* First update, don't send any mails *)
+						else mails in
+					try
+						Console.t##timeEnd (Js.string url);
+						List.iter (send_mail user_email) mails;
+						Console.info (fmt "%d new entries from %s" (List.length mails) url);
+						Ok (url, (seen_ids, now))
+					with _ ->
+						Error "Could not send mails"
 	)))
-	|> List.last 5
+	|> List.(take 5 % shuffle) (* Process only 5 feeds (choosen randomly) *)
 	|> Fetch.perform
 	|> List.iter (function
-		| Ok (url, data, mails)	->
-			Properties.set_feed_data props url data;
-			Console.info (fmt "%d new entries from %s" (List.length mails) url);
-			List.iter (send_mail user_email) mails
-		| Error msg				->
-			Console.error msg)
+		| Ok (url, data)	-> Properties.set_feed_data props url data
+		| Error msg			-> Console.error msg)
 
 let do_update () =
+	Random.self_init ();
 	Console.t##time (Js.string "all");
 	let props = Properties.load () in
 	update props;

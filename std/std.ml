@@ -22,6 +22,11 @@ struct
 		| _ :: tl	-> assoc_all ~eq key tl
 		| []		-> []
 
+	let shuffle lst =
+		Array.(of_list lst
+			|> Fun.tap shuffle
+			|> to_list)
+
 end
 
 module Float =
@@ -49,7 +54,6 @@ struct
 end
 
 module Array = Array
-module ArrayLabels = ArrayLabels
 module Array_slice = Array_slice
 module Bool = Bool
 module Char = Char
@@ -60,7 +64,6 @@ module Hash = Hash
 module Hashtbl = Hashtbl
 module Heap = Heap
 module IO = IO
-module ListLabels = ListLabels
 module Map = Map
 module Nativeint = Nativeint
 module Ord = Ord
