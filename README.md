@@ -1,8 +1,8 @@
-# Feed aggregator
+# RSS to Mail
 
-Aggregate any feeds into a single one
+Send a mail for new entries on an RSS or Atom feeds
 
-Runs on [Google Apps Script](https://developers.google.com/apps-script/overview) as a web app
+Runs on [Google Apps Script](https://developers.google.com/apps-script/overview)
 
 ### Config
 
@@ -21,13 +21,17 @@ Options are formatted as a JSON dict:
 
 ### Build
 
-To build you will need jbuilder and js_of_ocaml 3.0.x (`opam install jbuilder js_of_ocaml{,-ppx}`)
-
-```
-jbuilder build @all
+```shell
+jbuilder build
 ```
 
-Upload these files to your Apps Script project:
+Dependencies:
 
-- `_build/default/rss_to_mail.gs`
-- `_build/default/main.gs`
+- jbuilder, js_of_ocaml{,-ppx}, uri, containers
+- https://github.com/Julow/ocaml-uri/tree/optional_sexplib
+
+Upload this file to your Apps Script project:
+
+- `_build/default/main_script/rss_to_mail.gs`
+
+Setup a trigger for `doUpdate` every 10 minutes
