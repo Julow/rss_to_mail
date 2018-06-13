@@ -4,4 +4,4 @@
   (public_name rss_to_mail)
   (wrapped false)
   (flags (:standard -open Std))
-  (libraries (std uri feed))))
+  (libraries (std uri feed feed_parser))))
