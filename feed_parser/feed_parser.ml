@@ -7,7 +7,15 @@
 	(line * column) * message *)
 exception Error of (int * int) * string
 
-let parse inp =
+let ns =
+	function
+	| "media"	-> Some "http://search.yahoo.com/mrss/"
+	| "content"	-> Some "http://purl.org/rss/1.0/modules/content/"
+	| "dc"		-> Some "http://purl.org/dc/elements/1.1/"
+	| ns		-> Some ns
+
+let parse source =
+	let inp = Xmlm.make_input ~ns source in
 	try
 		let node = Xml.parse_from_begining inp in
 		match Xml.name node with

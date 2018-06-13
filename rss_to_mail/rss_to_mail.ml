@@ -38,8 +38,8 @@ let new_entries remove_date seen_ids entries =
 	) entries ([], []) in
 	SeenSet.new_ids remove_date ids seen_ids, news
 
-let update ~first_update ~now uri options seen_ids input =
-	match Feed_parser.parse input with
+let update ~first_update ~now uri options seen_ids source =
+	match Feed_parser.parse source with
 	| exception Feed_parser.Error (pos, msg) -> `Parsing_error (pos, msg)
 	| feed ->
 		let feed = Feed.resolve_urls uri feed in

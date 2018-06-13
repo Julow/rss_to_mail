@@ -51,9 +51,9 @@ let update () =
 				Console.t##time (Js.string url);
 				let first_update = Int64.(=) last_update 0L
 				and uri = Uri.of_string url
-				and inp = Xmlm.make_input (`String (0, contents)) in
+				and source = `String (0, contents) in
 				let r = Rss_to_mail.update ~first_update ~now
-						uri options seen_ids inp in
+						uri options seen_ids source in
 				Console.t##timeEnd (Js.string url);
 				url, r
 	)))
