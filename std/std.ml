@@ -81,4 +81,6 @@ module Utf8_string = Utf8_string
 include Fun
 include Monomorphic
 
+module StringMap = Map.Make (String)
+
 let _Some v = Some v

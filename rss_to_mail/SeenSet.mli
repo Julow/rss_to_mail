@@ -28,6 +28,11 @@ val filter_removed : int64 -> t -> t
 	IDs that are not in [new_ids] are removed at [date] *)
 val new_ids : int64 -> string list -> t -> t
 
+(** Fold over the IDs
+	the [int64 option] part is [Some date] if the ID is to be removed
+	[None] otherwise *)
+val fold : (string -> int64 option -> 'a -> 'a) -> t -> 'a -> 'a
+
 (** Build a SeenSet from a list of (ID * remove date) *)
 val of_list : (string * int64 option) list -> t
 

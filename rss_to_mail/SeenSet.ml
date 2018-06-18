@@ -1,5 +1,3 @@
-module StringMap = Map.Make (String)
-
 type t = int64 option StringMap.t
 
 let empty = StringMap.empty
@@ -23,6 +21,8 @@ let new_ids date ids t =
 		| Some _ as removed	-> removed
 		| None				-> remove) t in
 	List.fold_left (flip add) t ids
+
+let fold = StringMap.fold
 
 let of_list lst = StringMap.of_list lst
 let to_list t = StringMap.to_list t

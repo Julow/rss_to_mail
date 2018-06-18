@@ -4,7 +4,7 @@
  ((name main_script)
   (js_of_ocaml
    ((flags (--wrap-with-fun=main))))
-  (libraries (std uri appsscript feed feed_parser xmlm rss_to_mail))
+  (libraries (std appsscript rss_to_mail))
   (flags (:standard -open Std))
   (preprocess (pps (js_of_ocaml-ppx)))))
 
