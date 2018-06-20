@@ -12,11 +12,11 @@ let set_sheet_id v = properties##setProperty sheet_id v
 let seen_ids url = Js.string ("SEEN_" ^ url)
 
 let get_feed_data t url =
-	let f (ids, updt) = Some (SeenSet.of_list ids, updt) in
+	let f (ids, updt) = Some (updt, SeenSet.of_list ids) in
 	Js.Optdef.case (Js.Unsafe.get t (seen_ids url))
 		(const None) (f % Json.unsafe_input)
 
-let set_feed_data url (ids, last_update) =
+let set_feed_data url (last_update, ids) =
 	let data = SeenSet.to_list ids, last_update in
 	properties##setProperty (seen_ids url) (Json.output data)
 

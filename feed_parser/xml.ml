@@ -7,7 +7,7 @@ let name_equal ns name = function
 
 let name =
 	function
-	| Text txt				-> failwith "Xml.name: text"
+	| Text _				-> failwith "Xml.name: text"
 	| Node (((_, n), _), _)	-> n
 
 let child ?(ns="") name = function

@@ -78,6 +78,7 @@ module Vector = Vector
 module Monomorphic = Monomorphic
 module Utf8_string = Utf8_string
 
+include Printf
 include Fun
 include Monomorphic
 

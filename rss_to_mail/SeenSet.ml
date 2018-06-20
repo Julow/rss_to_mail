@@ -10,7 +10,7 @@ let remove date id t = StringMap.add id (Some date) t
 
 let remove_now id t = StringMap.remove id t
 
-let rec filter_removed since t =
+let filter_removed since t =
 	StringMap.filter (fun _ -> function
 		| Some date when Int64.(<) date since -> false
 		| _ -> true) t

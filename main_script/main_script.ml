@@ -1,5 +1,4 @@
-let send_mail to_ mail =
-	let open Rss_to_mail in
+let send_mail to_ (mail : Rss_to_mail.mail) =
 	MailApp.t##sendEmail (object%js
 		val to_ = to_
 		val subject = Js.string mail.subject
@@ -24,9 +23,6 @@ let load_spreadsheet datas =
 		Properties.set_sheet_id id;
 		[]
 
-let feed_data props url =
-	Properties.get_feed_data props url |> Option.get (SeenSet.empty, 0L)
-
 let fmt = Printf.sprintf
 
 let get_user_email () =
@@ -37,56 +33,76 @@ let get_user_email () =
 let date_now () =
 	Int64.of_float ((new%js Js.date_now)##getTime /. 1000.)
 
+let fetch uri =
+	let uri = Js.string (Uri.to_string uri) in
+	try
+		let res = UrlFetchApp.t##fetch_param uri (object%js
+				val muteHttpExceptions = Js._true
+			end) in
+		let code = res##getResponseCode in
+		if code = 200
+		then Ok (Js.to_string res##getContentText)
+		else Error code
+	with _ -> Error ~-1
+
+module Fetch =
+struct
+
+	let fetch uri =
+		let uri = Js.string (Uri.to_string uri) in
+		try
+			let res = UrlFetchApp.t##fetch_param uri (object%js
+					val muteHttpExceptions = Js._true
+				end) in
+			let code = res##getResponseCode in
+			if code = 200
+			then Ok (Js.to_string res##getContentText)
+			else Error code
+		with _ -> Error ~-1
+
+end
+
+module No_async =
+struct
+	type 'a t = 'a
+	let return x = x
+	let bind x f = f x
+end
+
+module Rss_to_mail = Rss_to_mail.Make (No_async) (Fetch)
+
+let check_feed ~now ~props mails (url, options) =
+	let uri = Uri.of_string url
+	and data = Properties.get_feed_data props url in
+	match Rss_to_mail.check ~now uri options data with
+	| `Fetch_error code			->
+		Console.error (fmt "%s: Fetch error (%d)" url code);
+		mails
+	| `Parsing_error ((line, col), msg) ->
+		Console.error (fmt "%s: Parsing error: %d:%d: %s" url line col msg);
+		mails
+	| `Uptodate					-> mails
+	| `Ok (seen_ids, mails')	->
+		Console.info (fmt "%d new entries from %s" (List.length mails') url);
+		(try Properties.set_feed_data url (now, seen_ids)
+		with _ -> Console.error ("Failed to set the properties for " ^ url));
+		mails' @ mails
+
 let update () =
 	let props = Properties.load () in
 	let now = date_now () in
-	load_spreadsheet props
-	|> List.filter_map (fun (url, options) ->
-		let seen_ids, last_update = feed_data props url in
-		if not (Rss_to_mail.should_update now last_update options)
-		then None
-		else Some (Fetch.url url (function
-			| Error code		-> url, `Fetch_error code
-			| Ok contents		->
-				Console.t##time (Js.string url);
-				let first_update = Int64.(=) last_update 0L
-				and uri = Uri.of_string url
-				and source = `String (0, contents) in
-				let r = Rss_to_mail.update ~first_update ~now
-						uri options seen_ids source in
-				Console.t##timeEnd (Js.string url);
-				url, r
-	)))
-	|> tap (Console.info % fmt "%d feeds to update" % List.length)
-	|> List.(take 5 % shuffle) (* Process only 5 feeds (choosen randomly) *)
-	|> Fetch.perform
-	|> List.fold_left (fun mails -> function
-		| url, `Ok (seen_ids, mails')	->
-			Console.info (fmt "%d new entries from %s"
-					(List.length mails') url);
-			(try Properties.set_feed_data url (seen_ids, now)
-			with _ -> Console.error ("Failed to set the properties for " ^ url));
-			mails' @ mails
-		| url, `Fetch_error code		->
-			Console.error (fmt "%s: Fetch error (%d)" url code);
-			mails
-		| url, `Parsing_error ((line, col), msg) ->
-			Console.error (fmt "%s: Parsing error: %d:%d: %s" url line col msg);
-			mails)
-		[]
-	|> (fun mails ->
-		Properties.get_unsent_mails props
-		|> flip (@) mails
-		|> send_mails (lazy (get_user_email ()))
-		|> Properties.set_unsent_mails)
-
-let do_update () =
-	Random.self_init ();
-	Console.t##time (Js.string "all");
-	update ();
-	Console.t##timeEnd (Js.string "all")
+	let feeds = load_spreadsheet props in
+	let unsent = Properties.get_unsent_mails props in
+	let mails = List.fold_left (check_feed ~now ~props) [] feeds in
+	let unsent = send_mails (lazy (get_user_email ())) (unsent @ mails) in
+	(if not (List.is_empty unsent) then
+		Console.info (fmt "%d mails could not be sent\n" (List.length unsent)));
+	Properties.set_unsent_mails unsent
 
 let () = Js.export "rss_to_mail"
 	(object%js
-		method doUpdate _ = do_update ()
+		method doUpdate _ =
+			Console.t##time (Js.string "all");
+			update ();
+			Console.t##timeEnd (Js.string "all")
 	end)
