@@ -25,11 +25,11 @@ let parse_scraper =
 		function
 		| `List (`Atom "R" :: rs)	-> R (List.map (rule ~target) rs)
 		| `List (`Atom "T" :: ts)	-> T (List.map target ts)
-		| _							-> failwith "Malformed scraper"
+		| _							-> failwith "Malformated scraper"
 	and rule ~target =
 		function
 		| `List [ `Atom sel; t ]	-> sel, scraper ~target t
-		| _							-> failwith "Malformed scraper rule"
+		| _							-> failwith "Malformated scraper rule"
 	in
 	let open Scraper in
 	let target =
@@ -47,6 +47,12 @@ let parse_scraper =
 		| _								-> failwith "Invalid target"
 	in
 	fun t -> R [ rule ~target t ]
+
+type config = {
+	smtp	: string * [ `Plain of string * string ] option;
+	address	: string;
+	feeds	: (string * Feed_options.t) list
+}
 
 let load_feeds () =
 	let rec parse_options (options : Feed_options.t) =
@@ -68,7 +74,7 @@ let load_feeds () =
 				| opt			-> failwith ("Unknown option: " ^ opt)
 			in
 			parse_options options tl
-		| _ :: _	-> failwith "Malformed options"
+		| _ :: _	-> failwith "Malformated options"
 		| []		-> options
 	in
 	let parse_feed =
@@ -80,12 +86,24 @@ let load_feeds () =
 		| _ -> failwith "feeds: Syntax error"
 	in
 	match CCSexp.parse_file feeds_file with
-	| exception Sys_error _ -> []
-	| Error _		-> []
-	| Ok t			->
-		match record "feeds" t with
-		| Some t	-> list (List.map parse_feed) t
-		| None		-> failwith "Missing field `feeds`"
+	| exception Sys_error msg	-> failwith msg
+	| Error msg					-> failwith msg
+	| Ok t						->
+		let feeds = match record "feeds" t with
+			| Some t	-> list (List.map parse_feed) t
+			| None		-> failwith "Missing field `feeds`"
+		and smtp = match record "smtp" t with
+			| Some (`List [ `Atom serv ]) -> serv, None
+			| Some (`List [ `Atom serv; `List [ `Atom user; `Atom pass ] ]) ->
+				serv, Some (`Plain (user, pass))
+			| Some _	-> failwith "Malformated field `smtp`"
+			| None		-> failwith "Missing field `smtp`"
+		and address = match record "address" t with
+			| Some (`Atom a)	-> a
+			| Some _			-> failwith "Malformated field `address`"
+			| None				-> failwith "Missing field `address`"
+		in
+		{ smtp; address; feeds }
 
 let load_feed_datas () : (int64 * SeenSet.t) StringMap.t * Rss_to_mail.mail list =
 	let parse_ids set =
