@@ -65,17 +65,23 @@ struct
 		Async.return (`Ok (seen_ids, mails))
 
 	let update ~first_update ~now uri options seen_ids =
-		let handle contents =
+		let process_feed contents =
 			match Feed_parser.parse (`String (0, contents)) with
 			| exception Feed_parser.Error (pos, msg) ->
 				Async.return (`Parsing_error (pos, msg))
 			| feed ->
 				process ~first_update ~now uri options seen_ids feed
+		and process_scrap scraper contents =
+			let feed = Scraper.scrap scraper contents in
+			process ~first_update ~now uri options seen_ids feed
 		in
 		let f = Fetch.fetch uri in
 		Async.bind f (function
 		| Error code	-> Async.return (`Fetch_error code)
-		| Ok contents	-> handle contents)
+		| Ok contents	->
+			match options.scraper with
+			| Some sc		-> process_scrap sc contents
+			| None			-> process_feed contents)
 
 	let is_uptodate now last_update options =
 		Int64.(last_update + of_float (options.cache *. 3600.) >= now)
