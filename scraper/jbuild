@@ -1,0 +1,7 @@
+(jbuild_version 1)
+(library
+ ((name scraper)
+  (public_name rss_to_mail.scraper)
+  (flags (:standard -open Std))
+  (wrapped false)
+  (libraries (std))))
