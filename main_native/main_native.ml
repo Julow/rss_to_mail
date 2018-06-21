@@ -57,11 +57,10 @@ let send_mails (server, auth) to_ mails =
 	(** At most 2 mails sending in parallel *)
 	Lwt_list.filter_map_p (pooled 2 send) mails
 
-let with_feed_datas f =
-	match Persistent_data.load_feeds () with
+let with_feed_datas config_file f =
+	match Persistent_data.load_feeds config_file with
 	| exception Failure msg ->
-		eprintf "Error: feeds.sexp: %s\n" msg;
-		Lwt.return_unit
+		failwith (sprintf "Error: %s: %s\n" config_file msg)
 	| config	->
 		let datas = Persistent_data.load_feed_datas () in
 		let%lwt datas = f config datas in
@@ -77,4 +76,6 @@ let run (conf : Persistent_data.config) (feed_datas, unsent) =
 		printf "%d mails could not be sent\n" (List.length unsent));
 	Lwt.return (feed_datas, unsent)
 
-let () = Lwt_main.run (with_feed_datas run)
+let () =
+	let config_file = try Sys.argv.(1) with _ -> "feeds.sexp" in
+	Lwt_main.run (with_feed_datas config_file run)

@@ -1,4 +1,3 @@
-let feeds_file = "feeds.sexp"
 let feed_datas_file = "feed_datas.sexp"
 
 let record field =
@@ -54,7 +53,7 @@ type config = {
 	feeds	: (string * Feed_options.t) list
 }
 
-let load_feeds () =
+let load_feeds file =
 	let rec parse_options (options : Feed_options.t) =
 		function
 		| `List [ `Atom name; value ] :: tl ->
@@ -85,7 +84,7 @@ let load_feeds () =
 			with Failure msg -> failwith (url ^ ": " ^ msg))
 		| _ -> failwith "feeds: Syntax error"
 	in
-	match CCSexp.parse_file feeds_file with
+	match CCSexp.parse_file file with
 	| exception Sys_error msg	-> failwith msg
 	| Error msg					-> failwith msg
 	| Ok t						->
