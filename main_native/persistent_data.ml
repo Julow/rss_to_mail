@@ -9,32 +9,74 @@ let record field =
 			| _ -> None) ts
 	| `Atom _	-> failwith "Expecting record"
 
+let atom =
+	function
+	| `List _	-> failwith "Expecting string"
+	| `Atom s	-> s
+
 let list f =
 	function
 	| `List ts		-> f ts
 	| `Atom _ as t	-> f [ t ]
 
-let load_feeds () =
-	let rec parse_options ~url ?cache ?label ?no_content =
+let parse_scraper =
+	let open Scrap in
+	let rec scraper ~target =
 		function
-		| `List [ `Atom name; `Atom value ] :: tl ->
-			begin match name with
+		| `List (`Atom "R" :: rs)	-> R (List.map (rule ~target) rs)
+		| `List (`Atom "T" :: ts)	-> T (List.map target ts)
+		| _							-> failwith "Malformed scraper"
+	and rule ~target =
+		function
+		| `List [ `Atom sel; t ]	-> sel, scraper ~target t
+		| _							-> failwith "Malformed scraper rule"
+	in
+	let open Scraper in
+	let target =
+		function
+		| `Atom "feed_title"			-> Feed_title
+		| `Atom "feed_icon"				-> Feed_icon
+		| `List [ `Atom "entry"; t ]	->
+			let target =
+				function
+				| `Atom "title"		-> Title
+				| `Atom "link"		-> Link
+				| _					-> failwith "Invalid target"
+			in
+			Entry (scraper ~target t)
+		| _								-> failwith "Invalid target"
+	in
+	fun t -> R [ rule ~target t ]
+
+let load_feeds () =
+	let rec parse_options (options : Feed_options.t) =
+		function
+		| `List [ `Atom name; value ] :: tl ->
+			let options = match name with
 				| "cache"		->
-					let cache = float_of_string value in
-					parse_options ~url ~cache ?label ?no_content tl
+					let cache = float_of_string (atom value) in
+					{ options with cache }
 				| "label"		->
-					parse_options ~url ?cache ~label:value ?no_content tl
+					let label = Some (atom value) in
+					{ options with label }
 				| "no_content"	->
-					let no_content = bool_of_string value in
-					parse_options ~url ?cache ?label ~no_content tl
+					let no_content = bool_of_string (atom value) in
+					{ options with no_content }
+				| "scraper"		->
+					let scraper = Some (parse_scraper value) in
+					{ options with scraper }
 				| opt			-> failwith ("Unknown option: " ^ opt)
-			end
-		| _ :: _	-> failwith (url ^ ": Malformed options")
-		| []		-> Feed_options.make ?cache ?label ?no_content ()
+			in
+			parse_options options tl
+		| _ :: _	-> failwith "Malformed options"
+		| []		-> options
 	in
 	let parse_feed =
 		function
-		| `List [ `Atom url; `List opts ] -> url, parse_options ~url opts
+		| `Atom url					-> url, Feed_options.make ()
+		| `List (`Atom url :: opts)	->
+			(try url, parse_options (Feed_options.make ()) opts
+			with Failure msg -> failwith (url ^ ": " ^ msg))
 		| _ -> failwith "feeds: Syntax error"
 	in
 	match CCSexp.parse_file feeds_file with

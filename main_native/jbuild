@@ -4,6 +4,6 @@
  ((name main_native)
   (public_name rss_to_mail.main_native)
   (libraries
-   (std lwt cohttp-lwt-unix swaks rss_to_mail containers.sexp))
+   (std lwt cohttp-lwt-unix swaks rss_to_mail scraper containers.sexp))
   (flags (:standard -open Std))
   (preprocess (pps (lwt.ppx)))))

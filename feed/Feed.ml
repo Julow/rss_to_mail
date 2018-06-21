@@ -34,6 +34,19 @@ type 'a t = {
 	entries		: 'a entry array
 }
 
+let empty_entry = {
+	id			= None;
+	title		= None;
+	authors		= [];
+	categories	= [];
+	summary		= None;
+	content		= None;
+	link		= None;
+	thumbnail	= None;
+	date		= None;
+	attachments	= []
+}
+
 (** Try to returns the ID of an entry
 	If the ID is None, try the link, title and date *)
 let entry_id e =

@@ -3,7 +3,8 @@
 type t = {
 	cache		: float; (** Cache timeout in hours *)
 	label		: string option; (** Appended to the content *)
-	no_content	: bool (** If the content should be removed *)
+	no_content	: bool; (** If the content should be removed *)
+	scraper		: Scraper.t option (** Used instead of Feed_parser *)
 }
 
 let cache_of_string =
@@ -15,5 +16,5 @@ let cache_of_string =
 	| "rarely"		-> 72.
 	| _				-> invalid_arg "Feed_options.cache_of_string"
 
-let make ?(cache=6.) ?label ?(no_content=false) () =
-	{ cache; label; no_content }
+let make ?(cache=6.) ?label ?(no_content=false) ?scraper () =
+	{ cache; label; no_content; scraper }
