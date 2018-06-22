@@ -73,7 +73,8 @@ let check_feeds ~now feed_datas feeds =
 	(if for any reason, swaks returned an error status) *)
 let send_mails (server, auth) to_ mails =
 	let send (t : Rss_to_mail.mail) =
-		Swaks.send_mail ~server ?auth ~from:t.sender ~to_ t.subject t.body
+		let from = "\"" ^ t.sender ^ "\"" in
+		Swaks.send_mail ~server ?auth ~from ~to_ t.subject t.body
 		|> Lwt.map (function `Ok -> None | _ -> Some t)
 	in
 	(** At most 2 mails sending in parallel *)
