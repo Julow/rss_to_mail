@@ -59,7 +59,7 @@ let load_feeds file =
 		| `List [ `Atom name; value ] :: tl ->
 			let options = match name with
 				| "cache"		->
-					let cache = float_of_string (atom value) in
+					let cache = Feed_options.cache_of_string (atom value) in
 					{ options with cache }
 				| "label"		->
 					let label = Some (atom value) in

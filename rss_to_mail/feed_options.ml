@@ -14,7 +14,9 @@ let cache_of_string =
 	| "sometimes"	-> 6.
 	| "daily"		-> 24.
 	| "rarely"		-> 72.
-	| _				-> invalid_arg "Feed_options.cache_of_string"
+	| s				->
+		try float_of_string s
+		with _ -> invalid_arg "Feed_options.cache_of_string"
 
 let make ?(cache=6.) ?label ?(no_content=false) ?scraper () =
 	{ cache; label; no_content; scraper }
