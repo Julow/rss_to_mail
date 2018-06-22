@@ -7,14 +7,36 @@ let pooled n f =
 module Fetch =
 struct
 
+	(** Wrapper around cohttp's [get] that support following redirections
+		If there is chain of more than [max_redirect] redirections,
+		simply returns the last response (with status 30x).
+		Same if there is no "Location" header *)
+	let rec get ?(max_redirect=5) url =
+		let open Cohttp in
+		let%lwt resp, body = Cohttp_lwt_unix.Client.get url in
+		match resp.status with
+		| (`Moved_permanently
+			| `Found
+			| `Temporary_redirect)
+			when max_redirect > 0 ->
+			let max_redirect = max_redirect - 1 in
+			let headers = Response.headers resp in
+			begin match Header.get headers "location" with
+				| Some url		-> get ~max_redirect (Uri.of_string url)
+				| None			-> Lwt.return (resp, body)
+			end
+		| _ -> Lwt.return (resp, body)
+
+
 	let fetch url =
-		let%lwt resp, body = Cohttp_lwt_unix.Client.call `GET url in
-		let code = Cohttp.Code.code_of_status resp.status in
-		if code <> 200
-		then Lwt.return (Error code)
-		else
+		let%lwt resp, body = get url in
+		match resp.status with
+		| `OK		->
 			let%lwt body = Cohttp_lwt.Body.to_string body in
 			Lwt.return (Ok body)
+		| _			->
+			let code = Cohttp.Code.code_of_status resp.status in
+			Lwt.return (Error code)
 
 	(** at most 5 fetch at once *)
 	let fetch = pooled 5 fetch
