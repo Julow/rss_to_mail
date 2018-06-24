@@ -53,14 +53,12 @@ let check_feeds ~now feed_datas feeds =
 		Lwt.return (url, r)
 	and handle (feed_datas, mails as acc) = function
 		| url, `Fetch_error code		->
-			eprintf "%s: Fetch error: %d\n" url code; acc
+			eprintf "%s: Fetch error: %d\n%!" url code; acc
 		| url, `Parsing_error ((line, col), msg) ->
-			eprintf "%s: Parsing error: %d:%d: %s\n" url line col msg; acc
-		| url, `Uptodate				->
-			printf "%s: Uptodate\n" url;
-			acc
+			eprintf "%s: Parsing error: %d:%d: %s\n%!" url line col msg; acc
+		| url, `Uptodate				-> acc
 		| url, `Ok (seen_ids, mails')	->
-			printf "%s: %d new entries\n" url (List.length mails');
+			printf "%s: %d new entries\n%!" url (List.length mails');
 			StringMap.add url (now, seen_ids) feed_datas,
 			mails' @ mails
 	in
