@@ -4,7 +4,7 @@
  ((name main_script)
   (js_of_ocaml
    ((flags (--wrap-with-fun=main))))
-  (libraries (std appsscript rss_to_mail))
+  (libraries (rss_to_mail.std appsscript rss_to_mail))
   (flags (:standard -open Std))
   (preprocess (pps (js_of_ocaml-ppx)))))
 
@@ -18,4 +18,5 @@
 
 (install
  ((section share)
+  (package rss_to_mail-script)
   (files (rss_to_mail.gs))))

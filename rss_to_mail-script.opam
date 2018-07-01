@@ -6,11 +6,9 @@ depends: [
 	"containers"
 	"uri"
 	"xmlm"
-	"base64"
 	"markup"
 	"lambdasoup"
-	"lwt"
-	"lwt_ssl"
-	"cohttp-lwt-unix"
+	"js_of_ocaml"
+	"js_of_ocaml-ppx" { build }
 ]
 build: [[ "jbuilder" "build" "-p" name "-j" jobs ]]

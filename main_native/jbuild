@@ -2,7 +2,8 @@
 
 (executable
  ((name main_native)
-  (public_name rss_to_mail.main_native)
+  (public_name rss_to_mail)
+  (package rss_to_mail)
   (libraries
    (std lwt cohttp-lwt-unix swaks rss_to_mail scraper containers.sexp))
   (flags (:standard -open Std))
