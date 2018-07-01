@@ -2,36 +2,50 @@
 
 Send a mail for new entries on an RSS or Atom feeds
 
-Runs on [Google Apps Script](https://developers.google.com/apps-script/overview)
-
 ### Config
 
-The list of feeds is stored in a spreadsheet on Google Drive.
-
-This file will be created automatically with 2 columns,
-the first for the feed url and the second for its options
-
-Options are formatted as a JSON dict:
-
-| Key	| Default value	| Description	|
-| ---	| ---	| ---	|
-| `"cache"`	| `"sometimes"`	| Update interval: `"always"`, `"often"`, `"sometimes"`, `"daily"`, `"rarely"`	|
-| `"no_content"`	| `false`	| If true, contents are removed	|
-| `"label"`	| `null`	| Inserted into the contents, usefull for filtering	|
-
-### Build
-
-```shell
-jbuilder build
+```sexp
+((smtp ("smtp server" ("user name" "password")))
+ (address "destination email address")
+ (feeds
+  ((http://feed_url (option1 value) (option2 value) ...)
+   (http://feed_url2 options ...))))
 ```
 
-Dependencies:
+Options:
 
-- jbuilder, js_of_ocaml{,-ppx}, uri, containers
-- https://github.com/Julow/ocaml-uri/tree/optional_sexplib
+- `label` Inserted into the body of the message: " with label ..."
+- `cache` Update frequency. May be a numeric value, in hour
+	or `always`, `often`, `sometimes`, `daily`, `rarely`
+- `no_content` True or false. If true, the content of entries will not be included in the mail
+- `scraper` If set, run a custom scraper instead
 
-Upload this file to your Apps Script project:
+### Install
 
-- `_build/default/main_script/rss_to_mail.gs`
+Depends on `swaks`, install it with your package manager.
 
-Setup a trigger for `doUpdate` every 10 minutes
+Then, pin this repo with opam:
+
+```shell
+opam pin add rss_to_mail git://github.com/Julow/rss_to_mail
+```
+
+### Usage
+
+```shell
+rss_to_mail [config_file]
+```
+
+By default, the config file is `feeds.sexp`.
+
+An other file, `feed_datas.sexp`, will be created in the current directory.
+
+### Apps Script version
+
+It can also run on [Google Apps Script](https://developers.google.com/apps-script/overview).
+
+The config is stored in a spreadsheet on Google Drive.
+
+This file will be created automatically with 2 columns: the feed url and its options.
+
+Options are formatted as a JSON dict.
