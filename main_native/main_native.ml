@@ -96,6 +96,32 @@ let run (conf : Persistent_data.config) (feed_datas, unsent) =
 		printf "%d mails could not be sent\n" (List.length unsent));
 	Lwt.return (feed_datas, unsent)
 
+let check_config_file f =
+	try ignore (Persistent_data.load_feeds f)
+	with Failure msg ->
+		eprintf "The configuration file contains some errors:\n  %s\n" msg;
+		exit 1
+
+let run check_config config_file =
+	if check_config
+	then check_config_file config_file
+	else Lwt_main.run (with_feed_datas config_file run)
+
 let () =
-	let config_file = try Sys.argv.(1) with _ -> "feeds.sexp" in
-	Lwt_main.run (with_feed_datas config_file run)
+	let open Cmdliner in
+	let open Arg in
+	let check_config =
+		let doc = "Check the configuration file for errors and exit" in
+		value & flag & info [ "check-config" ] ~doc
+
+	and config =
+		let doc = "Configuration file" in
+		value & pos 0 string "feeds.sexp" & info [] ~docv:"CONFIG" ~doc
+	in
+
+	let term =
+		let doc = "Fetch a list of feeds and send a mail for new entries" in
+		Term.(const run $ check_config $ config),
+		Term.info "rss_to_mail" ~doc
+	in
+	Term.exit @@ Term.eval term

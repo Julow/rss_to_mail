@@ -12,5 +12,6 @@ depends: [
 	"lwt"
 	"lwt_ssl"
 	"cohttp-lwt-unix"
+	"cmdliner"
 ]
 build: [[ "jbuilder" "build" "-p" name "-j" jobs ]]
