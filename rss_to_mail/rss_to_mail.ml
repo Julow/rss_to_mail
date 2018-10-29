@@ -28,15 +28,14 @@ struct
 
 	let prepare_mail feed_uri feed options entry =
 		let sender =
-			match feed.feed_title with
-			| Some title	-> title
-			| None			->
-				match Uri.host feed_uri with
-				| Some host		-> host
-				| None			-> Uri.to_string feed_uri
+			let (|||) opt def = match opt with Some v -> v | None -> def () in
+			options.Feed_options.title ||| fun () ->
+			feed.feed_title ||| fun () ->
+			Uri.host feed_uri ||| fun () ->
+			Uri.to_string feed_uri
 		in
 		let subject =
-			match entry.title with
+			match entry.Feed.title with
 			| Some title	-> title
 			| None			-> "New entry from " ^ sender
 		in

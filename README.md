@@ -15,6 +15,7 @@ Send a mail for new entries on an RSS or Atom feeds
 Options:
 
 - `label` Inserted into the body of the message: " with label ..."
+- `title` Override the feed title
 - `cache` Update frequency. May be a numeric value, in hour
 	or `always`, `often`, `sometimes`, `daily`, `rarely`
 - `no_content` True or false. If true, the content of entries will not be included in the mail

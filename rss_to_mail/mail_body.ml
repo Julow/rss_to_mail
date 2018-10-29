@@ -35,9 +35,11 @@ let generate feed options entry =
 				"height: 1em !important;";
 				"margin: 0 0 -0.1em 0 !important;" ]
 			| None		-> ""
-		and title = match feed.feed_title with
-			| Some title	-> title
-			| None			-> ""
+		and title = match options.Feed_options.title, feed.feed_title with
+			| Some xtitle, Some title	-> xtitle ^ " (" ^ title ^ ")"
+			| None, Some title
+			| Some title, None			-> title
+			| None, None				-> ""
 		in
 		opt_link (icon ^ title) feed.feed_link
 	and entry_title =

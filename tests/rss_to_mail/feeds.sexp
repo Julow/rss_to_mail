@@ -3,6 +3,7 @@
  (feeds (
 	atom.atom
 	rss.rss
+	(atom.atom (label "Label") (title "Title"))
 	(firefox.html
 	 (scraper
 	  ("#main-content > ol > li"

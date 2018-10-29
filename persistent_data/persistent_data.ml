@@ -63,15 +63,12 @@ let load_feeds file =
 				| "cache"		->
 					let cache = Feed_options.cache_of_string (atom value) in
 					{ options with cache }
-				| "label"		->
-					let label = Some (atom value) in
-					{ options with label }
+				| "title"		-> { options with title = Some (atom value) }
+				| "label"		-> { options with label = Some (atom value) }
 				| "no_content"	->
-					let no_content = bool_of_string (atom value) in
-					{ options with no_content }
+					{ options with no_content = bool_of_string (atom value) }
 				| "scraper"		->
-					let scraper = Some (parse_scraper value) in
-					{ options with scraper }
+					{ options with scraper = Some (parse_scraper value) }
 				| opt			-> failwith ("Unknown option: " ^ opt)
 			in
 			parse_options options tl
