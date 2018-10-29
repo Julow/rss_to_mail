@@ -1,0 +1,6 @@
+(jbuild_version 1)
+(library
+ ((name persistent_data)
+  (public_name rss_to_mail.persistent_data)
+  (flags (:standard -open Std))
+  (libraries (std rss_to_mail scraper containers.sexp))))

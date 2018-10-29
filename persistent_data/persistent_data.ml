@@ -1,4 +1,6 @@
-let feed_datas_file = "feed_datas.sexp"
+(** Parser for the `feeds.sexp` config file
+	and serializer/deserializer for the `feed_datas.sexp` persistent file
+	Used by main_native *)
 
 let record field =
 	function
@@ -104,7 +106,7 @@ let load_feeds file =
 		in
 		{ smtp; address; feeds }
 
-let load_feed_datas () : (int64 * SeenSet.t) StringMap.t * Rss_to_mail.mail list =
+let load_feed_datas feed_datas_file : (int64 * SeenSet.t) StringMap.t * Rss_to_mail.mail list =
 	let parse_ids set =
 		function
 		| `List [ `Atom id; `Atom date ] ->
@@ -135,7 +137,7 @@ let load_feed_datas () : (int64 * SeenSet.t) StringMap.t * Rss_to_mail.mail list
 		record "unsent" t |> Option.map_or []
 			(list (List.map parse_unsent))
 
-let save_feed_datas (datas, unsent) =
+let save_feed_datas feed_datas_file (datas, unsent) =
 	let gen_id id removed lst =
 		match removed with
 		| Some date		->
