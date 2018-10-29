@@ -1,0 +1,18 @@
+(jbuild_version 1)
+
+(executable
+ ((name test)
+  (libraries
+   (std rss_to_mail persistent_data))
+  (flags (:standard -open Std))))
+
+(rule
+ ((targets (output))
+  (deps (feeds.sexp (glob_files feeds/*)))
+  (action
+   (with-stdout-to ${@}
+    (progn (run ${path:test.exe}))))))
+
+(alias
+ ((name runtest)
+  (action (diff ${path:ref} ${path:output}))))

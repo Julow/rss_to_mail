@@ -22,5 +22,11 @@
 			<pubDate>pub date</pubDate>
 		</item>
 
+		<item>
+			<content:encoded><![CDATA[<p><a><b></b></a></p>
+			<div></div>
+			<p>]]></content:encoded>
+		</item>
+
 	</channel>
 </rss>

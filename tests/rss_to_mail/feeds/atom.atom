@@ -7,6 +7,8 @@
 	<link href="feed link url" />
 	<icon>icon uri</icon>
 
+	<lol:truc></lol:truc>
+
 	<entry>
 		<id>id here</id>
 		<title>title</title>
