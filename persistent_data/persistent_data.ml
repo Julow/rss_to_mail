@@ -56,24 +56,29 @@ type config = {
 }
 
 let load_feeds file =
-	let rec parse_options (options : Feed_options.t) =
+	let parse_option name value (opts : Feed_options.t) =
+		match name with
+		| "cache"		->
+			let cache = Feed_options.cache_of_string (atom value) in
+			{ opts with cache }
+		| "title"		-> { opts with title = Some (atom value) }
+		| "label"		-> { opts with label = Some (atom value) }
+		| "no_content"	->
+			{ opts with no_content = bool_of_string (atom value) }
+		| "scraper"		->
+			{ opts with scraper = Some (parse_scraper value) }
+		| _				-> failwith "Unknown option"
+	in
+	let rec parse_options opts =
 		function
 		| `List [ `Atom name; value ] :: tl ->
-			let options = match name with
-				| "cache"		->
-					let cache = Feed_options.cache_of_string (atom value) in
-					{ options with cache }
-				| "title"		-> { options with title = Some (atom value) }
-				| "label"		-> { options with label = Some (atom value) }
-				| "no_content"	->
-					{ options with no_content = bool_of_string (atom value) }
-				| "scraper"		->
-					{ options with scraper = Some (parse_scraper value) }
-				| opt			-> failwith ("Unknown option: " ^ opt)
-			in
-			parse_options options tl
+			begin match parse_option name value opts with
+				| exception (Failure msg)	->
+					failwith ("\"" ^ name ^ "\": msg")
+				| opts					-> parse_options opts tl
+			end
 		| _ :: _	-> failwith "Malformated options"
-		| []		-> options
+		| []		-> opts
 	in
 	let parse_feed =
 		function
