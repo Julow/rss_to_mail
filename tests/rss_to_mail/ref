@@ -10,6 +10,20 @@ BODY: <p>Via <a href="feed%20link%20url"><img style="display: inline !important;
 FROM: RSS Test
 SUBJECT: Title
 BODY: <p>Via <a href="Feed%20link"><img style="display: inline !important;height: 1em !important;;margin: 0 0 -0.1em 0 !important;" src="Feed%20icon" />RSS Test</a> (A, B)<br/>on pub date by Author, Author 2</p><p><a href="url">Title</a></p><p>Attachment: <a href="some%20uri">some%20uri</a> (8Kb, some type)</p>content
+FROM: RSS Test
+SUBJECT: Title 2
+BODY: <p>Via <a href="Feed%20link"><img style="display: inline !important;height: 1em !important;;margin: 0 0 -0.1em 0 !important;" src="Feed%20icon" />RSS Test</a><br/></p><p>Title 2</p><p><a><b></b></a></p>
+			<div></div>
+			<p>
+
+# rss.rss
+
+FROM: Title
+SUBJECT: 2 entries from Title
+BODY: <p>Via <a href="Feed%20link"><img style="display: inline !important;height: 1em !important;;margin: 0 0 -0.1em 0 !important;" src="Feed%20icon" />Title (RSS Test)</a> (A, B)<br/>on pub date by Author, Author 2 with label Label</p><p><a href="url">Title</a></p><p>Attachment: <a href="some%20uri">some%20uri</a> (8Kb, some type)</p>content
+<p>Via <a href="Feed%20link"><img style="display: inline !important;height: 1em !important;;margin: 0 0 -0.1em 0 !important;" src="Feed%20icon" />Title (RSS Test)</a><br/> with label Label</p><p>Title 2</p><p><a><b></b></a></p>
+			<div></div>
+			<p>
 
 # firefox.html
 

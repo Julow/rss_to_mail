@@ -26,20 +26,23 @@ struct
 	(* Remove date for IDs that disapeared from the feed: 1 month *)
 	let remove_date_from = Int64.(+) 2678400L
 
-	let prepare_mail feed_uri feed options entry =
-		let sender =
-			let (|||) opt def = match opt with Some v -> v | None -> def () in
-			options.Feed_options.title ||| fun () ->
-			feed.feed_title ||| fun () ->
-			Uri.host feed_uri ||| fun () ->
-			Uri.to_string feed_uri
-		in
+	let prepare_mail ~sender feed options entry =
 		let subject =
 			match entry.Feed.title with
 			| Some title	-> title
 			| None			-> "New entry from " ^ sender
 		in
 		let body = Mail_body.generate feed options entry in
+		{ sender; subject; body }
+
+	let prepare_bundle ~sender feed options entries =
+		let len = List.length entries in
+		let subject = string_of_int len ^ " entries from " ^ sender in
+		let body =
+			entries
+			|> List.map (Mail_body.generate feed options)
+			|> String.concat "\n"
+		in
 		{ sender; subject; body }
 
 	let new_entries remove_date seen_ids entries =
@@ -53,14 +56,23 @@ struct
 		) entries ([], []) in
 		SeenSet.new_ids remove_date ids seen_ids, news
 
-	let process ~first_update ~now uri options seen_ids feed =
-		let feed = Feed.resolve_urls uri feed in
+	let process ~first_update ~now feed_uri options seen_ids feed =
+		let feed = Feed.resolve_urls feed_uri feed in
 		let seen_ids, entries =
 			new_entries (remove_date_from now) seen_ids feed.entries in
+		let sender =
+			let (|||) opt def = match opt with Some v -> v | None -> def () in
+			options.Feed_options.title ||| fun () ->
+			feed.feed_title ||| fun () ->
+			Uri.host feed_uri ||| fun () ->
+			Uri.to_string feed_uri
+		in
 		let mails =
-			(* First update, don't send any mails *)
 			if first_update then []
-			else List.map (prepare_mail uri feed options) entries in
+			else if options.bundle
+			then [ prepare_bundle ~sender feed options entries ]
+			else List.map (prepare_mail ~sender feed options) entries
+		in
 		Async.return (`Ok (seen_ids, mails))
 
 	let update ~first_update ~now uri options seen_ids =

@@ -6,8 +6,10 @@ type t = {
 	title		: string option; (** Override the feed's title *)
 	label		: string option; (** Appended to the content *)
 	no_content	: bool; (** If the content should be removed *)
-	scraper		: Scraper.t option (** Used instead of Feed_parser *)
+	scraper		: Scraper.t option; (** Used instead of Feed_parser *)
+	bundle		: bool; (** Bundle new entries in a single mail *)
 }
 
-let make ?(refresh=`Every 6.) ?title ?label ?(no_content=false) ?scraper () =
-	{ refresh; title; label; no_content; scraper }
+let make ?(refresh=`Every 6.) ?title ?label ?(no_content=false)
+	?scraper ?(bundle=false) () =
+	{ refresh; title; label; no_content; scraper; bundle }

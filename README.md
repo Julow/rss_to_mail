@@ -21,6 +21,7 @@ Options:
 	or fixed (`(refresh (at 18:00))`, every days at 6PM)
 - `no_content` True or false. If true, the content of entries will not be included in the mail
 - `scraper` If set, run a custom scraper instead
+- `bundle` If true, new entries will be concatenated in a single mail
 
 ### Install
 

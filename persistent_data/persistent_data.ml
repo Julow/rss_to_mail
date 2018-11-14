@@ -73,6 +73,8 @@ let load_feeds file =
 		| "label"		-> { opts with label = Some (atom value) }
 		| "no_content"	->
 			{ opts with no_content = bool_of_string (atom value) }
+		| "bundle"		->
+			{ opts with bundle = bool_of_string (atom value) }
 		| "scraper"		->
 			{ opts with scraper = Some (parse_scraper value) }
 		| _				-> failwith "Unknown option"

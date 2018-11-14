@@ -3,7 +3,7 @@
  (feeds (
 	atom.atom
 	(rss.rss (refresh (at 18:00)))
-	(atom.atom (label "Label") (title "Title"))
+	(rss.rss (label "Label") (title "Title") (bundle true))
 	(firefox.html
 	 (scraper
 	  ("#main-content > ol > li"
