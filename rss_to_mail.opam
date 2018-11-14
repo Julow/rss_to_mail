@@ -10,6 +10,7 @@ depends: [
 	"markup"
 	"lambdasoup"
 	"lwt"
+	"lwt_ppx"
 	"lwt_ssl"
 	"cohttp-lwt-unix"
 	"cmdliner"

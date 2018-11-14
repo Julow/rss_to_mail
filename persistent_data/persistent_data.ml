@@ -84,7 +84,7 @@ let load_feeds file =
 		| `List [ `Atom name; value ] :: tl ->
 			begin match parse_option name value opts with
 				| exception (Failure msg)	->
-					failwith ("\"" ^ name ^ "\": msg")
+					failwith ("\"" ^ name ^ "\": " ^ msg)
 				| opts					-> parse_options opts tl
 			end
 		| _ :: _	-> failwith "Malformated options"

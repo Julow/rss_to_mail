@@ -56,7 +56,7 @@ let check_feeds ~now feed_datas feeds =
 			eprintf "%s: Fetch error: %d\n%!" url code; acc
 		| url, `Parsing_error ((line, col), msg) ->
 			eprintf "%s: Parsing error: %d:%d: %s\n%!" url line col msg; acc
-		| url, `Uptodate				-> acc
+		| _, `Uptodate					-> acc
 		| url, `Ok (seen_ids, mails')	->
 			printf "%s: %d new entries\n%!" url (List.length mails');
 			StringMap.add url (now, seen_ids) feed_datas,

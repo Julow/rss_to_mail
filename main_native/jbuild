@@ -7,4 +7,4 @@
   (libraries
    (std lwt cohttp-lwt-unix swaks rss_to_mail scraper cmdliner persistent_data))
   (flags (:standard -open Std))
-  (preprocess (pps (lwt.ppx)))))
+  (preprocess (pps (lwt_ppx)))))

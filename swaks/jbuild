@@ -3,4 +3,4 @@
 (library
  ((name swaks)
   (public_name rss_to_mail.swaks)
-  (libraries (lwt base64))))
+  (libraries (lwt.unix base64))))
