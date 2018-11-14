@@ -16,8 +16,9 @@ Options:
 
 - `label` Inserted into the body of the message: " with label ..."
 - `title` Override the feed title
-- `cache` Update frequency. May be a numeric value, in hour
-	or `always`, `often`, `sometimes`, `daily`, `rarely`
+- `refresh` Update frequency.
+	Maybe in hours (`(refresh 2.)`, every 2 hours)
+	or fixed (`(refresh (at 18:00))`, every days at 6PM)
 - `no_content` True or false. If true, the content of entries will not be included in the mail
 - `scraper` If set, run a custom scraper instead
 

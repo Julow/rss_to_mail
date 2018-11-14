@@ -6,7 +6,7 @@ let options_of_obj obj =
 		Js.Optdef.(to_option (map v f))
 	in
 	Feed_options.make ()
-		?cache:("cache" => (Feed_options.cache_of_string % Js.to_string))
+		?cache:("cache" => fun s -> `Every (Js.to_string (float_of_string s)))
 		?label:("label" => Js.to_string)
 		?no_content:("no_content" => Js.to_bool)
 

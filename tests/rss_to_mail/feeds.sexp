@@ -2,7 +2,7 @@
  (address some_address)
  (feeds (
 	atom.atom
-	rss.rss
+	(rss.rss (refresh (at 18:00)))
 	(atom.atom (label "Label") (title "Title"))
 	(firefox.html
 	 (scraper

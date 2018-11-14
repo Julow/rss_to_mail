@@ -58,9 +58,17 @@ type config = {
 let load_feeds file =
 	let parse_option name value (opts : Feed_options.t) =
 		match name with
-		| "cache"		->
-			let cache = Feed_options.cache_of_string (atom value) in
-			{ opts with cache }
+		| "refresh"		->
+			let refresh = match value with
+				| `Atom hours	-> `Every (float_of_string hours)
+				| `List [ `Atom "at"; `Atom at ] ->
+					begin
+						try Scanf.sscanf at "%d:%d" (fun h m -> `At (h, m))
+						with _ -> failwith "Malformated"
+					end
+				| `List _		-> failwith "Malformated"
+			in
+			{ opts with refresh }
 		| "title"		-> { opts with title = Some (atom value) }
 		| "label"		-> { opts with label = Some (atom value) }
 		| "no_content"	->

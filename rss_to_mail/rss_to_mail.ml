@@ -83,7 +83,12 @@ struct
 			| None			-> process_feed contents)
 
 	let is_uptodate now last_update options =
-		Int64.(last_update + of_float (options.cache *. 3600.) >= now)
+		let open Int64 in
+		match options.refresh with
+		| `Every h		-> last_update + of_float (h *. 3600.) >= now
+		| `At (h, m)	->
+			let at = now mod 86400L + of_int h * 3600L + of_int m * 60L in
+			last_update > at || now <= at
 
 	let check ~now uri options data =
 		let first_update, uptodate, seen_ids =
