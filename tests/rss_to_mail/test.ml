@@ -31,9 +31,22 @@ open Printf
 let print_mail (m : Rss_to_mail.mail) =
 	printf "FROM: %s\nSUBJECT: %s\nBODY: %s\n" m.sender m.subject m.body
 
+let print_options (opts : Feed_options.t) =
+	printf "Options:";
+	(match opts.refresh with
+		| `Every h		-> printf " (refresh %f)" h
+		| `At (h, m)	-> printf " (refresh (at %d:%d))" h m);
+	Option.iter (printf " (title %s)") opts.title;
+	Option.iter (printf " (label %s)") opts.label;
+	(if opts.no_content then printf " (no_content true)");
+	(if opts.bundle then printf " (bundle true)");
+	Option.iter (fun _ -> printf " (scraper ...)") opts.scraper;
+	printf "\n"
+
 let check_feed (url, options) =
 	printf "\n# %s\n\n" url;
 	let datas = Some (0L, SeenSet.empty) in
+	print_options options;
 	match Rss_to_mail.check ~now (Uri.of_string url) options datas with
 	| `Fetch_error code					->
 		printf "Fetch error %d\n" code

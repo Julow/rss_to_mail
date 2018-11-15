@@ -56,27 +56,28 @@ type config = {
 }
 
 let load_feeds file =
+	let parse_option_refresh =
+		function
+		| `Atom hours	-> `Every (float_of_string hours)
+		| `List [ `Atom "at"; `Atom at ] ->
+			begin
+				try Scanf.sscanf at "%d:%d" (fun h m ->
+					(if h < 0 || h > 23 || m < 0 || m > 59
+						then failwith "Invalid value");
+					`At (h, m))
+				with _ -> failwith "Malformated"
+			end
+		| `List _		-> failwith "Malformated"
+	in
 	let parse_option name value (opts : Feed_options.t) =
 		match name with
-		| "refresh"		->
-			let refresh = match value with
-				| `Atom hours	-> `Every (float_of_string hours)
-				| `List [ `Atom "at"; `Atom at ] ->
-					begin
-						try Scanf.sscanf at "%d:%d" (fun h m -> `At (h, m))
-						with _ -> failwith "Malformated"
-					end
-				| `List _		-> failwith "Malformated"
-			in
-			{ opts with refresh }
+		| "refresh"		-> { opts with refresh = parse_option_refresh value }
 		| "title"		-> { opts with title = Some (atom value) }
 		| "label"		-> { opts with label = Some (atom value) }
 		| "no_content"	->
 			{ opts with no_content = bool_of_string (atom value) }
-		| "bundle"		->
-			{ opts with bundle = bool_of_string (atom value) }
-		| "scraper"		->
-			{ opts with scraper = Some (parse_scraper value) }
+		| "bundle"		-> { opts with bundle = bool_of_string (atom value) }
+		| "scraper"		-> { opts with scraper = Some (parse_scraper value) }
 		| _				-> failwith "Unknown option"
 	in
 	let rec parse_options opts =
@@ -90,11 +91,11 @@ let load_feeds file =
 		| _ :: _	-> failwith "Malformated options"
 		| []		-> opts
 	in
-	let parse_feed =
+	let parse_feed ~default_opts =
 		function
-		| `Atom url					-> url, Feed_options.make ()
-		| `List (`Atom url :: opts)	->
-			(try url, parse_options (Feed_options.make ()) opts
+		| `Atom url					-> url, default_opts
+		| `List (`Atom url :: lst)	->
+			(try url, parse_options default_opts lst
 			with Failure msg -> failwith (url ^ ": " ^ msg))
 		| _ -> failwith "feeds: Syntax error"
 	in
@@ -102,8 +103,15 @@ let load_feeds file =
 	| exception Sys_error msg	-> failwith msg
 	| Error msg					-> failwith msg
 	| Ok t						->
+		let default_opts =
+			let refresh =
+				try Option.map parse_option_refresh (record "default_refresh" t)
+				with Failure msg -> failwith ("default_refresh: " ^ msg)
+			in
+			Feed_options.make ?refresh ()
+		in
 		let feeds = match record "feeds" t with
-			| Some t	-> list (List.map parse_feed) t
+			| Some t	-> list (List.map (parse_feed ~default_opts)) t
 			| None		-> failwith "Missing field `feeds`"
 		and smtp = match record "smtp" t with
 			| Some (`List [ `Atom serv ]) -> serv, None

@@ -19,6 +19,7 @@ Options:
 - `refresh` Update frequency.
 	Maybe in hours (`(refresh 2.)`, every 2 hours)
 	or fixed (`(refresh (at 18:00))`, every days at 6PM)
+	The default can be controled with the `default_refresh` global option, by default 6 hours
 - `no_content` True or false. If true, the content of entries will not be included in the mail
 - `scraper` If set, run a custom scraper instead
 - `bundle` If true, new entries will be concatenated in a single mail
