@@ -1,12 +1,14 @@
 
 # atom.atom
 
+Options: (refresh 2.000000)
 FROM: Atom Test
 SUBJECT: title
 BODY: <p>Via <a href="feed%20link%20url"><img style="display: inline !important;height: 1em !important;;margin: 0 0 -0.1em 0 !important;" src="icon%20uri" />Atom Test</a> (Cat 1, Cat 2)<br/>on Some date by <a href="uri">Author 1</a>, Author 2</p><p><a href="link%20url">title<img style="display: block !important;;max-width: 25em;" src="some%20url" /></a></p><p>Attachment: <a href="attach%201">attach%201</a> (truc)</p><p>Attachment: <a href="attach%202">attach%202</a> (2b)</p>Some content here
 
 # rss.rss
 
+Options: (refresh (at 18:0))
 FROM: RSS Test
 SUBJECT: Title
 BODY: <p>Via <a href="Feed%20link"><img style="display: inline !important;height: 1em !important;;margin: 0 0 -0.1em 0 !important;" src="Feed%20icon" />RSS Test</a> (A, B)<br/>on pub date by Author, Author 2</p><p><a href="url">Title</a></p><p>Attachment: <a href="some%20uri">some%20uri</a> (8Kb, some type)</p>content
@@ -18,6 +20,7 @@ BODY: <p>Via <a href="Feed%20link"><img style="display: inline !important;height
 
 # rss.rss
 
+Options: (refresh 2.000000) (title Title) (label Label) (bundle true)
 FROM: Title
 SUBJECT: 2 entries from Title
 BODY: <p>Via <a href="Feed%20link"><img style="display: inline !important;height: 1em !important;;margin: 0 0 -0.1em 0 !important;" src="Feed%20icon" />Title (RSS Test)</a> (A, B)<br/>on pub date by Author, Author 2 with label Label</p><p><a href="url">Title</a></p><p>Attachment: <a href="some%20uri">some%20uri</a> (8Kb, some type)</p>content
@@ -27,6 +30,7 @@ BODY: <p>Via <a href="Feed%20link"><img style="display: inline !important;height
 
 # firefox.html
 
+Options: (refresh 12.000000) (scraper ...)
 FROM: firefox.html
 SUBJECT: 1.0 Preview Release
 BODY: <p>Via <br/></p><p><a href="0.10.html">1.0 Preview Release</a></p>
