@@ -130,3 +130,7 @@ BODY: <p>Via <br/></p><p><a href="../60.0.1/releasenotes/">60.0.1</a></p>
 FROM: firefox.html
 SUBJECT: 60.0
 BODY: <p>Via <br/></p><p><a href="../60.0/releasenotes/">60.0</a></p>
+
+# empty.rss
+
+Options: (refresh 2.000000) (bundle true)

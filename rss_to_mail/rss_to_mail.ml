@@ -37,13 +37,16 @@ struct
 
 	let prepare_bundle ~sender feed options entries =
 		let len = List.length entries in
-		let subject = string_of_int len ^ " entries from " ^ sender in
-		let body =
-			entries
-			|> List.map (Mail_body.generate feed options)
-			|> String.concat "\n"
-		in
-		{ sender; subject; body }
+		if len = 0
+		then []
+		else
+			let subject = string_of_int len ^ " entries from " ^ sender in
+			let body =
+				entries
+				|> List.map (Mail_body.generate feed options)
+				|> String.concat "\n"
+			in
+			[ { sender; subject; body } ]
 
 	let new_entries remove_date seen_ids entries =
 		let ids, news = Array.fold_right (fun e (ids, news) ->
@@ -70,7 +73,7 @@ struct
 		let mails =
 			if first_update then []
 			else if options.bundle
-			then [ prepare_bundle ~sender feed options entries ]
+			then prepare_bundle ~sender feed options entries
 			else List.map (prepare_mail ~sender feed options) entries
 		in
 		Async.return (`Ok (seen_ids, mails))
