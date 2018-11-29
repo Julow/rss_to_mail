@@ -9,16 +9,18 @@ BODY: <p>Via <a href="feed%20link%20url"><img style="display: inline !important;
 # rss.rss
 
 Options: (refresh (at 18:0))
-FROM: RSS Test
-SUBJECT: Title
-BODY: <p>Via <a href="Feed%20link"><img style="display: inline !important;height: 1em !important;;margin: 0 0 -0.1em 0 !important;" src="Feed%20icon" />RSS Test</a> (A, B)<br/>on pub date by Author, Author 2</p><p><a href="url">Title</a></p><p>Attachment: <a href="some%20uri">some%20uri</a> (8Kb, some type)</p>content
+Up-to-date
+
+# ./rss.rss
+
+Options: (refresh (at 18:0))
 FROM: RSS Test
 SUBJECT: Title 2
 BODY: <p>Via <a href="Feed%20link"><img style="display: inline !important;height: 1em !important;;margin: 0 0 -0.1em 0 !important;" src="Feed%20icon" />RSS Test</a><br/></p><p>Title 2</p><p><a><b></b></a></p>
 			<div></div>
 			<p>
 
-# rss.rss
+# ././rss.rss
 
 Options: (refresh 2.000000) (title Title) (label Label) (bundle true)
 FROM: Title
@@ -67,9 +69,6 @@ BODY: <p>Via <br/></p><p><a href="0.4.html">0.4</a></p>
 FROM: firefox.html
 SUBJECT: 0.3
 BODY: <p>Via <br/></p><p><a href="0.3.html">0.3</a></p>
-FROM: firefox.html
-SUBJECT: 0.2
-BODY: <p>Via <br/></p><p><a href="0.2.html">0.2</a></p>
 FROM: firefox.html
 SUBJECT: 0.1
 BODY: <p>Via <br/></p><p><a href="0.1.html">0.1</a></p>

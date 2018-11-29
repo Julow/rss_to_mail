@@ -8,7 +8,7 @@
 
 (rule
  ((targets (output))
-  (deps (feeds.sexp (glob_files feeds/*)))
+  (deps (feeds.sexp feed_datas.sexp (glob_files feeds/*)))
   (action
    (with-stdout-to ${@}
     (progn (run ${path:test.exe}))))))
