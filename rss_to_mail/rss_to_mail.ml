@@ -99,14 +99,12 @@ struct
 
 	let is_uptodate now last_update options =
 		let open Int64 in
-		let due =
-			match options.refresh with
-			| `Every h		-> last_update + of_float (h *. 3600.)
-			| `At (h, m)	->
-				let today_00 = last_update - last_update mod 86400L in
-				today_00 + of_int h * 3600L + of_int m * 60L
-		in
-		due >= now
+		match options.refresh with
+		| `Every h		-> last_update + of_float (h *. 3600.) >= now
+		| `At (h, m)	->
+			let today_00 = last_update - last_update mod 86400L in
+			let due = today_00 + of_int h * 3600L + of_int m * 60L in
+			due >= now || last_update >= due
 
 	let check ~now uri options data =
 		let first_update, uptodate, seen_ids =
