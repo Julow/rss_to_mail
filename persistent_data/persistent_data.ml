@@ -49,6 +49,15 @@ let parse_scraper =
 	in
 	fun t -> R [ rule ~target t ]
 
+let check_duplicate feeds =
+	let module StringTbl = Hashtbl.Make (String) in
+	let tbl = StringTbl.create (List.length feeds) in
+	feeds |> List.iter (fun (url, _) ->
+		if StringTbl.mem tbl url then
+			failwith ("Feed declared twice: " ^ url);
+		StringTbl.add tbl url ();
+	)
+
 type config = {
 	smtp	: string * [ `Plain of string * string ] option;
 	address	: string;
@@ -124,6 +133,7 @@ let load_feeds file =
 			| Some _			-> failwith "Malformated field `address`"
 			| None				-> failwith "Missing field `address`"
 		in
+		check_duplicate feeds;
 		{ smtp; address; feeds }
 
 let load_feed_datas feed_datas_file : (int64 * SeenSet.t) StringMap.t * Rss_to_mail.mail list =
