@@ -8,7 +8,7 @@ let img url styles =
 	let styles = String.concat ";" styles in
 	"<img style=\"" ^ styles ^ "\" src=\"" ^ Uri.to_string url ^ "\" />"
 
-let generate feed options entry =
+let generate ~sender feed options entry =
 	let categories =
 		let labels = List.map (function
 			| { label = Some l; _ }	-> l
@@ -35,13 +35,8 @@ let generate feed options entry =
 				"height: 1em !important;";
 				"margin: 0 0 -0.1em 0 !important;" ]
 			| None		-> ""
-		and title = match options.Feed_options.title, feed.feed_title with
-			| Some xtitle, Some title	-> xtitle ^ " (" ^ title ^ ")"
-			| None, Some title
-			| Some title, None			-> title
-			| None, None				-> ""
 		in
-		opt_link (icon ^ title) feed.feed_link
+		opt_link (icon ^ sender) feed.feed_link
 	and entry_title =
 		let thumb = match entry.thumbnail with
 			| Some url	-> img url [

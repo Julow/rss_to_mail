@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/">
+	<channel>
+
+		<title></title>
+
+		<item>
+			<guid>id2</guid>
+			<content:encoded>no title</content:encoded>
+		</item>
+
+	</channel>
+</rss>

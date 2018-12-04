@@ -32,7 +32,7 @@ struct
 			| Some title	-> title
 			| None			-> "New entry from " ^ sender
 		in
-		let body = Mail_body.generate feed options entry in
+		let body = Mail_body.generate ~sender feed options entry in
 		{ sender; subject; body }
 
 	let prepare_bundle ~sender feed options entries =
@@ -43,7 +43,7 @@ struct
 			let subject = string_of_int len ^ " entries from " ^ sender in
 			let body =
 				entries
-				|> List.map (Mail_body.generate feed options)
+				|> List.map (Mail_body.generate ~sender feed options)
 				|> String.concat "\n"
 			in
 			[ { sender; subject; body } ]
@@ -64,7 +64,12 @@ struct
 		let seen_ids, entries =
 			new_entries (remove_date_from now) seen_ids feed.entries in
 		let sender =
-			let (|||) opt def = match opt with Some v -> v | None -> def () in
+			let (|||) opt def =
+				match opt with
+				| Some ""
+				| None		-> def ()
+				| Some v	-> v
+			in
 			options.Feed_options.title ||| fun () ->
 			feed.feed_title ||| fun () ->
 			Uri.host feed_uri ||| fun () ->
