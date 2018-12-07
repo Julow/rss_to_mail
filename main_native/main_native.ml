@@ -69,13 +69,17 @@ let check_feeds ~now feed_datas feeds =
 (** Send a list of mail to [to_]
 	Returns the list of unsent emails
 	(if for any reason, swaks returned an error status) *)
-let send_mails (server, auth) to_ mails =
-	let send (t : Rss_to_mail.mail) =
-		Swaks.send_mail ~server ?auth ~from:t.sender ~to_ t.subject t.body
+let send_mails ~random_seed (server, auth) to_ mails =
+	let send (i, (t : Rss_to_mail.mail)) =
+		let ref_id = random_seed ^ string_of_int i in
+		Swaks.send_mail ~server ?auth ~from:t.sender ~to_ ~ref_id
+			t.subject t.body
 		|> Lwt.map (function `Ok -> None | _ -> Some t)
 	in
 	(** At most 2 mails sending in parallel *)
-	Lwt_list.filter_map_p (pooled 2 send) mails
+	mails
+	|> Lwt_list.mapi_p (fun i t -> pooled 2 send (i, t))
+	|> Lwt.map (List.filter_map id)
 
 let feed_datas_file = "feed_datas.sexp"
 
@@ -93,7 +97,10 @@ let run (conf : Persistent_data.config) (feed_datas, unsent) =
 	let now = Unix.time () |> Int64.of_float in
 	let%lwt feed_datas, mails = check_feeds ~now feed_datas conf.feeds in
 	printf "%d new entries\n" (List.length mails);
-	let%lwt unsent = send_mails conf.smtp conf.address (unsent @ mails) in
+	let%lwt unsent =
+		let random_seed = Int64.to_string now in
+		send_mails ~random_seed conf.smtp conf.address (unsent @ mails)
+	in
 	(if not (List.is_empty unsent) then
 		printf "%d mails could not be sent\n" (List.length unsent));
 	Lwt.return (feed_datas, unsent)

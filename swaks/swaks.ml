@@ -14,19 +14,23 @@ let mime_encode ?(sep="\r\n ") s =
 
 (** Send a mail using swaks *)
 let send_mail ~server ?(tls=true) ?auth ~from ~to_
-		?(content="text/html") subject body =
+		?(content="text/html") ?ref_id subject body =
 	let auth = match auth with
 		| None -> [||]
 		| Some (`Plain (user, pass)) ->
 			[|	"--auth"; "PLAIN";
 				"--auth-user"; user;
 				"--auth-password"; pass |]
+	and ref_id = match ref_id with
+		| None			-> [||]
+		| Some ref_id	-> [| "--h-X-Entity-Ref-ID"; ref_id |]
 	in
 	let args = Array.concat [
 		[|	"swaks";
 			"--server"; server |];
 		if tls then [| "-tls" |] else [||];
 		auth;
+		ref_id;
 		[|	"--from"; mime_encode ~sep:"" from;
 			"--to"; to_;
 			"--h-Subject"; subject;
