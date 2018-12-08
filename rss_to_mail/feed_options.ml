@@ -8,8 +8,10 @@ type t = {
 	no_content	: bool; (** If the content should be removed *)
 	scraper		: Scraper.t option; (** Used instead of Feed_parser *)
 	bundle		: bool; (** Bundle new entries in a single mail *)
+	filter		: (Str.regexp * bool) list; (** Filter entries by regex
+		The boolean is the expected result of [string_match] *)
 }
 
 let make ?(refresh=`Every 6.) ?title ?label ?(no_content=false)
-	?scraper ?(bundle=false) () =
-	{ refresh; title; label; no_content; scraper; bundle }
+	?scraper ?(bundle=false) ?(filter=[]) () =
+	{ refresh; title; label; no_content; scraper; bundle; filter }

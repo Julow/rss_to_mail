@@ -20,6 +20,11 @@ let list f =
 	| `List ts		-> f ts
 	| `Atom _ as t	-> f [ t ]
 
+let one =
+	function
+	| [ v ]		-> v
+	| _			-> failwith "Expecting a single value"
+
 let parse_scraper =
 	let open Scrap in
 	let rec scraper ~target =
@@ -48,6 +53,12 @@ let parse_scraper =
 		| _								-> failwith "Invalid target"
 	in
 	fun t -> R [ rule ~target t ]
+
+let parse_filter =
+	function
+	| `List [ `Atom r ] | `Atom r	-> (Str.regexp r, true)
+	| `List (`Atom "not" :: values)	-> (Str.regexp (atom (one values)), false)
+	| _ -> failwith "Malformated"
 
 let check_duplicate feeds =
 	let module StringTbl = Hashtbl.Make (String) in
@@ -78,21 +89,25 @@ let load_feeds file =
 			end
 		| `List _		-> failwith "Malformated"
 	in
-	let parse_option name value (opts : Feed_options.t) =
+	let parse_option name values (opts : Feed_options.t) =
 		match name with
-		| "refresh"		-> { opts with refresh = parse_option_refresh value }
-		| "title"		-> { opts with title = Some (atom value) }
-		| "label"		-> { opts with label = Some (atom value) }
+		| "refresh"		->
+			{ opts with refresh = parse_option_refresh (one values) }
+		| "title"		-> { opts with title = Some (atom (one values)) }
+		| "label"		-> { opts with label = Some (atom (one values)) }
 		| "no_content"	->
-			{ opts with no_content = bool_of_string (atom value) }
-		| "bundle"		-> { opts with bundle = bool_of_string (atom value) }
-		| "scraper"		-> { opts with scraper = Some (parse_scraper value) }
+			{ opts with no_content = bool_of_string (atom (one values)) }
+		| "bundle"		->
+			{ opts with bundle = bool_of_string (atom (one values)) }
+		| "scraper"		->
+			{ opts with scraper = Some (parse_scraper (one values)) }
+		| "filter"		-> { opts with filter = List.map parse_filter values }
 		| _				-> failwith "Unknown option"
 	in
 	let rec parse_options opts =
 		function
-		| `List [ `Atom name; value ] :: tl ->
-			begin match parse_option name value opts with
+		| `List (`Atom name :: values) :: tl ->
+			begin match parse_option name values opts with
 				| exception (Failure msg)	->
 					failwith ("\"" ^ name ^ "\": " ^ msg)
 				| opts					-> parse_options opts tl

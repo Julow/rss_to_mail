@@ -23,6 +23,10 @@ Options:
 - `no_content` True or false. If true, the content of entries will not be included in the mail
 - `scraper` If set, run a custom scraper instead
 - `bundle` If true, new entries will be concatenated in a single mail
+- `filter` Filter entries by matching their title.
+    `(filter "abc")` Only show entries that have "abc" in their title.
+    `(filter (not "abc"))` Only show entries that do not have "abc" in their title.
+    If multiple filters are set, entries are shown if at least one filter match, `(filter (not "abc") "def")` only show entries that do not match "abc" and/or match "def".
 
 ### Install
 

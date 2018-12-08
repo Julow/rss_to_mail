@@ -59,10 +59,30 @@ struct
 		) entries ([], []) in
 		SeenSet.new_ids remove_date ids seen_ids, news
 
+	let filter_entries filters entries =
+		let match_any_filter =
+			function
+			| Feed.{ title = Some title; _ } ->
+				let match_ (regexp, expctd) =
+					try
+						ignore (Str.search_forward regexp title 0);
+						expctd
+					with Not_found ->
+						not expctd
+				in
+				List.exists match_ filters
+			| { title = None; _ }			-> true
+		in
+		if List.is_empty filters
+		then entries
+		else Array.filter match_any_filter entries
+
 	let process ~first_update ~now feed_uri options seen_ids feed =
 		let feed = Feed.resolve_urls feed_uri feed in
+		let entries = filter_entries options.Feed_options.filter feed.entries in
 		let seen_ids, entries =
-			new_entries (remove_date_from now) seen_ids feed.entries in
+			new_entries (remove_date_from now) seen_ids entries
+		in
 		let sender =
 			let (|||) opt def =
 				match opt with
