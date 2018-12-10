@@ -129,7 +129,8 @@ struct
 		| `At (h, m)	->
 			let today_00 = last_update - last_update mod 86400L in
 			let due = today_00 + of_int h * 3600L + of_int m * 60L in
-			due >= now || last_update >= due
+			let due = if last_update >= due then due + 86400L else due in
+			due >= now
 
 	let check ~now uri options data =
 		let first_update, uptodate, seen_ids =
