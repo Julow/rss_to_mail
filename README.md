@@ -47,13 +47,3 @@ rss_to_mail [config_file]
 By default, the config file is `feeds.sexp`.
 
 An other file, `feed_datas.sexp`, will be created in the current directory.
-
-### Apps Script version
-
-It can also run on [Google Apps Script](https://developers.google.com/apps-script/overview).
-
-The config is stored in a spreadsheet on Google Drive.
-
-This file will be created automatically with 2 columns: the feed url and its options.
-
-Options are formatted as a JSON dict.
