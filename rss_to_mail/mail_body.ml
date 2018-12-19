@@ -1,84 +1,126 @@
 open Feed
+open Tyxml
 
-let link title uri = sprintf "<a href=\"%s\">%s</a>" (Uri.to_string uri) title
+let opt_link text = function
+	| Some uri	->
+		[%html "<a href=" (Uri.to_string uri) ">"[ Html.txt text ]"</a>"]
+	| None		-> Html.txt text
 
-let opt_link title = function
-	| Some uri	-> link title uri
-	| None		-> title
-
-let img url width height styles =
-	let styles = String.concat ";" styles in
-	sprintf "<img width=\"%d\" height=\"%d\" src=\"%s\" style=\"%s\" />"
-		width height (Uri.to_string url) styles
+let rec list_interleave elt = function
+	| [ _ ] as last	-> last
+	| hd :: tl		-> hd :: elt :: list_interleave elt tl
+	| []			-> []
 
 let generate ~sender feed options entry =
 	let entry_title =
 		match entry.title, entry.link with
 		| Some t, link				-> opt_link t link
 		| None, (Some l as link)	-> opt_link (Uri.to_string l) link
-		| None, None				-> "New entry"
+		| None, None				-> [%html "New entry"]
 
 	and header =
-		String.concat "" @@
-		begin match feed.feed_icon with
-			| Some url	->
-				[ img url 16 16 [
-					"display: inline !important";
-					"height: 1em !important";
-					"margin: 0 0 -0.1em 0 !important"
-				] ]
+		let feed_icon = match feed.feed_icon with
+			| Some url	-> [ [%html "<img width=\"16\" height=\"16\"
+				src=" (Uri.to_string url) "
+				alt=" sender "
+				style=\"display: inline !important;
+					height: 1em !important;
+					margin: 0 0 -0.1em 0 !important\" />"] ]
 			| None		-> []
-		end @
-		[ opt_link sender feed.feed_link ] @
-		begin match List.filter_map (function
+
+		and feed_title = [ opt_link sender feed.feed_link ]
+
+		and categories =
+			match List.filter_map (function
 					| { label = Some _ as c; _ }
 					| { term = Some _ as c; _ } -> c
 					| _ -> None
 				) entry.categories with
 			| []	-> []
-			| lst	-> [ "(" ^ String.concat ", " lst ^ ")" ]
-		end @
-		Option.map_or [] (fun d -> [ "on " ^ d ]) entry.date @
-		begin match entry.authors with
-			| []	-> []
-			| auts	->
-				let author a = opt_link a.author_name a.author_link in
-				[ " by " ^ String.concat ", " (List.map author auts) ]
-		end @
-		begin match options.Feed_options.label with
-			| Some l	-> [ " with label " ^ l ]
+			| lst	-> [ Html.txt (" (" ^ String.concat ", " lst ^ ")") ]
+
+		and date =
+			match entry.date with
+			| Some date		-> [ Html.txt (" on " ^ date) ]
+			| None			-> []
+
+		and authors =
+			let author a = opt_link a.author_name a.author_link in
+			match List.map author entry.authors with
+			| []		-> []
+			| authors	->
+				Html.txt " by " :: list_interleave (Html.txt ", ") authors
+
+		and label =
+			match options.Feed_options.label with
+			| Some l	-> [ Html.txt (" with label " ^ l) ]
 			| None		-> []
-		end
+		in
+
+		[%html feed_icon feed_title categories date authors label ]
+
+	and thumbnail =
+		match entry.thumbnail with
+		| Some src	-> [ [%html "<td>
+				<img class=\"thumbnail\" alt=\"thumbnail\"
+					width=\"60\" height=\"60\"
+					src=" (Uri.to_string src) " />
+			</td>"] ]
+		| None		-> []
 
 	and attachments =
 		let attachment i t =
 			let info =
 				match Option.(to_list (map Utils.size t.attach_size))
 					@ Option.to_list t.attach_type with
-				| []		-> ""
-				| i			-> " (" ^ String.concat ", " i ^ ")"
+				| []		-> []
+				| i			-> [ Html.txt (" (" ^ String.concat ", " i ^ ")") ]
+			and link =
+				let title =
+					match String.Split.right ~by:"/" (Uri.path t.attach_url) with
+					| Some (_, title) when String.contains title '.' -> title
+					| _			-> Uri.to_string t.attach_url
+				in
+				[ opt_link title (Some t.attach_url) ]
+			and index = [ Html.txt (string_of_int (i + 1)) ]
 			in
-			let title =
-				match String.Split.right ~by:"/" (Uri.path t.attach_url) with
-				| Some (_, title) when String.contains title '.' -> title
-				| _			-> Uri.to_string t.attach_url
-			in
-			"Attachment " ^ string_of_int i ^ ": "
-				^ link title t.attach_url ^ info
+			[%html "<tr><td>Attachment " index ": " link "" info "</td></tr>"]
 		in
-		List.mapi attachment entry.attachments
+		match entry.attachments with
+		| []		-> []
+		| attchmts	-> [ Html.table (List.mapi attachment attchmts) ]
 
 	and content =
 		match entry.content, entry.summary with
 		| Some cont, _
-		| None, Some cont	-> cont
-		| None, None		-> ""
-
+		| None, Some cont	->
+			[ [%html "<div class=\"content\">"[ Html.txt cont ]"</div>"] ]
+		| None, None		-> []
 	in
-	String.concat "" [
-{|<html lang="en">
+	let hidden_summary =
+		let styles = "display: none !important; visibility: hidden;"
+			^ "width: 0; height: 0; opacity: 0 color: transparent;" in
+		match entry.summary with
+		| Some sum		->
+			[ [%html "<span style="styles">"[ Html.txt sum ]"</span>"] ]
+		| None			-> []
+
+	and header_table =
+		[ Html.table [
+			Html.tr (
+				thumbnail
+				@ [ [%html "<td>
+					<h1 class=\"entry_title\">"[ entry_title ]"</h1>
+					<p class=\"entry_header\">" header "</p>
+				</td>"] ]
+			)
+		] ]
+	in
+
+	let%html body = "
+<html lang=\"en\">
 	<head>
-		<style type="text/css">
+		<style>
 a { text-decoration: none; }
 .entry_title { margin: 0; }
 .entry_title a { border-bottom: 1px dashed black; }
@@ -86,29 +128,15 @@ a { text-decoration: none; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
 		</style>
+		<title>" (Html.txt sender) "</title>
 	</head>
-	<body>
-		<span style="display: none !important; visibility: hidden; width: 0; height: 0; opacity: 0; color: transparent;">
-			|}; Option.get header entry.summary; {|
-		</span>
-		<table>
-			<tr>|}; begin
-				match entry.thumbnail with
-				| Some thbn	->
-					{|<td><img class="thumbnail" width="60" height="60"
-						src="|} ^ Uri.to_string thbn ^ {|" /></td>|}
-				| None		-> {||}
-			end; {|<td>
-					<h1 class="entry_title">|}; entry_title; {|</h1>
-					<p class="entry_header">|}; header; {|</p>
-				</td>
-			</tr>
-		</table>
-		<table>|};
-			String.concat "" @@
-			List.map (fun a -> {|<tr><td>|} ^ a ^ {|</td></tr>|}) attachments
-		; {|</table>
-		<p class="content">|}; content; {|</p>
-	</body>
-</html>|}
-	]
+	<body>"
+		hidden_summary
+		header_table
+		attachments
+		content
+	"</body>
+</html>
+"
+	in
+	Format.sprintf "%a" (Tyxml.Html.pp ()) body
