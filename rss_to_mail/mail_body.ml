@@ -91,12 +91,13 @@ let generate ~sender feed options entry =
 		| attchmts	-> [ Html.table (List.mapi attachment attchmts) ]
 
 	and content =
+		let w cont = [ [%html "<div class=\"content\">"[ cont ]"</div>"] ] in
 		match entry.content, entry.summary with
-		| Some cont, _
-		| None, Some cont	->
-			[ [%html "<div class=\"content\">"[ Html.txt cont ]"</div>"] ]
-		| None, None		-> []
-	in
+		| Some (Text txt), _
+		| None, Some txt		-> w (Html.txt txt)
+		| Some (Html node), _	-> w node
+		| None, None			-> []
+		in
 	let hidden_summary =
 		let styles = "display: none !important; visibility: hidden;"
 			^ "width: 0; height: 0; opacity: 0 color: transparent;" in

@@ -2,10 +2,15 @@ open Feed
 open Xml
 open Operators
 
-(** RSS 2.0 parser *)
+(** RSS 2.0 parser
+  * https://validator.w3.org/feed/docs/rss2.html *)
 
 let dc_ns = "http://purl.org/dc/elements/1.1/"
 and content_ns = "http://purl.org/rss/1.0/modules/content/"
+
+let content_encoded content =
+	try Some (Html (Html_content.of_string content))
+	with Failure _ | Xmlm.Error _ -> None
 
 let author author_name = { author_name; author_link = None }
 let category label = { term = None; label = Some label }
@@ -21,7 +26,7 @@ let entry node =
 		link	= node < "link" > Uri.of_string % text;
 		id		= node < "guid" > text;
 		summary	= node < "description" > text;
-		content	= (<) node ~ns:content_ns "encoded" > text;
+		content	= (<) node ~ns:content_ns "encoded" > text >$ content_encoded;
 		categories = node << "category" >> category % text;
 		authors	= (<<) node ~ns:dc_ns "creator" >> author % text;
 		attachments = node << "enclosure" >>$ attachment;

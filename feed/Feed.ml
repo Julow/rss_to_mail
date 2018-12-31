@@ -1,3 +1,5 @@
+open Tyxml
+
 type category = {
 	label		: string option;
 	term		: string option
@@ -14,24 +16,28 @@ type attachment = {
 	attach_type	: string option
 }
 
-type 'a entry = {
+type content =
+	| Text		: string -> content
+	| Html		: [<| Html_types.div ] Html.elt -> content
+
+type entry = {
 	id			: string option;
 	title		: string option;
 	authors		: author list;
 	categories	: category list;
 	summary		: string option;
-	content		: 'a option;
+	content		: content option;
 	link		: Uri.t option;
 	thumbnail	: Uri.t option;
 	date		: string option;
 	attachments	: attachment list
 }
 
-type 'a t = {
+type t = {
 	feed_title	: string option;
 	feed_link	: Uri.t option;
 	feed_icon	: Uri.t option;
-	entries		: 'a entry array
+	entries		: entry array
 }
 
 let empty_entry = {

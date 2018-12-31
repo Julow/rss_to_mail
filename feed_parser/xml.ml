@@ -25,6 +25,10 @@ let children ?(ns="") name = function
 	| Text _			-> []
 	| Node (_, childs)	-> List.filter (name_equal ns name) childs
 
+let children_all = function
+	| Text _			-> []
+	| Node (_, childs)	-> childs
+
 let attr ?(ns="") key = function
 	| Text _				-> None
 	| Node ((_, attrs), _)	->

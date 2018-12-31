@@ -2,7 +2,8 @@ open Feed
 open Xml
 open Operators
 
-(** Atom parser *)
+(** Atom parser
+  * https://validator.w3.org/feed/docs/atom.html *)
 
 let ns = "http://www.w3.org/2005/Atom"
 and media_ns = "http://search.yahoo.com/mrss/"
@@ -45,6 +46,21 @@ struct
 
 end
 
+let content node =
+	match attr "type" node with
+	| None
+	| Some "text"	->
+		Some (Feed.Text (text node))
+	| Some "html"	->
+		begin
+			try Some (Html (Html_content.of_string (text node)))
+			with Failure _ | Xmlm.Error _ -> None
+		end
+	| Some "xhtml"	->
+		Some (Html (Html_content.of_xml (children_all node)))
+	| Some _		->
+		None
+
 let attachment (href, node) =
 	{	attach_url = Uri.of_string href;
 		attach_size = attr "length" node >$ Int64.of_string;
@@ -62,7 +78,7 @@ let entry node =
 	{	id = node < "id" > text;
 		title = node < "title" > text;
 		summary = node < "summary" > text;
-		content = node < "content" > text;
+		content = node < "content" >$ content;
 		date = node < "updated" > text;
 		link = Links.(get Alternate) links > Uri.of_string % fst;
 		attachments = Links.(get_all Enclosure) links >> attachment;
