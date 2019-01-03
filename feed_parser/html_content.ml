@@ -23,4 +23,17 @@ let of_xml =
 
 let of_string content =
 	let inp = Xmlm.make_input (`String (0, content)) in
-	of_xml (parse inp)
+	match parse inp with
+	| exception Xmlm.Error ((line, col), err) ->
+		let msg = Printf.sprintf "%d:%d: %s" line col (Xmlm.error_message err) in
+		let open Html in
+		div [
+			p [ txt "An error occured while parsing the content:";
+				br ();
+				code [ txt msg ]
+			];
+			pre [
+				txt content
+			]
+		]
+	| content -> of_xml content

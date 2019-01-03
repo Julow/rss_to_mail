@@ -52,10 +52,7 @@ let content node =
 	| Some "text"	->
 		Some (Feed.Text (text node))
 	| Some "html"	->
-		begin
-			try Some (Html (Html_content.of_string (text node)))
-			with Failure _ | Xmlm.Error _ -> None
-		end
+		Some (Html (Html_content.of_string (text node)))
 	| Some "xhtml"	->
 		Some (Html (Html_content.of_xml (children_all node)))
 	| Some _		->

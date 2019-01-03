@@ -9,8 +9,7 @@ let dc_ns = "http://purl.org/dc/elements/1.1/"
 and content_ns = "http://purl.org/rss/1.0/modules/content/"
 
 let content_encoded content =
-	try Some (Html (Html_content.of_string content))
-	with Failure _ | Xmlm.Error _ -> None
+	Some (Html (Html_content.of_string content))
 
 let author author_name = { author_name; author_link = None }
 let category label = { term = None; label = Some label }
