@@ -51,14 +51,20 @@ let text =
 		Buffer.contents b
 
 let rec parse nodes inp =
-	match Xmlm.input inp with
-	| `El_end			-> List.rev nodes
-	| `El_start tag		-> parse (Node (tag, parse [] inp) :: nodes) inp
-	| `Data txt			-> parse (Text txt :: nodes) inp
-	| `Dtd _			-> parse nodes inp
+	if Xmlm.eoi inp
+	then List.rev nodes
+	else match Xmlm.input inp with
+		| `El_end			-> List.rev nodes
+		| `El_start tag		-> parse (Node (tag, parse [] inp) :: nodes) inp
+		| `Data txt			-> parse (Text txt :: nodes) inp
+		| `Dtd _			-> parse nodes inp
 
+(** Parse multiple elements
+	Stop on [`El_end] token or end of input *)
 let parse inp = parse [] inp
 
+(** Parse a single elements
+	Raise [Failure] on [`Data] or [`El_end] token *)
 let rec parse_from_begining inp =
 	match Xmlm.input inp with
 	| `Dtd _			-> parse_from_begining inp
