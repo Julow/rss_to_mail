@@ -15,4 +15,5 @@
 			("> ol > li > a" (T (entry (T title link))))))) (refresh 12.))
 	(empty.rss (bundle true))
 	no_title.rss
+	content_type.atom
 )))

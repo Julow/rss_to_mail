@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+	xmlns:media="http://search.yahoo.com/mrss/">
+
+	<title>Atom content type</title>
+	<link href="feed link url" />
+
+	<entry>
+		<id>1</id>
+		<content>Text</content>
+	</entry>
+
+	<entry>
+		<id>2</id>
+		<content type="text">Text!</content>
+	</entry>
+
+	<entry>
+		<id>3</id>
+		<content type="html">Text?</content>
+	</entry>
+
+	<entry>
+		<id>4</id>
+		<content type="html">&lt;p&gt;Html!&lt;/p&gt;</content>
+	</entry>
+
+	<entry>
+		<id>5</id>
+		<content type="xhtml">
+			<div>
+				<p>Xhtml</p>
+			</div>
+		</content>
+	</entry>
+
+	<entry>
+		<id>6</id>
+		<content type="html"><![CDATA[<p>CDATA</p>]]></content>
+	</entry>
+
+</feed>

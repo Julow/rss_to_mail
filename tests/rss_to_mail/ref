@@ -19,7 +19,7 @@ a { text-decoration: none; }
 					<p class="entry_header"><img src="icon%20uri" alt="Atom Test" width="16" height="16" style="display: inline !important;
 					height: 1em !important;
 					margin: 0 0 -0.1em 0 !important"/><a href="feed%20link%20url">Atom Test</a> (Cat 1, Cat 2) on Some date by <a href="uri">Author 1</a>, Author 2</p>
-				</td></tr></table><table><tr><td>Attachment 1: <a href="attach%201">attach%201</a> (truc)</td></tr><tr><td>Attachment 2: <a href="attach%202">attach%202</a> (2b)</td></tr></table><div class="content">Some content here</div>
+				</td></tr></table><table><tr><td>Attachment 1: <a href="attach%201">attach%201</a> (truc)</td></tr><tr><td>Attachment 2: <a href="attach%202">attach%202</a> (2b)</td></tr></table><div class="content"><div><p>Some content here</p></div></div>
 
 </body></html>
 
@@ -50,9 +50,9 @@ a { text-decoration: none; }
 					<p class="entry_header"><img src="Feed%20icon" alt="RSS Test" width="16" height="16" style="display: inline !important;
 					height: 1em !important;
 					margin: 0 0 -0.1em 0 !important"/><a href="Feed%20link">RSS Test</a></p>
-				</td></tr></table><div class="content">&lt;p&gt;&lt;a&gt;&lt;b&gt;&lt;/b&gt;&lt;/a&gt;&lt;/p&gt;
-			&lt;div&gt;&lt;/div&gt;
-			&lt;p&gt;</div>
+				</td></tr></table><div class="content"><div>
+					<p><a><b></b></a></p>
+				</div></div>
 
 </body></html>
 
@@ -74,9 +74,9 @@ a { text-decoration: none; }
 					<p class="entry_header"><img src="Feed%20icon" alt="Title" width="16" height="16" style="display: inline !important;
 					height: 1em !important;
 					margin: 0 0 -0.1em 0 !important"/><a href="Feed%20link">Title</a> with label Label</p>
-				</td></tr></table><div class="content">&lt;p&gt;&lt;a&gt;&lt;b&gt;&lt;/b&gt;&lt;/a&gt;&lt;/p&gt;
-			&lt;div&gt;&lt;/div&gt;
-			&lt;p&gt;</div>
+				</td></tr></table><div class="content"><div>
+					<p><a><b></b></a></p>
+				</div></div>
 
 </body></html>
 
@@ -98,9 +98,9 @@ a { text-decoration: none; }
 					<p class="entry_header"><img src="Feed%20icon" alt="RSS Test" width="16" height="16" style="display: inline !important;
 					height: 1em !important;
 					margin: 0 0 -0.1em 0 !important"/><a href="Feed%20link">RSS Test</a></p>
-				</td></tr></table><div class="content">&lt;p&gt;&lt;a&gt;&lt;b&gt;&lt;/b&gt;&lt;/a&gt;&lt;/p&gt;
-			&lt;div&gt;&lt;/div&gt;
-			&lt;p&gt;</div>
+				</td></tr></table><div class="content"><div>
+					<p><a><b></b></a></p>
+				</div></div>
 
 </body></html>
 
@@ -640,6 +640,110 @@ a { text-decoration: none; }
 		</style></head><body><table><tr><td>
 					<h1 class="entry_title">New entry</h1>
 					<p class="entry_header">no_title.rss</p>
-				</td></tr></table><div class="content">no title</div>
+				</td></tr></table><div class="content"><div><p>An error occured while parsing the content:<br/><code>1:1: expected root element</code></p><pre>no title</pre></div></div>
+
+</body></html>
+
+# content_type.atom
+
+Options: (refresh 2.000000)
+FROM: Atom content type
+SUBJECT: New entry from Atom content type
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title">New entry</h1>
+					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
+				</td></tr></table><div class="content">Text</div>
+
+</body></html>
+FROM: Atom content type
+SUBJECT: New entry from Atom content type
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title">New entry</h1>
+					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
+				</td></tr></table><div class="content">Text!</div>
+
+</body></html>
+FROM: Atom content type
+SUBJECT: New entry from Atom content type
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title">New entry</h1>
+					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
+				</td></tr></table><div class="content"><div><p>An error occured while parsing the content:<br/><code>1:1: expected root element</code></p><pre>Text?</pre></div></div>
+
+</body></html>
+FROM: Atom content type
+SUBJECT: New entry from Atom content type
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title">New entry</h1>
+					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
+				</td></tr></table><div class="content"><div><p>Html!</p></div></div>
+
+</body></html>
+FROM: Atom content type
+SUBJECT: New entry from Atom content type
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title">New entry</h1>
+					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
+				</td></tr></table><div class="content"><div>
+			<div>
+				<p>Xhtml</p>
+			</div>
+		</div></div>
+
+</body></html>
+FROM: Atom content type
+SUBJECT: New entry from Atom content type
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title">New entry</h1>
+					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
+				</td></tr></table><div class="content"><div><p>CDATA</p></div></div>
 
 </body></html>

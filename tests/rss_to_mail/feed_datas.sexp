@@ -5,4 +5,6 @@
    (././rss.rss 0 ())
    (./././rss.rss 0 ())
    (firefox.html 0 (0.2.html))
-   (no_title.rss 0 ()))))
+   (no_title.rss 0 ())
+   (content_type.atom 0 ())
+  )))

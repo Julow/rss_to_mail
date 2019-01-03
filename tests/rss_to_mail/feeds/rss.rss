@@ -12,7 +12,7 @@
 			<link>url</link>
 			<guid>id</guid>
 			<description>summary</description>
-			<content:encoded>content</content:encoded>
+			<content:encoded><![CDATA[<p>content</p>]]></content:encoded>
 			<category>A</category>
 			<category>B</category>
 			<dc:creator>Author</dc:creator>
@@ -24,9 +24,11 @@
 
 		<item>
 			<title>Title 2</title>
-			<content:encoded><![CDATA[<p><a><b></b></a></p>
-			<div></div>
-			<p>]]></content:encoded>
+			<content:encoded><![CDATA[
+				<div>
+					<p><a><b></b></a></p>
+				</div>
+			]]></content:encoded>
 		</item>
 
 	</channel>

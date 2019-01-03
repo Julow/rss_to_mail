@@ -13,7 +13,7 @@
 		<id>id here</id>
 		<title>title</title>
 		<summary>summary</summary>
-		<content type="html">Some content here</content>
+		<content type="html">&lt;p&gt;Some content here&lt;/p&gt;</content>
 		<updated>Some date</updated>
 		<link href="link url" />
 		<link href="attach 1" type="truc" rel="enclosure" />
