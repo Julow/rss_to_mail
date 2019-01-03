@@ -13,7 +13,8 @@ module Make (Async : sig
 		val bind : 'a t -> ('a -> 'b t) -> 'b t
 	end)
 	(Fetch : sig
-		val fetch : Uri.t -> (string, int) result Async.t
+		type error
+		val fetch : Uri.t -> (string, error) result Async.t
 	end) =
 struct
 
@@ -116,7 +117,7 @@ struct
 		in
 		let f = Fetch.fetch uri in
 		Async.bind f (function
-		| Error code	-> Async.return (`Fetch_error code)
+		| Error e		-> Async.return (`Fetch_error e)
 		| Ok contents	->
 			match options.scraper with
 			| Some sc		-> process_scrap sc contents

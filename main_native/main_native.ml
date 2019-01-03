@@ -27,16 +27,20 @@ struct
 			end
 		| _ -> Lwt.return (resp, body)
 
+	type error = [ `System of string | `Http of int ]
 
 	let fetch url =
-		let%lwt resp, body = get url in
-		match resp.status with
-		| `OK		->
+		match%lwt get url with
+		| exception Failure msg					->
+			Lwt.return (Error (`System msg))
+		| exception Unix.Unix_error (_, msg, _)	->
+			Lwt.return (Error (`System msg))
+		| { status = `OK; _ }, body	->
 			let%lwt body = Cohttp_lwt.Body.to_string body in
 			Lwt.return (Ok body)
-		| _			->
-			let code = Cohttp.Code.code_of_status resp.status in
-			Lwt.return (Error code)
+		| { status; _ }, _			->
+			let code = Cohttp.Code.code_of_status status in
+			Lwt.return (Error (`Http code))
 
 	(** at most 5 fetch at once *)
 	let fetch = pooled 5 fetch
@@ -51,16 +55,22 @@ let check_feeds ~now feed_datas feeds =
 		and data = StringMap.get url feed_datas in
 		let%lwt r = Rss_to_mail.check ~now uri options data in
 		Lwt.return (url, r)
-	and handle (feed_datas, mails as acc) = function
-		| url, `Fetch_error code		->
-			eprintf "%s: Fetch error: %d\n%!" url code; acc
-		| url, `Parsing_error ((line, col), msg) ->
-			eprintf "%s: Parsing error: %d:%d: %s\n%!" url line col msg; acc
-		| _, `Uptodate					-> acc
-		| url, `Ok (seen_ids, mails')	->
+
+	and handle (feed_datas, mails as acc) (url, r) =
+		let log_e msg = eprintf "%s: %s\n%!" url msg in
+		match r with
+		| `Fetch_error (`Http code)			->
+			log_e (sprintf "Http error: %d" code); acc
+		| `Fetch_error (`System msg)		->
+			log_e (sprintf "Error: %s" msg); acc
+		| `Parsing_error ((line, col), msg)	->
+			log_e (sprintf "Parsing error: %d:%d: %s" line col msg); acc
+		| `Uptodate							-> acc
+		| `Ok (seen_ids, mails')			->
 			printf "%s: %d new entries\n%!" url (List.length mails');
 			StringMap.add url (now, seen_ids) feed_datas,
 			mails' @ mails
+
 	in
 	(** Done in 2 passes to improve concurrency *)
 	Lwt_list.map_p check_feed feeds

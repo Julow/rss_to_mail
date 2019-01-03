@@ -10,6 +10,8 @@ end
 module Local_fetch =
 struct
 
+	type error = int
+
 	let fetch uri =
 		let f = "feeds/" ^ Uri.to_string uri in
 		eprintf "opening %s\n" f;
