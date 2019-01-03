@@ -99,11 +99,11 @@ let generate ~sender feed options entry =
 		| None, None			-> []
 		in
 	let hidden_summary =
-		let styles = "display: none !important; visibility: hidden;"
-			^ "width: 0; height: 0; opacity: 0 color: transparent;" in
 		match entry.summary with
 		| Some sum		->
-			[ [%html "<span style="styles">"[ Html.txt sum ]"</span>"] ]
+			[ [%html "<span style=\"display:none;font-size:1px;color:#333333;
+				line-height:1px;max-height:0px;max-width:0px;opacity:0;
+				overflow:hidden;\">"[ Html.txt sum ]"</span>"] ]
 		| None			-> []
 
 	and header_table =
