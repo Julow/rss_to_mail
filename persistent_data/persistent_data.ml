@@ -63,16 +63,19 @@ let parse_filter =
 let check_duplicate feeds =
 	let module StringTbl = Hashtbl.Make (String) in
 	let tbl = StringTbl.create (List.length feeds) in
-	feeds |> List.iter (fun (url, _) ->
+	let check_url url =
 		if StringTbl.mem tbl url then
 			failwith ("Feed declared twice: " ^ url);
-		StringTbl.add tbl url ();
+		StringTbl.add tbl url ()
+	in
+	feeds |> List.iter (function
+		| Feed_desc.Feed url, _		-> check_url url
 	)
 
 type config = {
 	smtp	: string * [ `Plain of string * string ] option;
 	address	: string;
-	feeds	: (string * Feed_options.t) list
+	feeds	: (Feed_desc.t * Feed_options.t) list
 }
 
 let load_feeds file =
@@ -117,10 +120,12 @@ let load_feeds file =
 	in
 	let parse_feed ~default_opts =
 		function
-		| `Atom url					-> url, default_opts
+		| `Atom url					-> Feed_desc.Feed url, default_opts
 		| `List (`Atom url :: lst)	->
-			(try url, parse_options default_opts lst
-			with Failure msg -> failwith (url ^ ": " ^ msg))
+			begin match parse_options default_opts lst with
+				| exception Failure msg	-> failwith (url ^ ": " ^ msg)
+				| options				-> Feed url, options
+			end
 		| _ -> failwith "feeds: Syntax error"
 	in
 	match CCSexp.parse_file file with

@@ -45,19 +45,24 @@ let print_options (opts : Feed_options.t) =
 	Option.iter (fun _ -> printf " (scraper ...)") opts.scraper;
 	printf "\n"
 
-let check_feed feed_datas (url, options) =
-	printf "\n# %s\n\n" url;
-	let datas = StringMap.get url feed_datas in
-	print_options options;
-	match Rss_to_mail.check ~now (Uri.of_string url) options datas with
+let print_data (_, r) =
+	match r with
 	| `Fetch_error code					->
-		printf "Fetch error %d\n" code
+		printf "Fetch error %d" code
 	| `Parsing_error ((line, col), msg)	->
 		printf "Parsing error (line %d, col %d)\n%s\n" line col msg
 	| `Uptodate							->
 		printf "Up-to-date\n"
-	| `Ok (_, mails)					->
-		List.iter print_mail mails
+	| `Updated _						->
+		()
+
+let check_feed feed_datas (Feed_desc.Feed url, options) =
+	printf "\n# %s\n\n" url;
+	let datas url = StringMap.get url feed_datas in
+	print_options options;
+	let mails, datas = Rss_to_mail.check ~now datas (Feed url, options) in
+	List.iter print_data datas;
+	List.iter print_mail mails
 
 let () =
 	let feed_datas, _ = Persistent_data.load_feed_datas "feed_datas.sexp" in

@@ -133,7 +133,7 @@ struct
 			let due = if last_update >= due then due + 86400L else due in
 			due >= now
 
-	let check ~now uri options data =
+	let check_feed ~now uri options data =
 		let first_update, uptodate, seen_ids =
 			match data with
 			| Some (last_update, seen_ids) ->
@@ -143,5 +143,24 @@ struct
 		in
 		if uptodate then Async.return `Uptodate
 		else update ~first_update ~now uri options seen_ids
+
+	(**
+	 * Check a feed for updates
+	 * Returns the list of generated mails and updated feed datas
+	 * Log informations by calling [log] once for each feed
+	 *)
+	let check ~now get_feed_data (feed, options) =
+		match feed with
+		| Feed_desc.Feed url	->
+			let uri = Uri.of_string url in
+			let data = get_feed_data url in
+			Async.bind (check_feed ~now uri options data) begin
+				function
+				| `Ok (seen_ids, mails) ->
+					Async.return (mails,
+						[ url, `Updated (seen_ids, List.length mails) ])
+				| `Uptodate | `Fetch_error _ | `Parsing_error _ as r ->
+					Async.return ([], [ url, r ])
+			end
 
 end

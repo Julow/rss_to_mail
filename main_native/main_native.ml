@@ -50,14 +50,11 @@ end
 module Rss_to_mail = Rss_to_mail.Make (Lwt) (Fetch)
 
 let check_feeds ~now feed_datas feeds =
-	let check_feed (url, options) =
-		let uri = Uri.of_string url
-		and data = StringMap.get url feed_datas in
-		let%lwt r = Rss_to_mail.check ~now uri options data in
-		Lwt.return (url, r)
+	let get_feed_datas url = StringMap.get url feed_datas in
 
-	and handle (feed_datas, mails as acc) (url, r) =
-		let log_e msg = eprintf "%s: %s\n%!" url msg in
+	let handle_data acc (url, r) =
+		let log_e msg = eprintf "%s: %s\n%!" url msg
+		and log_i msg = printf "%s: %s\n%!" url msg in
 		match r with
 		| `Fetch_error (`Http code)			->
 			log_e (sprintf "Http error: %d" code); acc
@@ -66,14 +63,16 @@ let check_feeds ~now feed_datas feeds =
 		| `Parsing_error ((line, col), msg)	->
 			log_e (sprintf "Parsing error: %d:%d: %s" line col msg); acc
 		| `Uptodate							-> acc
-		| `Ok (seen_ids, mails')			->
-			printf "%s: %d new entries\n%!" url (List.length mails');
-			StringMap.add url (now, seen_ids) feed_datas,
-			mails' @ mails
+		| `Updated (seen_ids, new_entries)	->
+			log_i (sprintf "%d new entries" new_entries);
+			StringMap.add url (now, seen_ids) acc
+	in
 
+	let handle (datas, mails) (mails', datas') =
+		List.fold_left handle_data datas datas', mails' @ mails
 	in
 	(** Done in 2 passes to improve concurrency *)
-	Lwt_list.map_p check_feed feeds
+	Lwt_list.map_p (Rss_to_mail.check ~now get_feed_datas) feeds
 	|> Lwt.map (List.fold_left handle (feed_datas, []))
 
 (** Send a list of mail to [to_]
