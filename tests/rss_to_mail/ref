@@ -12,7 +12,9 @@ a { text-decoration: none; }
 .entry_header { margin-top: 0; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><span style="display: none !important; visibility: hidden;width: 0; height: 0; opacity: 0 color: transparent;">summary</span><table><tr><td>
+		</style></head><body><span style="display:none;font-size:1px;color:#333333;
+				line-height:1px;max-height:0px;max-width:0px;opacity:0;
+				overflow:hidden;">summary</span><table><tr><td>
 				<img src="some%20url" alt="thumbnail" class="thumbnail" width="60" height="60"/>
 			</td><td>
 					<h1 class="entry_title"><a href="link%20url">title</a></h1>
