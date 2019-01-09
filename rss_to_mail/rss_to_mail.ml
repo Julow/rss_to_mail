@@ -16,6 +16,7 @@ module Make (Async : sig
 struct
 
 	module Check_feed = Check_feed.Make (Async) (Fetch)
+	module Check_scraper = Check_scraper.Make (Async) (Fetch)
 
 	type nonrec mail = mail
 
@@ -25,17 +26,21 @@ struct
 	 * Log informations by calling [log] once for each feed
 	 *)
 	let check ~now get_feed_data (feed, options) =
+		let updated url = function
+			| `Ok (seen_ids, mails) ->
+				Async.return (mails,
+					[ url, `Updated (seen_ids, List.length mails) ])
+			| `Uptodate | `Fetch_error _ | `Parsing_error _ as r ->
+				Async.return ([], [ url, r ])
+		in
 		match feed with
-		| Feed_desc.Feed url	->
-			let uri = Uri.of_string url in
-			let data = get_feed_data url in
-			Async.bind (Check_feed.check ~now uri options data) begin
-				function
-				| `Ok (seen_ids, mails) ->
-					Async.return (mails,
-						[ url, `Updated (seen_ids, List.length mails) ])
-				| `Uptodate | `Fetch_error _ | `Parsing_error _ as r ->
-					Async.return ([], [ url, r ])
-			end
+		| Feed_desc.Feed url		->
+			let uri, data = Uri.of_string url, get_feed_data url in
+			let r = Check_feed.check ~now uri options data in
+			Async.bind r (updated url)
+		| Scraper (url, scraper)	->
+			let uri, data = Uri.of_string url, get_feed_data url in
+			let r = Check_scraper.check ~now uri scraper options data in
+			Async.bind r (updated url)
 
 end

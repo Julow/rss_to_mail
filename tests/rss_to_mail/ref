@@ -106,9 +106,9 @@ a { text-decoration: none; }
 
 </body></html>
 
-# firefox.html
+# scraper firefox.html
 
-Options: (refresh 12.000000) (scraper ...)
+Options: (refresh 12.000000)
 FROM: firefox.html
 SUBJECT: 1.0 Preview Release
 BODY: <!DOCTYPE html>

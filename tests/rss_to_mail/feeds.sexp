@@ -8,11 +8,11 @@
 	(./rss.rss (refresh (at 18:00)))
 	(././rss.rss (label "Label") (title "Title") (bundle true) (filter "2"))
 	(./././rss.rss (filter (not "Title") "2"))
-	(firefox.html
-	 (scraper
+	((scraper firefox.html
 	  ("#main-content > ol > li"
-		(R ("> strong > a" (T (entry (T title link))))
-			("> ol > li > a" (T (entry (T title link))))))) (refresh 12.))
+	   (R ("> strong > a" (T (entry (T title link))))
+	    ("> ol > li > a" (T (entry (T title link)))))))
+	 (refresh 12.))
 	(empty.rss (bundle true))
 	no_title.rss
 	content_type.atom

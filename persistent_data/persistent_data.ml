@@ -68,8 +68,9 @@ let check_duplicate feeds =
 			failwith ("Feed declared twice: " ^ url);
 		StringTbl.add tbl url ()
 	in
-	feeds |> List.iter (function
-		| Feed_desc.Feed url, _		-> check_url url
+	feeds |> List.iter Feed_desc.(function
+		| Feed url, _			-> check_url url
+		| Scraper (url, _), _	-> check_url url
 	)
 
 type config = {
@@ -92,6 +93,7 @@ let load_feeds file =
 			end
 		| `List _		-> failwith "Malformated"
 	in
+
 	let parse_option name values (opts : Feed_options.t) =
 		match name with
 		| "refresh"		->
@@ -102,11 +104,10 @@ let load_feeds file =
 			{ opts with no_content = bool_of_string (atom (one values)) }
 		| "bundle"		->
 			{ opts with bundle = bool_of_string (atom (one values)) }
-		| "scraper"		->
-			{ opts with scraper = Some (parse_scraper (one values)) }
 		| "filter"		-> { opts with filter = List.map parse_filter values }
 		| _				-> failwith "Unknown option"
 	in
+
 	let rec parse_options opts =
 		function
 		| `List (`Atom name :: values) :: tl ->
@@ -118,16 +119,25 @@ let load_feeds file =
 		| _ :: _	-> failwith "Malformated options"
 		| []		-> opts
 	in
+
 	let parse_feed ~default_opts =
+		let parse_options ~url options =
+			match parse_options default_opts options with
+			| exception Failure msg	-> failwith (url ^ ": " ^ msg)
+			| options				-> options
+		in
+		let open Feed_desc in
 		function
-		| `Atom url					-> Feed_desc.Feed url, default_opts
-		| `List (`Atom url :: lst)	->
-			begin match parse_options default_opts lst with
-				| exception Failure msg	-> failwith (url ^ ": " ^ msg)
-				| options				-> Feed url, options
-			end
+		| `Atom url					->
+			Feed url, default_opts
+		| `List ((`List (`Atom "scraper" :: url :: scraper)) :: opts) ->
+			let url = atom url and scraper = one scraper in
+			Scraper (url, parse_scraper scraper), parse_options ~url opts
+		| `List (`Atom url :: opts)	->
+			Feed url, parse_options ~url opts
 		| _ -> failwith "feeds: Syntax error"
 	in
+
 	match CCSexp.parse_file file with
 	| exception Sys_error msg	-> failwith msg
 	| Error msg					-> failwith msg

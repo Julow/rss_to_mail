@@ -42,7 +42,6 @@ let print_options (opts : Feed_options.t) =
 	Option.iter (printf " (label %s)") opts.label;
 	(if opts.no_content then printf " (no_content true)");
 	(if opts.bundle then printf " (bundle true)");
-	Option.iter (fun _ -> printf " (scraper ...)") opts.scraper;
 	printf "\n"
 
 let print_data (_, r) =
@@ -56,11 +55,14 @@ let print_data (_, r) =
 	| `Updated _						->
 		()
 
-let check_feed feed_datas (Feed_desc.Feed url, options) =
-	printf "\n# %s\n\n" url;
+let check_feed feed_datas (feed, options) =
+	begin match feed with
+		| Feed_desc.Feed url	-> printf "\n# %s\n\n" url
+		| Scraper (url, _)		-> printf "\n# scraper %s\n\n" url
+	end;
 	let datas url = StringMap.get url feed_datas in
 	print_options options;
-	let mails, datas = Rss_to_mail.check ~now datas (Feed url, options) in
+	let mails, datas = Rss_to_mail.check ~now datas (feed, options) in
 	List.iter print_data datas;
 	List.iter print_mail mails
 
