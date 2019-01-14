@@ -96,9 +96,9 @@ a { text-decoration: none; }
 
 </body></html>
 
-# ././rss.rss
+# bundle ././rss.rss
 
-Options: (refresh 2.000000) (title Title) (label Label) (bundle true)
+Options: (refresh 2.000000) (title Title) (label Label)
 FROM: Title
 SUBJECT: 1 entries from Title
 BODY: <!DOCTYPE html>
@@ -664,9 +664,9 @@ a { text-decoration: none; }
 
 </body></html>
 
-# empty.rss
+# bundle empty.rss
 
-Options: (refresh 2.000000) (bundle true)
+Options: (refresh 2.000000)
 
 # no_title.rss
 

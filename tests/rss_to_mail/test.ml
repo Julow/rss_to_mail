@@ -41,7 +41,6 @@ let print_options (opts : Feed_options.t) =
 	Option.iter (printf " (title %s)") opts.title;
 	Option.iter (printf " (label %s)") opts.label;
 	(if opts.no_content then printf " (no_content true)");
-	(if opts.bundle then printf " (bundle true)");
 	printf "\n"
 
 let print_data (_, r) =
@@ -59,6 +58,7 @@ let check_feed feed_datas (feed, options) =
 	begin match feed with
 		| Feed_desc.Feed url	-> printf "\n# %s\n\n" url
 		| Scraper (url, _)		-> printf "\n# scraper %s\n\n" url
+		| Bundle url			-> printf "\n# bundle %s\n\n" url
 	end;
 	let datas url = StringMap.get url feed_datas in
 	print_options options;

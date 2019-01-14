@@ -21,19 +21,6 @@ struct
 		let body = Mail_body.generate ~sender feed options entry in
 		Utils.{ sender; subject; body }
 
-	let prepare_bundle ~sender feed options entries =
-		let len = List.length entries in
-		if len = 0
-		then []
-		else
-			let subject = string_of_int len ^ " entries from " ^ sender in
-			let body =
-				entries
-				|> List.map (Mail_body.generate ~sender feed options)
-				|> String.concat "\n"
-			in
-			[ Utils.{ sender; subject; body } ]
-
 	let new_entries remove_date seen_ids entries =
 		let ids, news = Array.fold_right (fun e (ids, news) ->
 			match Feed.entry_id e with
@@ -63,54 +50,59 @@ struct
 		then entries
 		else Array.filter match_any_filter entries
 
-	let process ~first_update ~now feed_uri options seen_ids feed =
+	let sender_name feed_uri feed options =
+		let (|||) opt def =
+			match opt with
+			| Some "" | None	-> def ()
+			| Some v			-> v
+		in
+		options.Feed_options.title ||| fun () ->
+		feed.Feed.feed_title ||| fun () ->
+		Uri.host feed_uri ||| fun () ->
+		Uri.to_string feed_uri
+
+	let process ~now feed_uri options seen_ids feed =
 		let feed = Feed.resolve_urls feed_uri feed in
 		let entries = filter_entries options.Feed_options.filter feed.entries in
 		let seen_ids, entries =
 			new_entries (remove_date_from now) seen_ids entries
 		in
-		let sender =
-			let (|||) opt def =
-				match opt with
-				| Some ""
-				| None		-> def ()
-				| Some v	-> v
-			in
-			options.Feed_options.title ||| fun () ->
-			feed.Feed.feed_title ||| fun () ->
-			Uri.host feed_uri ||| fun () ->
-			Uri.to_string feed_uri
-		in
-		let mails =
-			if first_update then []
-			else if options.bundle
-			then prepare_bundle ~sender feed options entries
-			else List.map (prepare_mail ~sender feed options) entries
-		in
-		Async.return (`Ok (seen_ids, mails))
+		feed, seen_ids, entries
 
-	let update ~first_update ~now uri options seen_ids =
-		let process_contents contents =
+	let fetch_feed uri =
+		let parse_content contents =
 			match Feed_parser.parse (`String (0, contents)) with
-			| exception Feed_parser.Error (pos, msg) ->
-				Async.return (`Parsing_error (pos, msg))
-			| feed ->
-				process ~first_update ~now uri options seen_ids feed
+			| exception Feed_parser.Error (pos, err) -> Error (`Parsing_error (pos, err))
+			| feed -> Ok feed
 		in
-		Async.bind (Fetch.fetch uri) begin function
-			| Error e		-> Async.return (`Fetch_error e)
-			| Ok contents	-> process_contents contents
+		Async.bind (Fetch.fetch uri) begin Async.return % function
+			| Error e		-> Error (`Fetch_error e)
+			| Ok contents	-> parse_content contents
 		end
 
+	let check_data ~now options = function
+		| Some (last_update, seen_ids) ->
+			let uptodate = Utils.is_uptodate now last_update options in
+			false, uptodate, seen_ids
+		| None -> true, false, SeenSet.empty
+
 	let check ~now uri options data =
-		let first_update, uptodate, seen_ids =
-			match data with
-			| Some (last_update, seen_ids) ->
-				let uptodate = Utils.is_uptodate now last_update options in
-				false, uptodate, seen_ids
-			| None -> true, false, SeenSet.empty
-		in
+		let first_update, uptodate, seen_ids = check_data ~now options data in
 		if uptodate then Async.return `Uptodate
-		else update ~first_update ~now uri options seen_ids
+		else Async.bind (fetch_feed uri) begin function
+			| Ok feed ->
+				let feed, seen_ids, entries =
+					process ~now uri options seen_ids feed
+				in
+				let mails =
+					if first_update then []
+					else
+						let sender = sender_name uri feed options in
+						List.map (prepare_mail ~sender feed options) entries
+				in
+				Async.return (`Ok (seen_ids, mails))
+			| Error err ->
+				Async.return err
+		end
 
 end

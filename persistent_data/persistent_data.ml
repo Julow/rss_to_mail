@@ -71,6 +71,7 @@ let check_duplicate feeds =
 	feeds |> List.iter Feed_desc.(function
 		| Feed url, _			-> check_url url
 		| Scraper (url, _), _	-> check_url url
+		| Bundle url, _			-> check_url url
 	)
 
 type config = {
@@ -102,8 +103,6 @@ let load_feeds file =
 		| "label"		-> { opts with label = Some (atom (one values)) }
 		| "no_content"	->
 			{ opts with no_content = bool_of_string (atom (one values)) }
-		| "bundle"		->
-			{ opts with bundle = bool_of_string (atom (one values)) }
 		| "filter"		-> { opts with filter = List.map parse_filter values }
 		| _				-> failwith "Unknown option"
 	in
@@ -135,6 +134,9 @@ let load_feeds file =
 			let scraper = try parse_scraper scraper
 				with Failure msg -> failwith (url ^ ": " ^ msg) in
 			Scraper (url, scraper), parse_options ~url opts
+		| `List ((`List (`Atom "bundle" :: url)) :: opts) ->
+			let url = atom (one url) in
+			Bundle url, parse_options ~url opts
 		| `List (`Atom url :: opts)	->
 			Feed url, parse_options ~url opts
 		| _ -> failwith "feeds: Syntax error"

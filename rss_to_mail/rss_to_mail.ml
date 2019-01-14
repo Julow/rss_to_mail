@@ -17,6 +17,7 @@ struct
 
 	module Check_feed = Check_feed.Make (Async) (Fetch)
 	module Check_scraper = Check_scraper.Make (Async) (Fetch)
+	module Check_bundle = Check_bundle.Make (Async) (Fetch)
 
 	type nonrec mail = mail
 
@@ -42,6 +43,10 @@ struct
 		| Scraper (url, scraper)	->
 			let uri, data = Uri.of_string url, get_feed_data url in
 			let r = Check_scraper.check ~now uri scraper options data in
+			Async.bind r (updated url)
+		| Bundle url				->
+			let uri, data = Uri.of_string url, get_feed_data url in
+			let r = Check_bundle.check ~now uri options data in
 			Async.bind r (updated url)
 
 end
