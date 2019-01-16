@@ -28,6 +28,7 @@ struct
 	let check ~now get_feed_data (feed, options) =
 		let updated url = function
 			| `Ok (seen_ids, mails) ->
+				let seen_ids = SeenSet.filter_removed now seen_ids in
 				Async.return (mails,
 					[ url, `Updated (seen_ids, List.length mails) ])
 			| `Uptodate | `Fetch_error _ | `Parsing_error _ as r ->
