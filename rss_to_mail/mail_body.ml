@@ -25,7 +25,8 @@ let generate ~sender feed options entry =
 				alt=" sender "
 				style=\"display: inline !important;
 					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important\" />"] ]
+					margin: 0 0 -0.1em 0 !important\" />"];
+				Html.txt " " ]
 			| None		-> []
 
 		and feed_title = [ opt_link sender feed.feed_link ]

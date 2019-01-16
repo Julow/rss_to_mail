@@ -20,7 +20,7 @@ a { text-decoration: none; }
 					<h1 class="entry_title"><a href="link%20url">title</a></h1>
 					<p class="entry_header"><img src="icon%20uri" alt="Atom Test" width="16" height="16" style="display: inline !important;
 					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important"/><a href="feed%20link%20url">Atom Test</a> (Cat 1, Cat 2) on Some date by <a href="uri">Author 1</a>, Author 2</p>
+					margin: 0 0 -0.1em 0 !important"/> <a href="feed%20link%20url">Atom Test</a> (Cat 1, Cat 2) on Some date by <a href="uri">Author 1</a>, Author 2</p>
 				</td></tr></table><table><tr><td>Attachment 1: <a href="attach%201">attach%201</a> (truc)</td></tr><tr><td>Attachment 2: <a href="attach%202">attach%202</a> (2b)</td></tr></table><div class="content"><div><p>Some content here</p></div></div>
 
 </body></html>
@@ -51,7 +51,7 @@ a { text-decoration: none; }
 					<h1 class="entry_title">Title 2</h1>
 					<p class="entry_header"><img src="Feed%20icon" alt="RSS Test" width="16" height="16" style="display: inline !important;
 					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important"/><a href="Feed%20link">RSS Test</a></p>
+					margin: 0 0 -0.1em 0 !important"/> <a href="Feed%20link">RSS Test</a></p>
 				</td></tr></table><div class="content"><div>
 					<p><a><b></b></a></p>
 				</div></div>
@@ -75,7 +75,7 @@ a { text-decoration: none; }
 					<h1 class="entry_title">Title 2</h1>
 					<p class="entry_header"><img src="Feed%20icon" alt="Title" width="16" height="16" style="display: inline !important;
 					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important"/><a href="Feed%20link">Title</a> with label Label</p>
+					margin: 0 0 -0.1em 0 !important"/> <a href="Feed%20link">Title</a> with label Label</p>
 				</td></tr></table><div class="content"><div>
 					<p><a><b></b></a></p>
 				</div></div>
@@ -99,7 +99,7 @@ a { text-decoration: none; }
 					<h1 class="entry_title">Title 2</h1>
 					<p class="entry_header"><img src="Feed%20icon" alt="RSS Test" width="16" height="16" style="display: inline !important;
 					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important"/><a href="Feed%20link">RSS Test</a></p>
+					margin: 0 0 -0.1em 0 !important"/> <a href="Feed%20link">RSS Test</a></p>
 				</td></tr></table><div class="content"><div>
 					<p><a><b></b></a></p>
 				</div></div>
