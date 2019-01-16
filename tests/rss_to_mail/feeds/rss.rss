@@ -31,5 +31,15 @@
 			]]></content:encoded>
 		</item>
 
+		<item>
+			<title>Title 3</title>
+			<description>text description</description>
+		</item>
+
+		<item>
+			<title>Title 4</title>
+			<description><![CDATA[<div>html description</div>]]></description>
+		</item>
+
 	</channel>
 </rss>

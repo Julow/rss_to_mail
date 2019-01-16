@@ -39,4 +39,38 @@
 		<content type="html"><![CDATA[<p>CDATA</p>]]></content>
 	</entry>
 
+	<entry>
+		<id>1</id>
+		<summary>Text</summary>
+	</entry>
+
+	<entry>
+		<id>2</id>
+		<summary type="text">Text!</summary>
+	</entry>
+
+	<entry>
+		<id>3</id>
+		<summary type="html">Text?</summary>
+	</entry>
+
+	<entry>
+		<id>4</id>
+		<summary type="html">&lt;p&gt;Html!&lt;/p&gt;</summary>
+	</entry>
+
+	<entry>
+		<id>5</id>
+		<summary type="xhtml">
+			<div>
+				<p>Xhtml</p>
+			</div>
+		</summary>
+	</entry>
+
+	<entry>
+		<id>6</id>
+		<summary type="html"><![CDATA[<p>CDATA</p>]]></summary>
+	</entry>
+
 </feed>

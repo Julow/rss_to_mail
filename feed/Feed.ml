@@ -25,7 +25,7 @@ type entry = {
 	title		: string option;
 	authors		: author list;
 	categories	: category list;
-	summary		: string option;
+	summary		: content option;
 	content		: content option;
 	link		: Uri.t option;
 	thumbnail	: Uri.t option;

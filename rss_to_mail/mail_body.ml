@@ -93,19 +93,20 @@ let generate ~sender feed options entry =
 
 	and content =
 		let w cont = [ [%html "<div class=\"content\">"[ cont ]"</div>"] ] in
-		match entry.content, entry.summary with
-		| Some (Text txt), _
-		| None, Some txt		-> w (Html.txt txt)
-		| Some (Html node), _	-> w node
-		| None, None			-> []
-		in
+		match Option.or_ ~else_:entry.summary entry.content with
+		| Some (Text txt)	-> w (Html.txt txt)
+		| Some (Html node)	-> w node
+		| None				-> []
+	in
+
 	let hidden_summary =
 		match entry.summary with
-		| Some sum		->
+		| Some (Text sum)	->
 			[ [%html "<span style=\"display:none;font-size:1px;color:#333333;
 				line-height:1px;max-height:0px;max-width:0px;opacity:0;
 				overflow:hidden;\">"[ Html.txt sum ]"</span>"] ]
-		| None			-> []
+		| Some (Html _)
+		| None				-> []
 
 	and header_table =
 		[ Html.table [
