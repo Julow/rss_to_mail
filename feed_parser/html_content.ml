@@ -8,8 +8,9 @@
 open Xml
 open Tyxml
 
+let make_attribs = List.map (fun ((_, k), v) -> Html.Unsafe.string_attrib k v)
+
 let of_xml =
-	let make_attribs = List.map (fun ((_, k), v) -> Html.Unsafe.string_attrib k v) in
 	let rec make_node = function
 		| Text txt -> Html.txt txt
 		| Node (((_, tag), attrs), nodes) ->
@@ -21,19 +22,15 @@ let of_xml =
 	| nodes ->
 			Html.div (make_nodes nodes)
 
-let of_string content =
-	let inp = Xmlm.make_input (`String (0, content)) in
-	match parse inp with
-	| exception Xmlm.Error ((line, col), err) ->
-		let msg = Printf.sprintf "%d:%d: %s" line col (Xmlm.error_message err) in
-		let open Html in
-		div [
-			p [ txt "An error occured while parsing the content:";
-				br ();
-				code [ txt msg ]
-			];
-			pre [
-				txt content
-			]
-		]
-	| content -> of_xml content
+let of_string contents =
+	let open Markup in
+	contents
+	|> string
+	|> parse_html
+	|> signals
+	|> trees
+		~text:(fun s -> Html.txt (String.concat "" s))
+		~element:(fun (_, tag) attrs childs ->
+			Html.Unsafe.node tag ~a:(make_attribs attrs) childs)
+	|> to_list
+	|> Html.div
