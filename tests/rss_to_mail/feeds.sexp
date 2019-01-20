@@ -16,4 +16,11 @@
 	(empty.rss (bundle true))
 	no_title.rss
 	content_type.atom
+	((scraper dune_blog.html
+		(".blog .article-index"
+			(T (entry
+				(T link)
+				(R ("h1" (T title)))
+			))))
+		(label "OCaml"))
 )))

@@ -42,14 +42,14 @@ let parse_scraper =
 		function
 		| `Atom "feed_title"			-> Feed_title
 		| `Atom "feed_icon"				-> Feed_icon
-		| `List [ `Atom "entry"; t ]	->
+		| `List (`Atom "entry" :: ts)	->
 			let target =
 				function
 				| `Atom "title"		-> Title
 				| `Atom "link"		-> Link
 				| _					-> failwith "Invalid target"
 			in
-			Entry (scraper ~target t)
+			Entry (List.map (scraper ~target) ts)
 		| _								-> failwith "Invalid target"
 	in
 	fun t -> R [ rule ~target t ]
@@ -132,7 +132,9 @@ let load_feeds file =
 			Feed url, default_opts
 		| `List ((`List (`Atom "scraper" :: url :: scraper)) :: opts) ->
 			let url = atom url and scraper = one scraper in
-			Scraper (url, parse_scraper scraper), parse_options ~url opts
+			let scraper = try parse_scraper scraper
+				with Failure msg -> failwith (url ^ ": " ^ msg) in
+			Scraper (url, scraper), parse_options ~url opts
 		| `List (`Atom url :: opts)	->
 			Feed url, parse_options ~url opts
 		| _ -> failwith "feeds: Syntax error"

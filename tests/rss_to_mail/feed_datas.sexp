@@ -7,4 +7,5 @@
    (firefox.html 0 (0.2.html))
    (no_title.rss 0 ())
    (content_type.atom 0 ())
+   (dune_blog.html 0 ())
   )))

@@ -895,3 +895,87 @@ a { text-decoration: none; }
 				</td></tr></table><div class="content"><div><p>CDATA</p></div></div>
 
 </body></html>
+
+# scraper dune_blog.html
+
+Options: (refresh 2.000000) (label OCaml)
+FROM: dune_blog.html
+SUBJECT: What’s coming in Dune 1.1.0?
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>dune_blog.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="/blog/dune-1-1-0/">What’s coming in Dune 1.1.0?</a></h1>
+					<p class="entry_header">dune_blog.html with label OCaml</p>
+				</td></tr></table>
+
+</body></html>
+FROM: dune_blog.html
+SUBJECT: Dune 1.2.0
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>dune_blog.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="/blog/dune-1-2-0/">Dune 1.2.0</a></h1>
+					<p class="entry_header">dune_blog.html with label OCaml</p>
+				</td></tr></table>
+
+</body></html>
+FROM: dune_blog.html
+SUBJECT: A new general computation model for Dune
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>dune_blog.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="/blog/new-computation-model/">A new general computation model for Dune</a></h1>
+					<p class="entry_header">dune_blog.html with label OCaml</p>
+				</td></tr></table>
+
+</body></html>
+FROM: dune_blog.html
+SUBJECT: Virtual libraries
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>dune_blog.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="/blog/virtual-libraries/">Virtual libraries</a></h1>
+					<p class="entry_header">dune_blog.html with label OCaml</p>
+				</td></tr></table>
+
+</body></html>
+FROM: dune_blog.html
+SUBJECT: How configurator reads C constants
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>dune_blog.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="/blog/configurator-constants/">How configurator reads C constants</a></h1>
+					<p class="entry_header">dune_blog.html with label OCaml</p>
+				</td></tr></table>
+
+</body></html>

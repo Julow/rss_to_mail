@@ -1,7 +1,7 @@
 open Feed
 
 type entry = Title | Link
-type feed = Feed_title | Feed_icon | Entry of entry Scrap.t
+type feed = Feed_title | Feed_icon | Entry of entry Scrap.t list
 
 let text node = String.concat "" (Soup.texts node)
 
@@ -18,7 +18,7 @@ let scrap_feed node (title, icon, entries) = function
 		let feed_icon = Soup.attribute "src" node |> Option.map Uri.of_string in
 		title, feed_icon, entries
 	| Entry s	->
-		let e = Scrap.scrap node scrap_entry Feed.empty_entry s in
+		let e = List.fold_left (Scrap.scrap node scrap_entry) Feed.empty_entry s in
 		title, icon, e :: entries
 
 let scrap node s =
