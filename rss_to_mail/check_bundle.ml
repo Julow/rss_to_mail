@@ -17,11 +17,14 @@ struct
 		then []
 		else
 			let subject = string_of_int len ^ " entries from " ^ sender in
+			let hidden_summary =
+				List.filter_map (fun e -> e.Feed.title) entries
+				|> String.concat ", "
+				|> Mail_body.gen_summary in
 			let body =
-				entries
-				|> List.map (Mail_body.generate ~sender feed options)
-				|> String.concat "\n"
-			in
+				List.map (Mail_body.gen_entry ~sender feed options) entries
+				|> Mail_body.gen_mail ~sender ~hidden_summary
+				|> Format.sprintf "%a" (Tyxml.Html.pp ()) in
 			[ Utils.{ sender; subject; body } ]
 
 	let update ~first_update ~now uri options seen_ids =

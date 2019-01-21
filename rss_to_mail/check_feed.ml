@@ -18,7 +18,14 @@ struct
 			| Some title	-> title
 			| None			-> "New entry from " ^ sender
 		in
-		let body = Mail_body.generate ~sender feed options entry in
+		let hidden_summary =
+			match entry.summary with
+			| Some (Feed.Text sum)		-> Some (Mail_body.gen_summary sum)
+			| Some (Feed.Html _) | None	-> None
+		in
+		let entries = [ Mail_body.gen_entry ~sender feed options entry ] in
+		let body = Mail_body.gen_mail ~sender ?hidden_summary entries in
+		let body = Format.sprintf "%a" (Tyxml.Html.pp ()) body in
 		Utils.{ sender; subject; body }
 
 	let new_entries remove_date seen_ids entries =

@@ -13,8 +13,8 @@ a { text-decoration: none; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
 		</style></head><body><span style="display:none;font-size:1px;color:#333333;
-				line-height:1px;max-height:0px;max-width:0px;opacity:0;
-				overflow:hidden;">summary</span><table><tr><td>
+		line-height:1px;max-height:0px;max-width:0px;opacity:0;
+		overflow:hidden;">summary</span><table><tr><td>
 				<img src="some%20url" alt="thumbnail" class="thumbnail" width="60" height="60"/>
 			</td><td>
 					<h1 class="entry_title"><a href="link%20url">title</a></h1>
@@ -109,7 +109,9 @@ a { text-decoration: none; }
 .entry_header { margin-top: 0; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
+		</style></head><body><span style="display:none;font-size:1px;color:#333333;
+		line-height:1px;max-height:0px;max-width:0px;opacity:0;
+		overflow:hidden;">Title 2</span><table><tr><td>
 					<h1 class="entry_title">Title 2</h1>
 					<p class="entry_header"><img src="Feed%20icon" alt="Title" width="16" height="16" style="display: inline !important;
 					height: 1em !important;
@@ -802,8 +804,8 @@ a { text-decoration: none; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
 		</style></head><body><span style="display:none;font-size:1px;color:#333333;
-				line-height:1px;max-height:0px;max-width:0px;opacity:0;
-				overflow:hidden;">Text</span><table><tr><td>
+		line-height:1px;max-height:0px;max-width:0px;opacity:0;
+		overflow:hidden;">Text</span><table><tr><td>
 					<h1 class="entry_title">New entry</h1>
 					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
 				</td></tr></table><div class="content">Text</div>
@@ -820,8 +822,8 @@ a { text-decoration: none; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
 		</style></head><body><span style="display:none;font-size:1px;color:#333333;
-				line-height:1px;max-height:0px;max-width:0px;opacity:0;
-				overflow:hidden;">Text!</span><table><tr><td>
+		line-height:1px;max-height:0px;max-width:0px;opacity:0;
+		overflow:hidden;">Text!</span><table><tr><td>
 					<h1 class="entry_title">New entry</h1>
 					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
 				</td></tr></table><div class="content">Text!</div>

@@ -11,7 +11,7 @@ let rec list_interleave elt = function
 	| hd :: tl		-> hd :: elt :: list_interleave elt tl
 	| []			-> []
 
-let generate ~sender feed options entry =
+let gen_entry ~sender feed options entry =
 	let entry_title =
 		match entry.title, entry.link with
 		| Some t, link				-> opt_link t link
@@ -99,16 +99,7 @@ let generate ~sender feed options entry =
 		| None				-> []
 	in
 
-	let hidden_summary =
-		match entry.summary with
-		| Some (Text sum)	->
-			[ [%html "<span style=\"display:none;font-size:1px;color:#333333;
-				line-height:1px;max-height:0px;max-width:0px;opacity:0;
-				overflow:hidden;\">"[ Html.txt sum ]"</span>"] ]
-		| Some (Html _)
-		| None				-> []
-
-	and header_table =
+	let header_table =
 		[ Html.table [
 			Html.tr (
 				thumbnail
@@ -120,7 +111,19 @@ let generate ~sender feed options entry =
 		] ]
 	in
 
-	let%html body = "
+	[%html header_table attachments content]
+
+let gen_summary sum =
+	[%html "<span style=\"display:none;font-size:1px;color:#333333;
+		line-height:1px;max-height:0px;max-width:0px;opacity:0;
+		overflow:hidden;\">"[ Html.txt sum ]"</span>"]
+
+let gen_mail ~sender ?hidden_summary entries =
+	let entries = match entries with
+		| [ e ]		-> e
+		| entries	-> List.map (fun e -> [%html "<div>" e "</div>"]) entries
+	in
+	[%html "
 <html lang=\"en\">
 	<head>
 		<style>
@@ -134,12 +137,8 @@ a { text-decoration: none; }
 		<title>" (Html.txt sender) "</title>
 	</head>
 	<body>"
-		hidden_summary
-		header_table
-		attachments
-		content
+		(Option.to_list hidden_summary)
+		entries
 	"</body>
 </html>
-"
-	in
-	Format.sprintf "%a" (Tyxml.Html.pp ()) body
+"]
