@@ -4,15 +4,32 @@ type mail = {
 	body		: string
 }
 
+module C = CalendarLib.Calendar.Precise
+
+let next_day_at h m t =
+	let t = C.next t `Day in
+	C.create (C.to_date t) (C.Time.(make h m (Second.from_int 0)))
+
+let next_week_at day h m t =
+	let rec loop t =
+		if Pervasives.(=) (C.day_of_week t) day
+		then t
+		else loop (C.next t `Day)
+	in
+	loop (next_day_at h m t)
+
 let is_uptodate now last_update options =
-	let open Int64 in
-	match options.Feed_options.refresh with
-	| `Every h		-> last_update + of_float (h *. 3600.) >= now
-	| `At (h, m)	->
-		let today_00 = last_update - last_update mod 86400L in
-		let due = today_00 + of_int h * 3600L + of_int m * 60L in
-		let due = if last_update >= due then due + 86400L else due in
-		due >= now
+	let last_update = C.from_unixfloat (Int64.to_float last_update)
+	and now = C.from_unixfloat (Int64.to_float now) in
+	let due =
+		match options.Feed_options.refresh with
+		| `Every h				->
+			let hour = int_of_float h and second = int_of_float (h /. 60.) in
+			C.add last_update (C.Period.lmake ~hour ~second ())
+		| `At (h, m)			-> next_day_at h m last_update
+		| `At_weekly (d, h, m)	-> next_week_at d h m last_update
+	in
+	Pervasives.(>) due now
 
 let rec size s u =
 	let to_s () = Int64.to_string s ^ u in

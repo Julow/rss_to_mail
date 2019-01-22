@@ -15,5 +15,6 @@ depends: [
 	"cohttp-lwt-unix"
 	"cmdliner"
 	"tyxml"
+	"calendar"
 ]
 build: [[ "jbuilder" "build" "-p" name "-j" jobs ]]

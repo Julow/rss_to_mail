@@ -82,16 +82,28 @@ type config = {
 
 let load_feeds file =
 	let parse_option_refresh =
+		let parse_time time =
+			match Scanf.sscanf time "%d:%d" (fun h m -> h, m) with
+			| exception _ -> failwith "Malformated"
+			| h, m when h < 0 || h > 23 || m < 0 || m > 59 ->
+				failwith "Invalid time"
+			| t -> t
+		and parse_day = function
+			| "mon" -> CalendarLib.Date.Mon
+			| "tue" -> Tue
+			| "wed" -> Wed
+			| "thu" -> Thu
+			| "fri" -> Fri
+			| "sat" -> Sat
+			| "sun" -> Sun
+			| _ -> failwith "Invalid day"
+		in
 		function
 		| `Atom hours	-> `Every (float_of_string hours)
-		| `List [ `Atom "at"; `Atom at ] ->
-			begin
-				try Scanf.sscanf at "%d:%d" (fun h m ->
-					(if h < 0 || h > 23 || m < 0 || m > 59
-						then failwith "Invalid value");
-					`At (h, m))
-				with _ -> failwith "Malformated"
-			end
+		| `List [ `Atom "at"; `Atom time ] -> `At (parse_time time)
+		| `List [ `Atom "at"; `Atom time; `Atom day ] ->
+			let h, m = parse_time time and d = parse_day day in
+			`At_weekly (d, h, m)
 		| `List _		-> failwith "Malformated"
 	in
 

@@ -1,6 +1,11 @@
+module D = CalendarLib.Date
+
 let print_refresh = function
 	| `Every h		-> Printf.sprintf "(Every %f)" h
 	| `At (h, m)	-> Printf.sprintf "(At %d %d)" h m
+	| `At_weekly (d, h, m) ->
+		Printf.sprintf "(At_weekly %d %d %d)"
+			(D.int_of_day d) h m
 
 let check_is_uptodate expected now last_update refresh =
 	let options = Feed_options.make ~refresh () in
@@ -23,7 +28,13 @@ let daily () =
 	check_is_uptodate false 12391201L 12345678L (`At (10, 0));
 	()
 
+let weekly () =
+	check_is_uptodate true 12345678L 12009600L (`At_weekly (D.Wed, 10, 0));
+	check_is_uptodate false 12345678L 12009599L (`At_weekly (D.Wed, 10, 0));
+	()
+
 let tests = [
 	"Hourly refresh", `Quick, hourly;
-	"Daily refresh", `Quick, daily
+	"Daily refresh", `Quick, daily;
+	"Weekly refresh", `Quick, weekly
 ]

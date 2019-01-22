@@ -37,7 +37,8 @@ let print_options (opts : Feed_options.t) =
 	printf "Options:";
 	(match opts.refresh with
 		| `Every h		-> printf " (refresh %f)" h
-		| `At (h, m)	-> printf " (refresh (at %d:%d))" h m);
+		| `At (h, m)	-> printf " (refresh (at %d:%d))" h m
+		| `At_weekly (d, h, m) -> printf " (refresh (at %d:%d %d)" h m (CalendarLib.Date.int_of_day d));
 	Option.iter (printf " (title %s)") opts.title;
 	Option.iter (printf " (label %s)") opts.label;
 	(if opts.no_content then printf " (no_content true)");
