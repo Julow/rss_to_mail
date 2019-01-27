@@ -5,7 +5,6 @@
 	(atom.atom (filter "title"))
 	./atom.atom
 	(rss.rss (refresh (at 18:00)))
-	(./rss.rss (refresh (at 18:00)))
 	((bundle ././rss.rss) (label "Label") (title "Title") (filter "2"))
 	(./././rss.rss (filter (not "Title") "2"))
 	((scraper firefox.html

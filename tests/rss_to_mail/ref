@@ -34,68 +34,6 @@ Options: (refresh 2.000000)
 Options: (refresh (at 18:0))
 Up-to-date
 
-# ./rss.rss
-
-Options: (refresh (at 18:0))
-FROM: RSS Test
-SUBJECT: Title 2
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>RSS Test</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title">Title 2</h1>
-					<p class="entry_header"><img src="Feed%20icon" alt="RSS Test" width="16" height="16" style="display: inline !important;
-					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important"/> <a href="Feed%20link">RSS Test</a></p>
-				</td></tr></table><div class="content"><div>
-				<div>
-					<p><a><b></b></a></p>
-				</div>
-			</div></div>
-
-</body></html>
-FROM: RSS Test
-SUBJECT: Title 3
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>RSS Test</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title">Title 3</h1>
-					<p class="entry_header"><img src="Feed%20icon" alt="RSS Test" width="16" height="16" style="display: inline !important;
-					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important"/> <a href="Feed%20link">RSS Test</a></p>
-				</td></tr></table><div class="content"><div>text description</div></div>
-
-</body></html>
-FROM: RSS Test
-SUBJECT: Title 4
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>RSS Test</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title">Title 4</h1>
-					<p class="entry_header"><img src="Feed%20icon" alt="RSS Test" width="16" height="16" style="display: inline !important;
-					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important"/> <a href="Feed%20link">RSS Test</a></p>
-				</td></tr></table><div class="content"><div><div>html description</div></div></div>
-
-</body></html>
-
 # bundle ././rss.rss
 
 Options: (refresh 2.000000) (title Title) (label Label)

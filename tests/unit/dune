@@ -1,0 +1,7 @@
+(executable
+ (name run_tests)
+ (libraries alcotest rss_to_mail))
+
+(alias
+ (name runtest)
+ (action (run %{dep:run_tests.exe})))
