@@ -14,24 +14,27 @@ Send a mail for new entries on an RSS or Atom feeds
 
 #### Options
 
-- `label` Inserted into the body of the message: " with label ..."
-- `title` Override the feed title
-- `refresh` Update frequency.
-	Maybe in hours (`(refresh 2.)`, every 2 hours)
-	or fixed (`(refresh (at 18:00))`, every days at 6PM)
+- `(label "...")` Inserted into the body of the message: " with label ..."
+- `(title "...")` Override the feed title
+- `(refresh 1.5)` Feed is refreshed every 1 hour and 30 minutes
 	The default can be controled with the `default_refresh` global option, by default 6 hours
-- `no_content` True or false. If true, the content of entries will not be included in the mail
-- `bundle` If true, new entries will be concatenated in a single mail
-- `filter` Filter entries by matching their title.
-	`(filter "abc")` Only show entries that have "abc" in their title.
-	`(filter (not "abc"))` Only show entries that do not have "abc" in their title.
-	If multiple filters are set, entries are shown if at least one filter match, `(filter (not "abc") "def")` only show entries that do not match "abc" and/or match "def".
+- `(refresh (at 10:00))` Refresh every day at 10AM (24 hours format)
+- `(refresh (at 14:00 wed))` Refresh every week on Wednesday at 2PM
+- `(no_content true)` True or false. If true, remove the summary part of the entry.
+- `(filter "...")` Filter entries by matching their title.
+	Only entries with "..." in their title kept. Accepts a regular expression.
+- `(filter (not "..."))` Negative filter. Keep entries that do not have "..." in their title.
+- `(filter "..." (not "..."))` Keep entries that match at least one of the filter
 
 #### Other kind of feeds
 
 - `scraper` Custom scraper
 
 	`((scraper http://url (scraper definition)) options ...)`
+
+- `bundle` Concatenate entries into a single mail, sending at most one mail per refresh
+
+	`((bundle http://url) options ...)`
 
 ### Install
 
