@@ -22,7 +22,7 @@ let is_uptodate now last_update options =
 	let last_update = C.from_unixfloat (Int64.to_float last_update)
 	and now = C.from_unixfloat (Int64.to_float now) in
 	let due =
-		match options.Feed_options.refresh with
+		match options.Feed_desc.refresh with
 		| `Every h				->
 			let hour = int_of_float h and second = int_of_float (h /. 60.) in
 			C.add last_update (C.Period.lmake ~hour ~second ())

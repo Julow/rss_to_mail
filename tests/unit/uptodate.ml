@@ -8,7 +8,7 @@ let print_refresh = function
 			(D.int_of_day d) h m
 
 let check_is_uptodate expected now last_update refresh =
-	let options = Feed_options.make ~refresh () in
+	let options = Feed_desc.make_options ~refresh () in
 	let desc =
 		Printf.sprintf "now=%Ld last_update=%Ld refresh=%s"
 			now last_update (print_refresh refresh)

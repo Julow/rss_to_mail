@@ -77,7 +77,7 @@ let check_duplicate feeds =
 type config = {
 	smtp	: string * [ `Plain of string * string ] option;
 	address	: string;
-	feeds	: (Feed_desc.t * Feed_options.t) list
+	feeds	: Feed_desc.t list
 }
 
 let load_feeds file =
@@ -107,7 +107,7 @@ let load_feeds file =
 		| `List _		-> failwith "Malformated"
 	in
 
-	let parse_option name values (opts : Feed_options.t) =
+	let parse_option name values (opts : Feed_desc.options) =
 		match name with
 		| "refresh"		->
 			{ opts with refresh = parse_option_refresh (one values) }
@@ -163,7 +163,7 @@ let load_feeds file =
 				try Option.map parse_option_refresh (record "default_refresh" t)
 				with Failure msg -> failwith ("default_refresh: " ^ msg)
 			in
-			Feed_options.make ?refresh ()
+			Feed_desc.make_options ?refresh ()
 		in
 		let feeds = match record "feeds" t with
 			| Some t	-> list (List.map (parse_feed ~default_opts)) t

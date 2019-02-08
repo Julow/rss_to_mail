@@ -11,7 +11,7 @@ let rec list_interleave elt = function
 	| hd :: tl		-> hd :: elt :: list_interleave elt tl
 	| []			-> []
 
-let gen_entry ~sender feed options entry =
+let gen_entry ~sender ?label feed entry =
 	let entry_title =
 		match entry.title, entry.link with
 		| Some t, link				-> opt_link t link
@@ -53,7 +53,7 @@ let gen_entry ~sender feed options entry =
 				Html.txt " by " :: list_interleave (Html.txt ", ") authors
 
 		and label =
-			match options.Feed_options.label with
+			match label with
 			| Some l	-> [ Html.txt (" with label " ^ l) ]
 			| None		-> []
 		in

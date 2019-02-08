@@ -21,8 +21,9 @@ struct
 				List.filter_map (fun e -> e.Feed.title) entries
 				|> String.concat ", "
 				|> Mail_body.gen_summary in
+			let label = options.Feed_desc.label in
 			let body =
-				List.map (Mail_body.gen_entry ~sender feed options) entries
+				List.map (Mail_body.gen_entry ~sender ?label feed) entries
 				|> Mail_body.gen_mail ~sender ~hidden_summary
 				|> Format.sprintf "%a" (Tyxml.Html.pp ()) in
 			[ Utils.{ sender; subject; body } ]

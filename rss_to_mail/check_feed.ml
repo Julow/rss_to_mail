@@ -23,7 +23,8 @@ struct
 			| Some (Feed.Text sum)		-> Some (Mail_body.gen_summary sum)
 			| Some (Feed.Html _) | None	-> None
 		in
-		let entries = [ Mail_body.gen_entry ~sender feed options entry ] in
+		let label = options.Feed_desc.label in
+		let entries = [ Mail_body.gen_entry ~sender ?label feed entry ] in
 		let body = Mail_body.gen_mail ~sender ?hidden_summary entries in
 		let body = Format.sprintf "%a" (Tyxml.Html.pp ()) body in
 		Utils.{ sender; subject; body }
@@ -63,14 +64,14 @@ struct
 			| Some "" | None	-> def ()
 			| Some v			-> v
 		in
-		options.Feed_options.title ||| fun () ->
+		options.Feed_desc.title ||| fun () ->
 		feed.Feed.feed_title ||| fun () ->
 		Uri.host feed_uri ||| fun () ->
 		Uri.to_string feed_uri
 
 	let process ~now feed_uri options seen_ids feed =
 		let feed = Feed.resolve_urls feed_uri feed in
-		let entries = filter_entries options.Feed_options.filter feed.entries in
+		let entries = filter_entries options.Feed_desc.filter feed.entries in
 		let seen_ids, entries =
 			new_entries (remove_date_from now) seen_ids entries
 		in

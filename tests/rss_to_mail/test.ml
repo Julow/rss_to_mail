@@ -33,7 +33,7 @@ open Printf
 let print_mail (m : Rss_to_mail.mail) =
 	printf "FROM: %s\nSUBJECT: %s\nBODY: %s\n" m.sender m.subject m.body
 
-let print_options (opts : Feed_options.t) =
+let print_options (opts : Feed_desc.options) =
 	printf "Options:";
 	(match opts.refresh with
 		| `Every h		-> printf " (refresh %f)" h
