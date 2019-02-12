@@ -11,7 +11,8 @@ struct
 
 	module Check_feed = Check_feed.Make (Async) (Fetch)
 
-	let update ~first_update ~now uri scraper options seen_ids =
+	let update ~first_update ~now url scraper options seen_ids =
+		let uri = Uri.of_string url in
 		Async.bind (Fetch.fetch uri) begin function
 			| Error e		-> Async.return (`Fetch_error e)
 			| Ok contents	->
@@ -25,18 +26,14 @@ struct
 						let sender = Check_feed.sender_name uri feed options in
 						List.map (Check_feed.prepare_mail ~sender feed options) entries
 				in
-				Async.return (`Ok (seen_ids, mails))
+				Async.return (`Ok ([ url, seen_ids ], mails))
 		end
 
-	let check ~now uri scraper options data =
+	let check ~now get_feed_data url scraper options =
 		let first_update, uptodate, seen_ids =
-			match data with
-			| Some (last_update, seen_ids) ->
-				let uptodate = Utils.is_uptodate now last_update options in
-				false, uptodate, seen_ids
-			| None -> true, false, SeenSet.empty
+			Check_feed.check_data ~now options (get_feed_data url)
 		in
 		if uptodate then Async.return `Uptodate
-		else update ~first_update ~now uri scraper options seen_ids
+		else update ~first_update ~now url scraper options seen_ids
 
 end

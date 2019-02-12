@@ -27,26 +27,22 @@ struct
 	 * Log informations by calling [log] once for each feed
 	 *)
 	let check ~now get_feed_data (feed, options) =
-		let updated url = function
-			| `Ok (seen_ids, mails) ->
-				let seen_ids = SeenSet.filter_removed now seen_ids in
-				Async.return (mails,
-					[ url, `Updated (seen_ids, List.length mails) ])
+		let updated = function
+			| `Ok (updates, mails) ->
+				let updates = List.map (SeenSet.filter_removed now) in
+				Async.return (`Ok (updates, mails))
 			| `Uptodate | `Fetch_error _ | `Parsing_error _ as r ->
 				Async.return ([], [ url, r ])
 		in
-		match feed with
-		| Feed_desc.Feed url		->
-			let uri, data = Uri.of_string url, get_feed_data url in
-			let r = Check_feed.check ~now uri options data in
-			Async.bind r (updated url)
-		| Scraper (url, scraper)	->
-			let uri, data = Uri.of_string url, get_feed_data url in
-			let r = Check_scraper.check ~now uri scraper options data in
-			Async.bind r (updated url)
-		| Bundle url				->
-			let uri, data = Uri.of_string url, get_feed_data url in
-			let r = Check_bundle.check ~now uri options data in
-			Async.bind r (updated url)
+		let r =
+			match feed with
+			| Feed_desc.Feed url		->
+				Check_feed.check ~now get_feed_data url options
+			| Scraper (url, scraper)	->
+				Check_scraper.check ~now get_feed_data url scraper options
+			| Bundle url				->
+				Check_bundle.check ~now get_feed_data url options
+		in
+		Async.bind r updated
 
 end

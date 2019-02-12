@@ -94,8 +94,9 @@ struct
 			false, uptodate, seen_ids
 		| None -> true, false, SeenSet.empty
 
-	let check ~now uri options data =
-		let first_update, uptodate, seen_ids = check_data ~now options data in
+	let check ~now get_feed_data url options =
+		let uri = Uri.of_string url in
+		let first_update, uptodate, seen_ids = check_data ~now options (get_feed_data url) in
 		if uptodate then Async.return `Uptodate
 		else Async.bind (fetch_feed uri) begin function
 			| Ok feed ->
@@ -108,7 +109,7 @@ struct
 						let sender = sender_name uri feed options in
 						List.map (prepare_mail ~sender feed options) entries
 				in
-				Async.return (`Ok (seen_ids, mails))
+				Async.return (`Ok ([ url, seen_ids ], mails))
 			| Error err ->
 				Async.return err
 		end
