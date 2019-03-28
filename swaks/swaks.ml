@@ -1,7 +1,7 @@
 (** Needed at least for FROM
 	https://en.wikipedia.org/wiki/MIME#Encoded-Word *)
 let mime_encode ?(sep="\r\n ") s =
-	let s = B64.encode ~pad:false s in
+	let s = Base64.encode_string ~pad:false s in
 	let chunk = 60 (* Magic, 75 - 12 rounded to lower multiple of 4 *) in
 	let rec encode i =
 		let c s = "=?UTF-8?B?" ^ s ^ "?=" in
