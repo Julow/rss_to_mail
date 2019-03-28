@@ -1,0 +1,20 @@
+(executable
+ (name test)
+ (libraries std rss_to_mail persistent_data)
+ (flags :standard -open Std))
+
+(rule
+ (targets output)
+ (deps
+  feeds.sexp
+  feed_datas.sexp
+  (glob_files feeds/*))
+ (action
+  (with-stdout-to
+   %{targets}
+   (run %{dep:test.exe}))))
+
+(alias
+ (name runtest)
+ (action
+  (diff %{dep:ref} %{dep:output})))

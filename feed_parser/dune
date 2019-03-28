@@ -1,0 +1,6 @@
+(library
+ (name feed_parser)
+ (public_name rss_to_mail.feed_parser)
+ (wrapped false)
+ (libraries std uri xmlm markup feed)
+ (flags :standard -open Std))

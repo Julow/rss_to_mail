@@ -1,6 +1,0 @@
-(jbuild_version 1)
-
-(library
- ((name swaks)
-  (public_name rss_to_mail.swaks)
-  (libraries (lwt.unix base64))))

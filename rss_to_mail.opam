@@ -2,7 +2,7 @@ opam-version: "1.2"
 version: "dev"
 homepage: "https://github.com/Julow/rss_to_mail"
 depends: [
-	"jbuilder" { build }
+	"dune" { build & >= "1.0" }
 	"containers"
 	"uri"
 	"xmlm"
@@ -15,6 +15,7 @@ depends: [
 	"cohttp-lwt-unix"
 	"cmdliner"
 	"tyxml"
+	"tyxml-ppx"
 	"calendar"
 ]
-build: [[ "jbuilder" "build" "-p" name "-j" jobs ]]
+build: [[ "dune" "build" "-p" name "-j" jobs ]]

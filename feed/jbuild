@@ -1,7 +1,0 @@
-(jbuild_version 1)
-(library
- ((name feed)
-  (public_name rss_to_mail.feed)
-  (wrapped false)
-  (flags (:standard -open Std))
-  (libraries (std uri tyxml))))
