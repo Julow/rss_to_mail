@@ -2,8 +2,8 @@
  (name main_native)
  (public_name rss_to_mail)
  (package rss_to_mail)
- (libraries std lwt cohttp-lwt-unix swaks rss_to_mail scraper cmdliner
-   persistent_data)
+ (libraries std lwt cohttp-lwt-unix rss_to_mail scraper cmdliner
+   persistent_data colombe.client base64)
  (flags :standard -open Std)
  (preprocess
   (pps lwt_ppx)))
