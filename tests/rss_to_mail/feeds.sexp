@@ -1,5 +1,9 @@
-((smtp (some_server))
- (address some_address)
+((smtp
+  (server dummy)
+  (from from_addr)
+  (auth login password)
+ )
+ (to some_address)
  (default_refresh 2)
  (feeds (
 	(atom.atom (filter "title"))

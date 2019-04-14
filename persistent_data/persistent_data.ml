@@ -6,7 +6,11 @@ let record field =
 	function
 	| `List ts	->
 		List.find_map (function
-			| `List [ `Atom f; t ] when String.equal f field -> Some t
+			| `List (`Atom f :: t) when String.equal f field ->
+				begin match t with
+					| [ t ] -> Some t
+					| ts -> Some (`List ts)
+				end
 			| _ -> None) ts
 	| `Atom _	-> failwith "Expecting record"
 
@@ -75,8 +79,10 @@ let check_duplicate feeds =
 	)
 
 type config = {
-	smtp	: string * [ `Plain of string * string ] option;
-	address	: string;
+	server : string * int;
+  server_auth : [ `Plain of string * string ];
+	from_address : string;
+	to_address : string;
 	feeds	: Feed_desc.t list
 }
 
@@ -154,6 +160,29 @@ let load_feeds file =
 		| _ -> failwith "feeds: Syntax error"
 	in
 
+	let parse_smtp t =
+		let server =
+			match record "server" t with
+			| Some (`List [ `Atom host ]) | Some (`Atom host) -> host, 465
+			| Some (`List [ `Atom host; `Atom port ]) -> host, int_of_string port
+			| Some _ -> failwith "Malformated field `server`"
+			| None -> failwith "Missing field `server`"
+		in
+		let from =
+			match record "from" t with
+			| Some (`Atom from) -> from
+			| Some _ -> failwith "Malformated field `from`"
+			| None -> failwith "Missing field `from`"
+		in
+		let auth =
+			match record "auth" t with
+			| Some (`List [ `Atom user; `Atom pass ]) -> `Plain (user, pass)
+			| None -> failwith "Missing field `auth`"
+			| Some _ -> failwith "Malformated field `auth`"
+		in
+		server, auth, from
+	in
+
 	match CCSexp.parse_file file with
 	| exception Sys_error msg	-> failwith msg
 	| Error msg					-> failwith msg
@@ -168,19 +197,16 @@ let load_feeds file =
 		let feeds = match record "feeds" t with
 			| Some t	-> list (List.map (parse_feed ~default_opts)) t
 			| None		-> failwith "Missing field `feeds`"
-		and smtp = match record "smtp" t with
-			| Some (`List [ `Atom serv ]) -> serv, None
-			| Some (`List [ `Atom serv; `List [ `Atom user; `Atom pass ] ]) ->
-				serv, Some (`Plain (user, pass))
-			| Some _	-> failwith "Malformated field `smtp`"
+		and server, server_auth, from_address = match record "smtp" t with
+			| Some t	-> parse_smtp t
 			| None		-> failwith "Missing field `smtp`"
-		and address = match record "address" t with
+		and to_address = match record "to" t with
 			| Some (`Atom a)	-> a
-			| Some _			-> failwith "Malformated field `address`"
-			| None				-> failwith "Missing field `address`"
+			| Some _			-> failwith "Malformated field `to`"
+			| None				-> failwith "Missing field `to`"
 		in
 		check_duplicate feeds;
-		{ smtp; address; feeds }
+		{ server; server_auth; from_address; to_address; feeds }
 
 let load_feed_datas feed_datas_file : (int64 * SeenSet.t) StringMap.t * Rss_to_mail.mail list =
 	let parse_ids set =
