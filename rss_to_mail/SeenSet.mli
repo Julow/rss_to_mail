@@ -33,11 +33,5 @@ val new_ids : int64 -> string list -> t -> t
 	[None] otherwise *)
 val fold : (string -> int64 option -> 'a -> 'a) -> t -> 'a -> 'a
 
-(** Build a SeenSet from a list of (ID * remove date) *)
-val of_list : (string * int64 option) list -> t
-
-(** To (ID, remove date) list, can be constructed back with [of_list] *)
-val to_list : t -> (string * int64 option) list
-
 (** Like [of_list] followed by [filter_removed] *)
 val of_list_filter : int64 -> (string * int64 option) list -> t

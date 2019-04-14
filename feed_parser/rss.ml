@@ -17,7 +17,7 @@ let category label = { term = None; label = Some label }
 let attachment node =
 	attr "url" node > fun url ->
 		{	attach_url = Uri.of_string url;
-			attach_size = attr "length" node >$ Int64.of_string;
+			attach_size = attr "length" node >$ Int64.of_string_opt;
 			attach_type = attr "type" node }
 
 let entry node =

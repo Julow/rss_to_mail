@@ -10,7 +10,7 @@ module Make (Async : sig
 struct
 
 	(* Remove date for IDs that disapeared from the feed: 1 month *)
-	let remove_date_from = Int64.(+) 2678400L
+	let remove_date_from = Int64.add 2678400L
 
 	let prepare_mail ~sender feed options entry =
 		let subject =
@@ -26,7 +26,7 @@ struct
 		let label = options.Feed_desc.label in
 		let entries = [ Mail_body.gen_entry ~sender ?label feed entry ] in
 		let body = Mail_body.gen_mail ~sender ?hidden_summary entries in
-		let body = Format.sprintf "%a" (Tyxml.Html.pp ()) body in
+		let body = sprintf "%a" (Tyxml.Html.pp ()) body in
 		Utils.{ sender; subject; body }
 
 	let new_entries remove_date seen_ids entries =
@@ -54,9 +54,9 @@ struct
 				List.exists match_ filters
 			| { title = None; _ }			-> true
 		in
-		if List.is_empty filters
-		then entries
-		else Array.filter match_any_filter entries
+		match filters with
+    | [] -> entries
+    | _ -> Array.filter match_any_filter entries
 
 	let sender_name feed_uri feed options =
 		let (|||) opt def =

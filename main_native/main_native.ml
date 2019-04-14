@@ -1,7 +1,7 @@
 (** Ensures [f] is running at most [n] times concurrently
 	Internally uses an Lwt_pool of [unit] *)
 let pooled n f =
-	let pool = Lwt_pool.create n (const Lwt.return_unit) in
+	let pool = Lwt_pool.create n (fun _ -> Lwt.return_unit) in
 	fun x -> Lwt_pool.use pool (fun () -> f x)
 
 module Fetch =
@@ -50,7 +50,7 @@ end
 module Rss_to_mail = Rss_to_mail.Make (Lwt) (Fetch)
 
 let check_feeds ~now feed_datas feeds =
-	let get_feed_datas url = StringMap.get url feed_datas in
+  let get_feed_datas url = StringMap.find_opt url feed_datas in
 
 	let handle_data acc (url, r) =
 		let log_e msg = eprintf "%s: %s\n%!" url msg
@@ -122,8 +122,9 @@ let run (conf : Persistent_data.config) (feed_datas, unsent) =
 		let random_seed = Int64.to_string now in
 		send_mails ~random_seed conf (unsent @ mails)
 	in
-	(if not (List.is_empty unsent) then
-		printf "%d mails could not be sent\n" (List.length unsent));
+  (match unsent with
+  | _ :: _ -> printf "%d mails could not be sent\n" (List.length unsent)
+  | [] -> ());
 	Lwt.return (feed_datas, unsent)
 
 let check_config_file f =

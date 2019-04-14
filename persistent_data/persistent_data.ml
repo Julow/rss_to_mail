@@ -212,7 +212,7 @@ let load_feed_datas feed_datas_file : (int64 * SeenSet.t) StringMap.t * Rss_to_m
 	let parse_ids set =
 		function
 		| `List [ `Atom id; `Atom date ] ->
-			SeenSet.remove (Int64.of_string_exn date) id set
+			SeenSet.remove (Int64.of_string date) id set
 		| `Atom id	-> SeenSet.add id set
 		| `List _	-> failwith ""
 	in
@@ -220,7 +220,7 @@ let load_feed_datas feed_datas_file : (int64 * SeenSet.t) StringMap.t * Rss_to_m
 		function
 		| `List [ `Atom url; `Atom date; `List ids ] ->
 			let ids = List.fold_left parse_ids SeenSet.empty ids in
-			StringMap.add url (Int64.of_string_exn date, ids) m
+			StringMap.add url (Int64.of_string date, ids) m
 		| _ -> failwith ""
 	in
 	let parse_unsent =

@@ -18,7 +18,7 @@ let child_exn ?(ns="") name node =
 	match child ~ns name node with
 	| Some c		-> c
 	| None			->
-		let name = if String.is_empty ns then name else ns ^ ":" ^ name in
+		let name = if String.length ns = 0 then name else ns ^ ":" ^ name in
 		failwith ("Element not found: " ^ name)
 
 let children ?(ns="") name = function

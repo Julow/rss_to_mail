@@ -29,10 +29,8 @@ struct
 		| "enclosure"	-> Enclosure
 		| rel			-> Other rel
 
-	let eq = Pervasives.(=)
-
-	let get_all rel links = List.assoc_all ~eq rel links
-	let get rel links = List.assoc_opt ~eq rel links
+	let get_all rel links = List.assoc_all rel links
+	let get rel links = List.assoc_opt rel links
 
 	let rec of_nodes =
 		function
@@ -60,7 +58,7 @@ let content node =
 
 let attachment (href, node) =
 	{	attach_url = Uri.of_string href;
-		attach_size = attr "length" node >$ Int64.of_string;
+		attach_size = attr "length" node >$ Int64.of_string_opt;
 		attach_type = attr "type" node }
 
 let author node =

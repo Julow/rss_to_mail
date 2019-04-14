@@ -72,17 +72,12 @@ let gen_entry ~sender ?label feed entry =
 	and attachments =
 		let attachment i t =
 			let info =
-				match Option.(to_list (map Utils.size t.attach_size))
-					@ Option.to_list t.attach_type with
-				| []		-> []
-				| i			-> [ Html.txt (" (" ^ String.concat ", " i ^ ")") ]
+        match Option.map Utils.size t.attach_size, t.attach_type with
+        | Some i, None | None, Some i -> [ Html.txt (" (" ^ i ^ ")") ]
+        | Some s, Some t -> [ Html.txt (" (" ^ s ^ ", " ^ t ^ ")") ]
+        | None, None -> []
 			and link =
-				let title =
-					match String.Split.right ~by:"/" (Uri.path t.attach_url) with
-					| Some (_, title) when String.contains title '.' -> title
-					| _			-> Uri.to_string t.attach_url
-				in
-				[ opt_link title (Some t.attach_url) ]
+				[ opt_link (Uri.path t.attach_url) (Some t.attach_url) ]
 			and index = [ Html.txt (string_of_int (i + 1)) ]
 			in
 			[%html "<tr><td>Attachment " index ": " link "" info "</td></tr>"]

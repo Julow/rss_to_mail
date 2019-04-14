@@ -1,13 +1,13 @@
-open Containers
-
 module Option =
 struct
 
-	include Option
-
-	let get default t = get_or ~default t
-
-	let map_or default f t = map_or ~default f t
+	let get default t = match t with Some v -> v | None -> default
+  let map f t = match t with Some v -> Some (f v) | None -> None
+	let map_or default f t = match t with Some v -> f v | None -> default
+  let flat_map f t = match t with Some v -> f v | None -> None
+  let or_ ~else_ t = match t with Some _ as t -> t | None -> else_
+  let to_list t = match t with Some v -> [ v ] | None -> []
+  let iter f t = match t with Some v -> f v | None -> ()
 
 end
 
@@ -16,72 +16,69 @@ struct
 
 	include List
 
-	let rec assoc_all ~eq key = function
-		| (key', v) :: tl when eq key' key ->
-			v :: assoc_all ~eq key tl
-		| _ :: tl	-> assoc_all ~eq key tl
+	let rec assoc_all key = function
+		| (key', v) :: tl when key' = key ->
+			v :: assoc_all key tl
+		| _ :: tl	-> assoc_all key tl
 		| []		-> []
 
-	let shuffle lst =
-		Array.(of_list lst
-			|> Fun.tap shuffle
-			|> to_list)
+  let rec filter_map f = function
+    | hd :: tl ->
+      begin match f hd with
+      | Some v -> v :: filter_map f tl
+      | None -> filter_map f tl
+      end
+    | [] -> []
+
+  let rec find_map f = function
+    | hd :: tl ->
+      begin match f hd with
+      | Some _ as r -> r
+      | None -> find_map f tl
+      end
+    | [] -> None
 
 end
 
-module Float =
+module Array =
 struct
-	include Float
-	include Float.Infix
+
+  include Array
+
+  let filter f a =
+    let rec loop acc i =
+      if i < 0
+      then acc
+      else
+        let e = a.(i) and i = i - 1 in
+        if f e
+        then loop (e :: acc) i
+        else loop acc i
+    in
+    of_list (loop [] (length a))
+
+  let map f a =
+    init (length a) (fun i -> f a.(i))
+
 end
 
-module Int =
+module String =
 struct
-	include Int
-	include Int.Infix
+
+  include String
+
+  let hash : string -> int = Hashtbl.hash
+
 end
-
-module Int32 =
-struct
-	include Int32
-	include Int32.Infix
-end
-
-module Int64 =
-struct
-	include Int64
-	include Int64.Infix
-end
-
-module Array = Array
-module Array_slice = Array_slice
-module Bool = Bool
-module Char = Char
-module Equal = Equal
-module Format = Format
-module Fun = Fun
-module Hash = Hash
-module Hashtbl = Hashtbl
-module Heap = Heap
-module IO = IO
-module Map = Map
-module Nativeint = Nativeint
-module Ord = Ord
-module Pair = Pair
-module Parse = Parse
-module Random = Random
-module Ref = Ref
-module Result = Result
-module Set = Set
-module String = String
-module Vector = Vector
-module Monomorphic = Monomorphic
-module Utf8_string = Utf8_string
-
-include Printf
-include Fun
-include Monomorphic
 
 module StringMap = Map.Make (String)
 
 let _Some v = Some v
+
+let (%) f g x = f (g x)
+
+let id x = x
+
+let printf = Printf.printf
+let eprintf = Printf.eprintf
+let sprintf = Format.asprintf

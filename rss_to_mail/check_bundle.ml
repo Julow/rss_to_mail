@@ -25,7 +25,7 @@ struct
 			let body =
 				List.map (Mail_body.gen_entry ~sender ?label feed) entries
 				|> Mail_body.gen_mail ~sender ~hidden_summary
-				|> Format.sprintf "%a" (Tyxml.Html.pp ()) in
+				|> sprintf "%a" (Tyxml.Html.pp ()) in
 			[ Utils.{ sender; subject; body } ]
 
 	let update ~first_update ~now uri options seen_ids =
