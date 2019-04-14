@@ -1,0 +1,3 @@
+[submodule "colombe"]
+	path = libs/colombe
+	url = gh:Julow/colombe
