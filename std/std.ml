@@ -1,9 +1,9 @@
 module Option =
 struct
 
-	let get default t = match t with Some v -> v | None -> default
+  let get default t = match t with Some v -> v | None -> default
   let map f t = match t with Some v -> Some (f v) | None -> None
-	let map_or default f t = match t with Some v -> f v | None -> default
+  let map_or default f t = match t with Some v -> f v | None -> default
   let flat_map f t = match t with Some v -> f v | None -> None
   let or_ ~else_ t = match t with Some _ as t -> t | None -> else_
   let to_list t = match t with Some v -> [ v ] | None -> []
@@ -14,27 +14,27 @@ end
 module List =
 struct
 
-	include List
+  include List
 
-	let rec assoc_all key = function
-		| (key', v) :: tl when key' = key ->
-			v :: assoc_all key tl
-		| _ :: tl	-> assoc_all key tl
-		| []		-> []
+  let rec assoc_all key = function
+    | (key', v) :: tl when key' = key ->
+      v :: assoc_all key tl
+    | _ :: tl	-> assoc_all key tl
+    | []		-> []
 
   let rec filter_map f = function
     | hd :: tl ->
       begin match f hd with
-      | Some v -> v :: filter_map f tl
-      | None -> filter_map f tl
+        | Some v -> v :: filter_map f tl
+        | None -> filter_map f tl
       end
     | [] -> []
 
   let rec find_map f = function
     | hd :: tl ->
       begin match f hd with
-      | Some _ as r -> r
-      | None -> find_map f tl
+        | Some _ as r -> r
+        | None -> find_map f tl
       end
     | [] -> None
 
