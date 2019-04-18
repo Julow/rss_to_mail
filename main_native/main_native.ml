@@ -96,9 +96,10 @@ let send_mails ~random_seed (conf : Persistent_data.config) mails =
       eprintf "Failed sending mail \"%s\"\n" t.subject;
       Lwt.return (Some t))
 	in
-	(** At most 2 mails sending in parallel *)
+	(* At most 2 mails sending in parallel *)
+  let send_pooled = pooled 2 send in
 	mails
-	|> Lwt_list.mapi_p (fun i t -> pooled 2 send (i, t))
+	|> Lwt_list.mapi_p (fun i t -> send_pooled (i, t))
 	|> Lwt.map (List.filter_map id)
 
 let feed_datas_file = "feed_datas.sexp"
