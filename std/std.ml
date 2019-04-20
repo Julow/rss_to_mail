@@ -55,7 +55,7 @@ struct
         then loop (e :: acc) i
         else loop acc i
     in
-    of_list (loop [] (length a))
+    of_list (loop [] (length a - 1))
 
   let map f a =
     init (length a) (fun i -> f a.(i))

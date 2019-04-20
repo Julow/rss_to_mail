@@ -27,7 +27,7 @@ struct
       end
     | _ -> Lwt.return (resp, body)
 
-  type error = [ `System of string | `Http of int ]
+  type error = [ `System of string | `Http of int | `Unknown ]
 
   let fetch url =
     Logs.info (fun fmt -> fmt "Fetching %a" Uri.pp url);
@@ -36,6 +36,8 @@ struct
       Lwt.return (Error (`System msg))
     | exception Unix.Unix_error (_, msg, _)	->
       Lwt.return (Error (`System msg))
+    | exception _ ->
+      Lwt.return (Error (`Unknown))
     | { status = `OK; _ }, body	->
       let%lwt body = Cohttp_lwt.Body.to_string body in
       Lwt.return (Ok body)
@@ -57,14 +59,16 @@ let check_feeds ~now feed_datas feeds =
     let log_e msg = Logs.warn (fun fmt -> fmt "%s: %s" url msg)
     and log_i msg = Logs.info (fun fmt -> fmt "%s: %s" url msg) in
     match r with
-    | `Fetch_error (`Http code)			->
+    | `Fetch_error (`Http code) ->
       log_e (sprintf "Http error: %d" code); acc
-    | `Fetch_error (`System msg)		->
+    | `Fetch_error (`System msg) ->
       log_e (sprintf "Error: %s" msg); acc
-    | `Parsing_error ((line, col), msg)	->
+    | `Fetch_error `Unknown ->
+      log_e "Unknown error"; acc
+    | `Parsing_error ((line, col), msg) ->
       log_e (sprintf "Parsing error: %d:%d: %s" line col msg); acc
-    | `Uptodate							-> acc
-    | `Updated (seen_ids, new_entries)	->
+    | `Uptodate -> acc
+    | `Updated (seen_ids, new_entries) ->
       log_i (sprintf "%d new entries" new_entries);
       StringMap.add url (now, seen_ids) acc
   in
@@ -75,6 +79,12 @@ let check_feeds ~now feed_datas feeds =
   (** Done in 2 passes to improve concurrency *)
   Lwt_list.map_p (Rss_to_mail.check ~now get_feed_datas) feeds
   |> Lwt.map (List.fold_left handle (feed_datas, []))
+
+let lwt_timeout t r =
+  let timeout =
+    Lwt.bind (Lwt_unix.sleep t) (fun () -> Lwt.fail_with "timeout")
+  in
+  Lwt.pick [ r; timeout ]
 
 (** Send a list of mail to [to_]
     	Returns the list of unsent emails *)
@@ -93,6 +103,7 @@ let send_mails ~random_seed (conf : Persistent_data.config) mails =
     let do_send () =
       Client.send_mail ~auth ~server ~from ~to_ ~headers t.subject t.body
       |> Lwt.map (fun () -> None)
+      |> lwt_timeout 5.
     in
     Lwt.catch do_send (fun _ ->
         Logs.err (fun fmt -> fmt "Failed sending mail \"%s\"" t.subject);
