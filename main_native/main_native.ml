@@ -30,6 +30,7 @@ struct
   type error = [ `System of string | `Http of int ]
 
   let fetch url =
+    Logs.info (fun fmt -> fmt "Fetching %a" Uri.pp url);
     match%lwt get url with
     | exception Failure msg					->
       Lwt.return (Error (`System msg))
@@ -53,8 +54,8 @@ let check_feeds ~now feed_datas feeds =
   let get_feed_datas url = StringMap.find_opt url feed_datas in
 
   let handle_data acc (url, r) =
-    let log_e msg = eprintf "%s: %s\n%!" url msg
-    and log_i msg = printf "%s: %s\n%!" url msg in
+    let log_e msg = Logs.warn (fun fmt -> fmt "%s: %s" url msg)
+    and log_i msg = Logs.info (fun fmt -> fmt "%s: %s" url msg) in
     match r with
     | `Fetch_error (`Http code)			->
       log_e (sprintf "Http error: %d" code); acc
@@ -79,6 +80,7 @@ let check_feeds ~now feed_datas feeds =
     	Returns the list of unsent emails *)
 let send_mails ~random_seed (conf : Persistent_data.config) mails =
   let send (i, (t : Rss_to_mail.mail)) =
+    Logs.debug (fun fmt -> fmt "Sending \"%s\" \"%s\"" t.sender t.subject);
     let server = conf.server in
     let auth =
       let encode s = Base64.encode_string ~pad:true s in
@@ -93,7 +95,7 @@ let send_mails ~random_seed (conf : Persistent_data.config) mails =
       |> Lwt.map (fun () -> None)
     in
     Lwt.catch do_send (fun _ ->
-        eprintf "Failed sending mail \"%s\"\n" t.subject;
+        Logs.err (fun fmt -> fmt "Failed sending mail \"%s\"" t.subject);
         Lwt.return (Some t))
   in
   (* At most 2 mails sending in parallel *)
@@ -115,25 +117,27 @@ let with_feed_datas config_file f =
     Lwt.return_unit
 
 let run (conf : Persistent_data.config) (feed_datas, unsent) =
+  Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = Unix.time () |> Int64.of_float in
   let%lwt feed_datas, mails = check_feeds ~now feed_datas conf.feeds in
-  printf "%d new entries\n" (List.length mails);
+  Logs.app (fun fmt -> fmt "%d new entries" (List.length mails));
   let%lwt unsent =
     let random_seed = Int64.to_string now in
     send_mails ~random_seed conf (unsent @ mails)
   in
   (match unsent with
-   | _ :: _ -> printf "%d mails could not be sent\n" (List.length unsent)
+   | _ :: _ -> Logs.warn (fun fmt ->
+        fmt "%d mails could not be sent" (List.length unsent))
    | [] -> ());
   Lwt.return (feed_datas, unsent)
 
 let check_config_file f =
   try ignore (Persistent_data.load_feeds f)
   with Failure msg ->
-    eprintf "The configuration file contains some errors:\n  %s\n" msg;
+    Printf.eprintf "The configuration file contains some errors:\n  %s\n" msg;
     exit 1
 
-let run check_config config_file =
+let run check_config config_file () =
   if check_config
   then check_config_file config_file
   else Lwt_main.run (with_feed_datas config_file run)
@@ -148,11 +152,18 @@ let () =
   and config =
     let doc = "Configuration file" in
     value & pos 0 string "feeds.sexp" & info [] ~docv:"CONFIG" ~doc
+
+  and verbose =
+    let setup_log level =
+      Logs.set_level level;
+      Logs.set_reporter (Logs_fmt.reporter ())
+    in
+    Term.(const setup_log $ Logs_cli.level ())
   in
 
   let term =
     let doc = "Fetch a list of feeds and send a mail for new entries" in
-    Term.(const run $ check_config $ config),
+    Term.(const run $ check_config $ config $ verbose),
     Term.info "rss_to_mail" ~doc
   in
   Term.exit @@ Term.eval term

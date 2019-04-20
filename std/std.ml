@@ -79,6 +79,4 @@ let (%) f g x = f (g x)
 
 let id x = x
 
-let printf = Printf.printf
-let eprintf = Printf.eprintf
 let sprintf = Format.asprintf
