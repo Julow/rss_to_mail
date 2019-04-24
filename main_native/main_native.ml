@@ -99,9 +99,13 @@ let send_mails ~random_seed (conf : Persistent_data.config) mails =
     in
     let from = Some t.sender, conf.from_address in
     let to_ = None, conf.to_address in
-    let headers = [ "X-Entity-Ref-ID: " ^ random_seed ^ string_of_int i ] in
+    let headers = [
+      "Content-type: text/html";
+      "X-Entity-Ref-ID: " ^ random_seed ^ string_of_int i;
+    ] in
     let do_send () =
-      Client.send_mail ~auth ~server ~from ~to_ ~headers t.subject t.body
+      let body = Client.stream_of_list (String.split_on_char '\n' t.body) in
+      Client.send_mail ~auth ~server ~from ~to_ ~headers t.subject body
       |> Lwt.map (fun () -> None)
       |> lwt_timeout 5.
     in
