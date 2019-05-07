@@ -131,20 +131,20 @@ let with_feed_datas config_file f =
     Persistent_data.save_feed_datas feed_datas_file datas;
     Lwt.return_unit
 
-let run (conf : Persistent_data.config) (feed_datas, unsent) =
+let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = Unix.time () |> Int64.of_float in
-  let%lwt feed_datas, mails = check_feeds ~now feed_datas conf.feeds in
+  let%lwt feed_datas, mails = check_feeds ~now datas.feed_datas conf.feeds in
   Logs.app (fun fmt -> fmt "%d new entries" (List.length mails));
-  let%lwt unsent =
+  let%lwt unsent_mails =
     let random_seed = Int64.to_string now in
-    send_mails ~random_seed conf (unsent @ mails)
+    send_mails ~random_seed conf (datas.unsent_mails @ mails)
   in
-  (match unsent with
+  (match unsent_mails with
    | _ :: _ -> Logs.warn (fun fmt ->
-        fmt "%d mails could not be sent" (List.length unsent))
+        fmt "%d mails could not be sent" (List.length unsent_mails))
    | [] -> ());
-  Lwt.return (feed_datas, unsent)
+  Lwt.return Persistent_data.{ feed_datas; unsent_mails }
 
 let check_config_file f =
   try ignore (Persistent_data.load_feeds f)

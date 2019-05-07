@@ -206,9 +206,14 @@ let load_feeds file =
       | None				-> failwith "Missing field `to`"
     in
     check_duplicate feeds;
-    { server; server_auth; from_address; to_address; feeds }
+    { server; server_auth; from_address; to_address; feeds } 
 
-let load_feed_datas feed_datas_file : (int64 * SeenSet.t) StringMap.t * Rss_to_mail.mail list =
+type feed_datas = {
+  feed_datas : (int64 * SeenSet.t) StringMap.t;
+  unsent_mails : Rss_to_mail.mail list
+}
+
+let load_feed_datas feed_datas_file =
   let parse_ids set =
     function
     | `List [ `Atom id; `Atom date ] ->
@@ -229,17 +234,21 @@ let load_feed_datas feed_datas_file : (int64 * SeenSet.t) StringMap.t * Rss_to_m
       Rss_to_mail.{ sender; subject; body }
     | _ -> failwith ""
   in
-  let em = StringMap.empty in
+  let empty = StringMap.empty in
   match CCSexp.parse_file feed_datas_file with
-  | exception Sys_error _ -> em, []
-  | Error _	-> em, []
+  | exception Sys_error _ -> { feed_datas = empty; unsent_mails = [] }
+  | Error _	-> { feed_datas = empty; unsent_mails = [] }
   | Ok t		->
-    record "feed_data" t |> Option.map_or em
-      (list (List.fold_left parse_data em)),
-    record "unsent" t |> Option.map_or []
-      (list (List.map parse_unsent))
+    let feed_datas =
+      record "feed_data" t
+      |> Option.map_or empty (list (List.fold_left parse_data empty))
+    and unsent_mails =
+      record "unsent" t
+      |> Option.map_or [] (list (List.map parse_unsent))
+    in
+    { feed_datas; unsent_mails }
 
-let save_feed_datas feed_datas_file (datas, unsent) =
+let save_feed_datas feed_datas_file { feed_datas; unsent_mails } =
   let gen_id id removed lst =
     match removed with
     | Some date		->
@@ -255,9 +264,9 @@ let save_feed_datas feed_datas_file (datas, unsent) =
     let open Rss_to_mail in
     `List [ `Atom t.sender; `Atom t.subject; `Atom t.body ]
   in
-  let datas = StringMap.fold gen_data datas []
-  and unsent = List.map gen_unsent unsent in
+  let feed_datas = StringMap.fold gen_data feed_datas []
+  and unsent_mails = List.map gen_unsent unsent_mails in
   CCSexp.to_file feed_datas_file (`List [
-      `List [ `Atom "feed_data"; `List datas ];
-      `List [ `Atom "unsent"; `List unsent ]
+      `List [ `Atom "feed_data"; `List feed_datas ];
+      `List [ `Atom "unsent"; `List unsent_mails ]
     ])

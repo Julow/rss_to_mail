@@ -14,7 +14,7 @@ struct
 
 	let fetch uri =
 		let f = "feeds/" ^ Uri.to_string uri in
-		eprintf "opening %s\n" f;
+		Printf.eprintf "opening %s\n" f;
 		No_async.return @@
 		match open_in f with
 		| exception Sys_error _		-> Error 404
@@ -61,13 +61,14 @@ let check_feed feed_datas (feed, options) =
 		| Scraper (url, _)		-> printf "\n# scraper %s\n\n" url
 		| Bundle url			-> printf "\n# bundle %s\n\n" url
 	end;
-	let datas url = StringMap.get url feed_datas in
+	let datas url = StringMap.find_opt url feed_datas in
 	print_options options;
 	let mails, datas = Rss_to_mail.check ~now datas (feed, options) in
 	List.iter print_data datas;
 	List.iter print_mail mails
 
 let () =
-	let feed_datas, _ = Persistent_data.load_feed_datas "feed_datas.sexp" in
+  let { Persistent_data.feed_datas; _ } =
+    Persistent_data.load_feed_datas "feed_datas.sexp" in
 	let data = Persistent_data.load_feeds "feeds.sexp" in
 	List.iter (check_feed feed_datas) data.Persistent_data.feeds
