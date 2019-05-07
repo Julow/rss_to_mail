@@ -121,15 +121,24 @@ let send_mails ~random_seed (conf : Persistent_data.config) mails =
 
 let feed_datas_file = "feed_datas.sexp"
 
+let parse_config_file config_file =
+  let err msg = failwith (sprintf "Error: %s: %s" config_file msg) in
+  match CCSexp.parse_file config_file with
+  | exception Sys_error msg	-> err msg
+  | Error msg					-> err msg
+  | Ok sexp						-> Persistent_data.load_feeds sexp
+
 let with_feed_datas config_file f =
-  match Persistent_data.load_feeds config_file with
-  | exception Failure msg ->
-    failwith (sprintf "Error: %s: %s\n" config_file msg)
-  | config	->
-    let datas = Persistent_data.load_feed_datas feed_datas_file in
-    let%lwt datas = f config datas in
-    Persistent_data.save_feed_datas feed_datas_file datas;
-    Lwt.return_unit
+  let config = parse_config_file config_file in
+  let datas =
+    match CCSexp.parse_file feed_datas_file with
+    | exception Sys_error _ -> Persistent_data.empty_datas
+    | Error _ -> Persistent_data.empty_datas
+    | Ok sexp -> Persistent_data.load_feed_datas sexp
+  in
+  let%lwt datas = f config datas in
+  CCSexp.to_file feed_datas_file (Persistent_data.save_feed_datas datas);
+  Lwt.return_unit
 
 let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
@@ -147,7 +156,7 @@ let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
   Lwt.return Persistent_data.{ feed_datas; unsent_mails }
 
 let check_config_file f =
-  try ignore (Persistent_data.load_feeds f)
+  try ignore (parse_config_file f)
   with Failure msg ->
     Printf.eprintf "The configuration file contains some errors:\n  %s\n" msg;
     exit 1

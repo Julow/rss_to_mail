@@ -69,6 +69,13 @@ let check_feed feed_datas (feed, options) =
 
 let () =
   let { Persistent_data.feed_datas; _ } =
-    Persistent_data.load_feed_datas "feed_datas.sexp" in
-	let data = Persistent_data.load_feeds "feeds.sexp" in
+    match CCSexp.parse_file "feed_datas.sexp" with
+    | Error _ -> failwith "Error parsing datas"
+    | Ok sexp -> Persistent_data.load_feed_datas sexp
+  in
+  let data =
+    match CCSexp.parse_file "feeds.sexp" with
+    | Error _ -> failwith "Error parsing feeds"
+    | Ok sexp -> Persistent_data.load_feeds sexp
+  in
 	List.iter (check_feed feed_datas) data.Persistent_data.feeds

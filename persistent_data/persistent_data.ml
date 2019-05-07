@@ -2,6 +2,8 @@
     	and serializer/deserializer for the `feed_datas.sexp` persistent file
     	Used by main_native *)
 
+type sexp = [ `Atom of string | `List of sexp list ]
+
 let record field =
   function
   | `List ts	->
@@ -86,7 +88,7 @@ type config = {
   feeds	: Feed_desc.t list
 }
 
-let load_feeds file =
+let load_feeds (sexp : sexp) =
   let parse_option_refresh =
     let parse_time time =
       match Scanf.sscanf time "%d:%d" (fun h m -> h, m) with
@@ -182,38 +184,35 @@ let load_feeds file =
     in
     server, auth, from
   in
-
-  match CCSexp.parse_file file with
-  | exception Sys_error msg	-> failwith msg
-  | Error msg					-> failwith msg
-  | Ok t						->
-    let default_opts =
-      let refresh =
-        try Option.map parse_option_refresh (record "default_refresh" t)
-        with Failure msg -> failwith ("default_refresh: " ^ msg)
-      in
-      Feed_desc.make_options ?refresh ()
+  let default_opts =
+    let refresh =
+      try Option.map parse_option_refresh (record "default_refresh" sexp)
+      with Failure msg -> failwith ("default_refresh: " ^ msg)
     in
-    let feeds = match record "feeds" t with
-      | Some t	-> list (List.map (parse_feed ~default_opts)) t
-      | None		-> failwith "Missing field `feeds`"
-    and server, server_auth, from_address = match record "smtp" t with
-      | Some t	-> parse_smtp t
-      | None		-> failwith "Missing field `smtp`"
-    and to_address = match record "to" t with
-      | Some (`Atom a)	-> a
-      | Some _			-> failwith "Malformated field `to`"
-      | None				-> failwith "Missing field `to`"
-    in
-    check_duplicate feeds;
-    { server; server_auth; from_address; to_address; feeds } 
+    Feed_desc.make_options ?refresh ()
+  in
+  let feeds = match record "feeds" sexp with
+    | Some t	-> list (List.map (parse_feed ~default_opts)) t
+    | None		-> failwith "Missing field `feeds`"
+  and server, server_auth, from_address = match record "smtp" sexp with
+    | Some t	-> parse_smtp t
+    | None		-> failwith "Missing field `smtp`"
+  and to_address = match record "to" sexp with
+    | Some (`Atom a)	-> a
+    | Some _			-> failwith "Malformated field `to`"
+    | None				-> failwith "Missing field `to`"
+  in
+  check_duplicate feeds;
+  { server; server_auth; from_address; to_address; feeds }
 
 type feed_datas = {
   feed_datas : (int64 * SeenSet.t) StringMap.t;
   unsent_mails : Rss_to_mail.mail list
 }
 
-let load_feed_datas feed_datas_file =
+let empty_datas = { feed_datas = StringMap.empty; unsent_mails = [] }
+
+let load_feed_datas (sexp : sexp) =
   let parse_ids set =
     function
     | `List [ `Atom id; `Atom date ] ->
@@ -234,21 +233,17 @@ let load_feed_datas feed_datas_file =
       Rss_to_mail.{ sender; subject; body }
     | _ -> failwith ""
   in
-  let empty = StringMap.empty in
-  match CCSexp.parse_file feed_datas_file with
-  | exception Sys_error _ -> { feed_datas = empty; unsent_mails = [] }
-  | Error _	-> { feed_datas = empty; unsent_mails = [] }
-  | Ok t		->
-    let feed_datas =
-      record "feed_data" t
-      |> Option.map_or empty (list (List.fold_left parse_data empty))
-    and unsent_mails =
-      record "unsent" t
-      |> Option.map_or [] (list (List.map parse_unsent))
-    in
-    { feed_datas; unsent_mails }
+  let feed_datas =
+    record "feed_data" sexp
+    |> Option.map_or [] (list id)
+    |> List.fold_left parse_data empty_datas.feed_datas
+  and unsent_mails =
+    record "unsent" sexp
+    |> Option.map_or [] (list (List.map parse_unsent))
+  in
+  { feed_datas; unsent_mails }
 
-let save_feed_datas feed_datas_file { feed_datas; unsent_mails } =
+let save_feed_datas { feed_datas; unsent_mails } : sexp =
   let gen_id id removed lst =
     match removed with
     | Some date		->
@@ -266,7 +261,7 @@ let save_feed_datas feed_datas_file { feed_datas; unsent_mails } =
   in
   let feed_datas = StringMap.fold gen_data feed_datas []
   and unsent_mails = List.map gen_unsent unsent_mails in
-  CCSexp.to_file feed_datas_file (`List [
+  `List [
       `List [ `Atom "feed_data"; `List feed_datas ];
       `List [ `Atom "unsent"; `List unsent_mails ]
-    ])
+    ]
