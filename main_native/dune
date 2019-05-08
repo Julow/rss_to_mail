@@ -3,7 +3,7 @@
  (public_name rss_to_mail)
  (package rss_to_mail)
  (libraries std lwt cohttp-lwt-unix rss_to_mail scraper cmdliner
-   persistent_data colombe.client base64 logs logs.cli logs.fmt)
+   persistent_data colombe.client_unix base64 logs logs.cli logs.fmt)
  (flags :standard -open Std)
  (preprocess
   (pps lwt_ppx)))
