@@ -1,19 +1,14 @@
-module Make (Async : sig
-    type 'a t
-    val return : 'a -> 'a t
-    val bind : 'a t -> ('a -> 'b t) -> 'b t
-  end)
-    (Fetch : sig
+module Make (Fetch : sig
        type error
-       val fetch : Uri.t -> (string, error) result Async.t
+       val fetch : Uri.t -> (string, error) result Lwt.t
      end) =
 struct
 
-  module Check_feed = Check_feed.Make (Async) (Fetch)
+  module Check_feed = Check_feed.Make (Fetch)
 
   let update ~first_update ~now uri scraper options seen_ids =
-    Async.bind (Fetch.fetch uri) begin function
-      | Error e		-> Async.return (`Fetch_error e)
+    Lwt.bind (Fetch.fetch uri) begin function
+      | Error e		-> Lwt.return (`Fetch_error e)
       | Ok contents	->
         let feed = Scraper.scrap scraper contents in
         let feed, seen_ids, entries =
@@ -25,7 +20,7 @@ struct
             let sender = Check_feed.sender_name uri feed options in
             List.map (Check_feed.prepare_mail ~sender feed options) entries
         in
-        Async.return (`Ok (seen_ids, mails))
+        Lwt.return (`Ok (seen_ids, mails))
     end
 
   let check ~now uri scraper options data =
@@ -36,7 +31,7 @@ struct
         false, uptodate, seen_ids
       | None -> true, false, SeenSet.empty
     in
-    if uptodate then Async.return `Uptodate
+    if uptodate then Lwt.return `Uptodate
     else update ~first_update ~now uri scraper options seen_ids
 
 end

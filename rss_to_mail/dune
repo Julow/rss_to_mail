@@ -3,6 +3,6 @@
  (public_name rss_to_mail)
  (wrapped false)
  (flags :standard -open Std)
- (libraries std uri feed scraper feed_parser str tyxml calendar)
+ (libraries std uri lwt feed scraper feed_parser str tyxml calendar)
  (preprocess
   (pps tyxml-ppx)))

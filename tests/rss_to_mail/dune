@@ -1,6 +1,6 @@
 (executable
  (name test)
- (libraries std rss_to_mail persistent_data)
+ (libraries std lwt lwt.unix rss_to_mail persistent_data)
  (flags :standard -open Std))
 
 (rule

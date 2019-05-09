@@ -1,11 +1,6 @@
-module Make (Async : sig
-    type 'a t
-    val return : 'a -> 'a t
-    val bind : 'a t -> ('a -> 'b t) -> 'b t
-  end)
-    (Fetch : sig
+module Make (Fetch : sig
        type error
-       val fetch : Uri.t -> (string, error) result Async.t
+       val fetch : Uri.t -> (string, error) result Lwt.t
      end) =
 struct
 
@@ -83,7 +78,7 @@ struct
       | exception Feed_parser.Error (pos, err) -> Error (`Parsing_error (pos, err))
       | feed -> Ok feed
     in
-    Async.bind (Fetch.fetch uri) begin Async.return % function
+    Lwt.bind (Fetch.fetch uri) begin Lwt.return % function
         | Error e		-> Error (`Fetch_error e)
         | Ok contents	-> parse_content contents
     end
@@ -96,8 +91,8 @@ struct
 
   let check ~now uri options data =
     let first_update, uptodate, seen_ids = check_data ~now options data in
-    if uptodate then Async.return `Uptodate
-    else Async.bind (fetch_feed uri) begin function
+    if uptodate then Lwt.return `Uptodate
+    else Lwt.bind (fetch_feed uri) begin function
         | Ok feed ->
           let feed, seen_ids, entries =
             process ~now uri options seen_ids feed
@@ -108,9 +103,9 @@ struct
               let sender = sender_name uri feed options in
               List.map (prepare_mail ~sender feed options) entries
           in
-          Async.return (`Ok (seen_ids, mails))
+          Lwt.return (`Ok (seen_ids, mails))
         | Error err ->
-          Async.return err
+          Lwt.return err
       end
 
 end

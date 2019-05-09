@@ -1,15 +1,10 @@
-module Make (Async : sig
-    type 'a t
-    val return : 'a -> 'a t
-    val bind : 'a t -> ('a -> 'b t) -> 'b t
-  end)
-    (Fetch : sig
+module Make (Fetch : sig
        type error
-       val fetch : Uri.t -> (string, error) result Async.t
+       val fetch : Uri.t -> (string, error) result Lwt.t
      end) =
 struct
 
-  module Check_feed = Check_feed.Make (Async) (Fetch)
+  module Check_feed = Check_feed.Make (Fetch)
 
   let prepare_bundle ~sender feed options entries =
     let len = List.length entries in
@@ -29,8 +24,8 @@ struct
       [ Utils.{ sender; subject; body } ]
 
   let update ~first_update ~now uri options seen_ids =
-    Async.bind (Check_feed.fetch_feed uri) begin function
-      | Error e		-> Async.return e
+    Lwt.bind (Check_feed.fetch_feed uri) begin function
+      | Error e		-> Lwt.return e
       | Ok feed		->
         let feed, seen_ids, entries =
           Check_feed.process ~now uri options seen_ids feed
@@ -41,7 +36,7 @@ struct
             let sender = Check_feed.sender_name uri feed options in
             prepare_bundle ~sender feed options entries
         in
-        Async.return (`Ok (seen_ids, mails))
+        Lwt.return (`Ok (seen_ids, mails))
     end
 
   let check ~now uri options data =
@@ -52,7 +47,7 @@ struct
         false, uptodate, seen_ids
       | None -> true, false, SeenSet.empty
     in
-    if uptodate then Async.return `Uptodate
+    if uptodate then Lwt.return `Uptodate
     else update ~first_update ~now uri options seen_ids
 
 end

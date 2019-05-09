@@ -50,7 +50,7 @@ struct
 
 end
 
-module Rss_to_mail = Rss_to_mail.Make (Lwt) (Fetch)
+module Rss_to_mail = Rss_to_mail.Make (Fetch)
 
 let check_feeds ~now feed_datas feeds =
   let get_feed_datas url = StringMap.find_opt url feed_datas in
