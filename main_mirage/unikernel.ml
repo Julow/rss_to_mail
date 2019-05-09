@@ -25,19 +25,23 @@ module Fetch = struct
 
   let fetch ~ctx url =
     Logs.info (fun fmt -> fmt "Fetching %a" Uri.pp url);
-    match%lwt get ~ctx url with
-    | exception Failure msg					->
-      Lwt.return (Error (`System msg))
-    | exception Unix.Unix_error (_, msg, _)	->
-      Lwt.return (Error (`System msg))
-    | exception _ ->
-      Lwt.return (Error (`Unknown))
-    | { status = `OK; _ }, body	->
-      let%lwt body = Cohttp_lwt.Body.to_string body in
-      Lwt.return (Ok body)
-    | { status; _ }, _			->
-      let code = Cohttp.Code.code_of_status status in
-      Lwt.return (Error (`Http code))
+    let get () =
+      get ~ctx url >>= function
+      | { Cohttp.Response.status = `OK; _ }, body	->
+        Cohttp_lwt.Body.to_string body >>= fun body ->
+        Lwt.return (Ok body)
+      | { Cohttp.Response.status; _ }, _ ->
+        let code = Cohttp.Code.code_of_status status in
+        Lwt.return (Error (`Http code))
+    in
+    Lwt.catch get (function
+        | Failure msg ->
+          Lwt.return (Error (`System msg))
+        | Unix.Unix_error (_, msg, _)	->
+          Lwt.return (Error (`System msg))
+        | _ ->
+          Lwt.return (Error (`Unknown))
+      )
 
   (** at most 5 fetch at once *)
   let fetch ~ctx = pooled 5 (fetch ~ctx)
