@@ -2,7 +2,43 @@
 # atom.atom
 
 Options: (refresh 2.000000)
-FROM: Atom Test
+
+# ./atom.atom
+
+Options: (refresh 2.000000)
+
+# rss.rss
+
+Options: (refresh (at 18:0))
+
+# bundle ././rss.rss
+
+Options: (refresh 2.000000) (title Title) (label Label)
+
+# ./././rss.rss
+
+Options: (refresh 2.000000)
+
+# scraper firefox.html
+
+Options: (refresh 12.000000)
+
+# bundle empty.rss
+
+Options: (refresh 2.000000)
+
+# no_title.rss
+
+Options: (refresh 2.000000)
+
+# content_type.atom
+
+Options: (refresh 2.000000)
+
+# scraper dune_blog.html
+
+Options: (refresh 2.000000) (label OCaml)
+atom.atom: 1 entries./atom.atom: 0 entries././rss.rss: 1 entries./././rss.rss: 1 entriesfirefox.html: 32 entriesempty.rss: 0 entriesno_title.rss: 1 entriescontent_type.atom: 12 entriesdune_blog.html: 5 entriesFROM: Atom Test
 SUBJECT: title
 BODY: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom Test</title><style>
@@ -24,19 +60,6 @@ a { text-decoration: none; }
 				</td></tr></table><table><tr><td>Attachment 1: <a href="attach%201">attach%201</a> (truc)</td></tr><tr><td>Attachment 2: <a href="attach%202">attach%202</a> (2b)</td></tr></table><div class="content"><div><p>Some content here</p></div></div>
 
 </body></html>
-
-# ./atom.atom
-
-Options: (refresh 2.000000)
-
-# rss.rss
-
-Options: (refresh (at 18:0))
-Up-to-date
-
-# bundle ././rss.rss
-
-Options: (refresh 2.000000) (title Title) (label Label)
 FROM: Title
 SUBJECT: 1 entries from Title
 BODY: <!DOCTYPE html>
@@ -61,10 +84,6 @@ a { text-decoration: none; }
 			</div></div>
 
 </body></html>
-
-# ./././rss.rss
-
-Options: (refresh 2.000000)
 FROM: RSS Test
 SUBJECT: Title 2
 BODY: <!DOCTYPE html>
@@ -87,12 +106,8 @@ a { text-decoration: none; }
 			</div></div>
 
 </body></html>
-
-# scraper firefox.html
-
-Options: (refresh 12.000000)
 FROM: firefox.html
-SUBJECT: 1.0 Preview Release
+SUBJECT: 60.0
 BODY: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
 a { text-decoration: none; }
@@ -102,471 +117,7 @@ a { text-decoration: none; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
 		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.10.html">1.0 Preview Release</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.9.3
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.9.3.html">0.9.3</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.9.1/0.9.2
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.9.1.html">0.9.1/0.9.2</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.9
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.9.html">0.9</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.8
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.8.html">0.8</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.7.1
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.7.1.html">0.7.1</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.7
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.7.html">0.7</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.6.1
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.6.1.html">0.6.1</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.6
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.6.html">0.6</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.5
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.5.html">0.5</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.4
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.4.html">0.4</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.3
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.3.html">0.3</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 0.1
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="0.1.html">0.1</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 1.0.8
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="1.0.8.html">1.0.8</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 1.0.7
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="1.0.7.html">1.0.7</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 1.0.6
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="1.0.6.html">1.0.6</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 1.0.5
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="1.0.5.html">1.0.5</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 1.0.4
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="1.0.4.html">1.0.4</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 1.0.3
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="1.0.3.html">1.0.3</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 1.0.2
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="1.0.2.html">1.0.2</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 1.0.1
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="1.0.1.html">1.0.1</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 1.0
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="1.0.html">1.0</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 58.0.2
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="../58.0.2/releasenotes/">58.0.2</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 58.0.1
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="../58.0.1/releasenotes/">58.0.1</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 58.0
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="../58.0/releasenotes/">58.0</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 59.0.3
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="../59.0.3/releasenotes/">59.0.3</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 59.0.2
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="../59.0.2/releasenotes/">59.0.2</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 59.0.1
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="../59.0.1/releasenotes/">59.0.1</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 59.0
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="../59.0/releasenotes/">59.0</a></h1>
-					<p class="entry_header">firefox.html</p>
-				</td></tr></table>
-
-</body></html>
-FROM: firefox.html
-SUBJECT: 60.0.2
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="../60.0.2/releasenotes/">60.0.2</a></h1>
+					<h1 class="entry_title"><a href="../60.0/releasenotes/">60.0</a></h1>
 					<p class="entry_header">firefox.html</p>
 				</td></tr></table>
 
@@ -588,7 +139,7 @@ a { text-decoration: none; }
 
 </body></html>
 FROM: firefox.html
-SUBJECT: 60.0
+SUBJECT: 60.0.2
 BODY: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
 a { text-decoration: none; }
@@ -598,19 +149,475 @@ a { text-decoration: none; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
 		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="../60.0/releasenotes/">60.0</a></h1>
+					<h1 class="entry_title"><a href="../60.0.2/releasenotes/">60.0.2</a></h1>
 					<p class="entry_header">firefox.html</p>
 				</td></tr></table>
 
 </body></html>
+FROM: firefox.html
+SUBJECT: 59.0
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="../59.0/releasenotes/">59.0</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
 
-# bundle empty.rss
+</body></html>
+FROM: firefox.html
+SUBJECT: 59.0.1
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="../59.0.1/releasenotes/">59.0.1</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
 
-Options: (refresh 2.000000)
+</body></html>
+FROM: firefox.html
+SUBJECT: 59.0.2
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="../59.0.2/releasenotes/">59.0.2</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
 
-# no_title.rss
+</body></html>
+FROM: firefox.html
+SUBJECT: 59.0.3
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="../59.0.3/releasenotes/">59.0.3</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
 
-Options: (refresh 2.000000)
+</body></html>
+FROM: firefox.html
+SUBJECT: 58.0
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="../58.0/releasenotes/">58.0</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 58.0.1
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="../58.0.1/releasenotes/">58.0.1</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 58.0.2
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="../58.0.2/releasenotes/">58.0.2</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 1.0
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="1.0.html">1.0</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 1.0.1
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="1.0.1.html">1.0.1</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 1.0.2
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="1.0.2.html">1.0.2</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 1.0.3
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="1.0.3.html">1.0.3</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 1.0.4
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="1.0.4.html">1.0.4</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 1.0.5
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="1.0.5.html">1.0.5</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 1.0.6
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="1.0.6.html">1.0.6</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 1.0.7
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="1.0.7.html">1.0.7</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 1.0.8
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="1.0.8.html">1.0.8</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.1
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.1.html">0.1</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.3
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.3.html">0.3</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.4
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.4.html">0.4</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.5
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.5.html">0.5</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.6
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.6.html">0.6</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.6.1
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.6.1.html">0.6.1</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.7
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.7.html">0.7</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.7.1
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.7.1.html">0.7.1</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.8
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.8.html">0.8</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.9
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.9.html">0.9</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.9.1/0.9.2
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.9.1.html">0.9.1/0.9.2</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 0.9.3
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.9.3.html">0.9.3</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
+FROM: firefox.html
+SUBJECT: 1.0 Preview Release
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>firefox.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="0.10.html">1.0 Preview Release</a></h1>
+					<p class="entry_header">firefox.html</p>
+				</td></tr></table>
+
+</body></html>
 FROM: no_title.rss
 SUBJECT: New entry from no_title.rss
 BODY: <!DOCTYPE html>
@@ -627,10 +634,6 @@ a { text-decoration: none; }
 				</td></tr></table><div class="content"><div>no title</div></div>
 
 </body></html>
-
-# content_type.atom
-
-Options: (refresh 2.000000)
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
 BODY: <!DOCTYPE html>
@@ -644,55 +647,7 @@ a { text-decoration: none; }
 		</style></head><body><table><tr><td>
 					<h1 class="entry_title">New entry</h1>
 					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
-				</td></tr></table><div class="content">Text</div>
-
-</body></html>
-FROM: Atom content type
-SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title">New entry</h1>
-					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
-				</td></tr></table><div class="content">Text!</div>
-
-</body></html>
-FROM: Atom content type
-SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title">New entry</h1>
-					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
-				</td></tr></table><div class="content"><div>Text?</div></div>
-
-</body></html>
-FROM: Atom content type
-SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title">New entry</h1>
-					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
-				</td></tr></table><div class="content"><div><p>Html!</p></div></div>
+				</td></tr></table><div class="content"><div><p>CDATA</p></div></div>
 
 </body></html>
 FROM: Atom content type
@@ -728,7 +683,7 @@ a { text-decoration: none; }
 		</style></head><body><table><tr><td>
 					<h1 class="entry_title">New entry</h1>
 					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
-				</td></tr></table><div class="content"><div><p>CDATA</p></div></div>
+				</td></tr></table><div class="content"><div><p>Html!</p></div></div>
 
 </body></html>
 FROM: Atom content type
@@ -741,12 +696,10 @@ a { text-decoration: none; }
 .entry_header { margin-top: 0; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><span style="display:none;font-size:1px;color:#333333;
-		line-height:1px;max-height:0px;max-width:0px;opacity:0;
-		overflow:hidden;">Text</span><table><tr><td>
+		</style></head><body><table><tr><td>
 					<h1 class="entry_title">New entry</h1>
 					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
-				</td></tr></table><div class="content">Text</div>
+				</td></tr></table><div class="content"><div>Text?</div></div>
 
 </body></html>
 FROM: Atom content type
@@ -777,10 +730,12 @@ a { text-decoration: none; }
 .entry_header { margin-top: 0; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
+		</style></head><body><span style="display:none;font-size:1px;color:#333333;
+		line-height:1px;max-height:0px;max-width:0px;opacity:0;
+		overflow:hidden;">Text</span><table><tr><td>
 					<h1 class="entry_title">New entry</h1>
 					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
-				</td></tr></table><div class="content"><div>Text?</div></div>
+				</td></tr></table><div class="content">Text</div>
 
 </body></html>
 FROM: Atom content type
@@ -796,7 +751,7 @@ a { text-decoration: none; }
 		</style></head><body><table><tr><td>
 					<h1 class="entry_title">New entry</h1>
 					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
-				</td></tr></table><div class="content"><div><p>Html!</p></div></div>
+				</td></tr></table><div class="content"><div><p>CDATA</p></div></div>
 
 </body></html>
 FROM: Atom content type
@@ -832,15 +787,59 @@ a { text-decoration: none; }
 		</style></head><body><table><tr><td>
 					<h1 class="entry_title">New entry</h1>
 					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
-				</td></tr></table><div class="content"><div><p>CDATA</p></div></div>
+				</td></tr></table><div class="content"><div><p>Html!</p></div></div>
 
 </body></html>
+FROM: Atom content type
+SUBJECT: New entry from Atom content type
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title">New entry</h1>
+					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
+				</td></tr></table><div class="content"><div>Text?</div></div>
 
-# scraper dune_blog.html
+</body></html>
+FROM: Atom content type
+SUBJECT: New entry from Atom content type
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title">New entry</h1>
+					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
+				</td></tr></table><div class="content">Text!</div>
 
-Options: (refresh 2.000000) (label OCaml)
+</body></html>
+FROM: Atom content type
+SUBJECT: New entry from Atom content type
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Atom content type</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title">New entry</h1>
+					<p class="entry_header"><a href="feed%20link%20url">Atom content type</a></p>
+				</td></tr></table><div class="content">Text</div>
+
+</body></html>
 FROM: dune_blog.html
-SUBJECT: What’s coming in Dune 1.1.0?
+SUBJECT: How configurator reads C constants
 BODY: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>dune_blog.html</title><style>
 a { text-decoration: none; }
@@ -850,39 +849,7 @@ a { text-decoration: none; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
 		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="/blog/dune-1-1-0/">What’s coming in Dune 1.1.0?</a></h1>
-					<p class="entry_header">dune_blog.html with label OCaml</p>
-				</td></tr></table>
-
-</body></html>
-FROM: dune_blog.html
-SUBJECT: Dune 1.2.0
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>dune_blog.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="/blog/dune-1-2-0/">Dune 1.2.0</a></h1>
-					<p class="entry_header">dune_blog.html with label OCaml</p>
-				</td></tr></table>
-
-</body></html>
-FROM: dune_blog.html
-SUBJECT: A new general computation model for Dune
-BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>dune_blog.html</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="/blog/new-computation-model/">A new general computation model for Dune</a></h1>
+					<h1 class="entry_title"><a href="/blog/configurator-constants/">How configurator reads C constants</a></h1>
 					<p class="entry_header">dune_blog.html with label OCaml</p>
 				</td></tr></table>
 
@@ -904,7 +871,7 @@ a { text-decoration: none; }
 
 </body></html>
 FROM: dune_blog.html
-SUBJECT: How configurator reads C constants
+SUBJECT: A new general computation model for Dune
 BODY: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>dune_blog.html</title><style>
 a { text-decoration: none; }
@@ -914,7 +881,39 @@ a { text-decoration: none; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
 		</style></head><body><table><tr><td>
-					<h1 class="entry_title"><a href="/blog/configurator-constants/">How configurator reads C constants</a></h1>
+					<h1 class="entry_title"><a href="/blog/new-computation-model/">A new general computation model for Dune</a></h1>
+					<p class="entry_header">dune_blog.html with label OCaml</p>
+				</td></tr></table>
+
+</body></html>
+FROM: dune_blog.html
+SUBJECT: Dune 1.2.0
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>dune_blog.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="/blog/dune-1-2-0/">Dune 1.2.0</a></h1>
+					<p class="entry_header">dune_blog.html with label OCaml</p>
+				</td></tr></table>
+
+</body></html>
+FROM: dune_blog.html
+SUBJECT: What’s coming in Dune 1.1.0?
+BODY: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>dune_blog.html</title><style>
+a { text-decoration: none; }
+.entry_title { margin: 0; }
+.entry_title a { border-bottom: 1px dashed black; }
+.entry_header { margin-top: 0; }
+.content { margin: 20px 0 25px 10px; max-width: 600px; }
+.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+		</style></head><body><table><tr><td>
+					<h1 class="entry_title"><a href="/blog/dune-1-1-0/">What’s coming in Dune 1.1.0?</a></h1>
 					<p class="entry_header">dune_blog.html with label OCaml</p>
 				</td></tr></table>
 

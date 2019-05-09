@@ -50,35 +50,38 @@ struct
 
 end
 
-module Rss_to_mail = Rss_to_mail.Make (Fetch)
+module Log =
+struct
 
-let check_feeds ~now feed_datas feeds =
-  let get_feed_datas url = StringMap.find_opt url feed_datas in
+  let log_e ~url msg = Logs.warn (fun fmt -> fmt "%s: %s" url msg)
+  let log_i ~url msg = Logs.info (fun fmt -> fmt "%s: %s" url msg)
 
-  let handle_data acc (url, r) =
-    let log_e msg = Logs.warn (fun fmt -> fmt "%s: %s" url msg)
-    and log_i msg = Logs.info (fun fmt -> fmt "%s: %s" url msg) in
-    match r with
+  let log_error url = function
     | `Fetch_error (`Http code) ->
-      log_e (sprintf "Http error: %d" code); acc
+      log_e ~url (sprintf "Http error: %d" code)
     | `Fetch_error (`System msg) ->
-      log_e (sprintf "Error: %s" msg); acc
+      log_e ~url (sprintf "Error: %s" msg)
     | `Fetch_error `Unknown ->
-      log_e "Unknown error"; acc
+      log_e ~url "Unknown error"
     | `Parsing_error ((line, col), msg) ->
-      log_e (sprintf "Parsing error: %d:%d: %s" line col msg); acc
-    | `Uptodate -> acc
-    | `Updated (seen_ids, new_entries) ->
-      log_i (sprintf "%d new entries" new_entries);
-      StringMap.add url (now, seen_ids) acc
-  in
+      log_e ~url (sprintf "Parsing error: %d:%d: %s" line col msg)
 
-  let handle (datas, mails) (mails', datas') =
-    List.fold_left handle_data datas datas', mails' @ mails
-  in
-  (** Done in 2 passes to improve concurrency *)
-  Lwt_list.map_p (Rss_to_mail.check ~now get_feed_datas) feeds
-  |> Lwt.map (List.fold_left handle (feed_datas, []))
+  let log_updated url ~entries =
+    log_i ~url (sprintf "%d new entries" entries)
+
+end
+
+module Feed_datas =
+struct
+
+  type t = Rss_to_mail.feed_data StringMap.t
+
+  let get t url = StringMap.find_opt url t
+  let set t url data = StringMap.add url data t
+
+end
+
+module Rss_to_mail = Rss_to_mail.Make (Fetch) (Log) (Feed_datas)
 
 let lwt_timeout t r =
   let timeout =
@@ -143,7 +146,7 @@ let with_feed_datas config_file f =
 let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = Unix.time () |> Int64.of_float in
-  let%lwt feed_datas, mails = check_feeds ~now datas.feed_datas conf.feeds in
+  let%lwt feed_datas, mails = Rss_to_mail.check_all ~now datas.feed_datas conf.feeds in
   Logs.app (fun fmt -> fmt "%d new entries" (List.length mails));
   let%lwt unsent_mails =
     let random_seed = Int64.to_string now in

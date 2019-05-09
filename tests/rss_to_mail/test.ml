@@ -1,3 +1,5 @@
+open Printf
+
 (* Fetch feeds in the `feeds/` subdirectory
    Fetchs are blocking *)
 module Local_fetch =
@@ -7,7 +9,7 @@ struct
 
   let fetch uri =
     let f = "feeds/" ^ Uri.to_string uri in
-    Printf.eprintf "opening %s\n" f;
+    eprintf "opening %s\n" f;
     Lwt.return @@
     match open_in f with
     | exception Sys_error _		-> Error 404
@@ -17,11 +19,33 @@ struct
 
 end
 
-module Rss_to_mail = Rss_to_mail.Make (Local_fetch)
+module Log =
+struct
+
+  let log_error url = function
+    | `Fetch_error code					->
+      printf "%s: Fetch error %d" url code
+    | `Parsing_error ((line, col), msg)	->
+      printf "%s: Parsing error (line %d, col %d)\n%s\n" url line col msg
+
+  let log_updated url ~entries =
+    printf "%s: %d entries" url entries
+
+end
+
+module Feed_datas =
+struct
+
+  type t = Rss_to_mail.feed_data StringMap.t
+
+  let get t url = StringMap.find_opt url t
+  let set t url data = StringMap.add url data t
+
+end
+
+module Rss_to_mail = Rss_to_mail.Make (Local_fetch) (Log) (Feed_datas)
 
 let now = 12345678L
-
-open Printf
 
 let print_mail (m : Rss_to_mail.mail) =
   printf "FROM: %s\nSUBJECT: %s\nBODY: %s\n" m.sender m.subject m.body
@@ -37,31 +61,13 @@ let print_options (opts : Feed_desc.options) =
   (if opts.no_content then printf " (no_content true)");
   printf "\n"
 
-let print_data (_, r) =
-  match r with
-  | `Fetch_error code					->
-    printf "Fetch error %d" code
-  | `Parsing_error ((line, col), msg)	->
-    printf "Parsing error (line %d, col %d)\n%s\n" line col msg
-  | `Uptodate							->
-    printf "Up-to-date\n"
-  | `Updated _						->
-    ()
-
-let check_feed feed_datas (feed, options) =
+let print_feed (feed, options) =
   begin match feed with
     | Feed_desc.Feed url	-> printf "\n# %s\n\n" url
     | Scraper (url, _)		-> printf "\n# scraper %s\n\n" url
     | Bundle url			-> printf "\n# bundle %s\n\n" url
   end;
-  let datas url = StringMap.find_opt url feed_datas in
-  print_options options;
-  let mails, datas =
-    Rss_to_mail.check ~now datas (feed, options)
-    |> Lwt_main.run
-  in
-  List.iter print_data datas;
-  List.iter print_mail mails
+  print_options options
 
 let () =
   let { Persistent_data.feed_datas; _ } =
@@ -69,9 +75,14 @@ let () =
     | Error _ -> failwith "Error parsing datas"
     | Ok sexp -> Persistent_data.load_feed_datas sexp
   in
-  let data =
+  let { Persistent_data.feeds; _ } =
     match CCSexp.parse_file "feeds.sexp" with
     | Error _ -> failwith "Error parsing feeds"
     | Ok sexp -> Persistent_data.load_feeds sexp
   in
-  List.iter (check_feed feed_datas) data.Persistent_data.feeds
+  List.iter print_feed feeds;
+  let _, mails =
+    Rss_to_mail.check_all ~now feed_datas feeds
+    |> Lwt_main.run
+  in
+  List.iter print_mail (List.rev mails)
