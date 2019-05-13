@@ -1,9 +1,13 @@
 open Mirage
 
+let packages = [
+  package "cohttp-mirage";
+  package "rss_to_mail";
+  package ~sublibs:["mirage"] "tls";
+]
+
 let main =
-  foreign
-    "Unikernel.Main"
-    ~packages:[ package "cohttp-mirage" ]
+  foreign "Unikernel.Main" ~packages
     (time @-> resolver @-> conduit @-> kv_rw @-> job)
 
 let () =

@@ -47,12 +47,55 @@ module Fetch = struct
   let fetch ~ctx = pooled 5 (fetch ~ctx)
 end
 
+module Log =
+struct
+
+  let log_error url = function
+    | `Fetch_error (`System msg) ->
+      Logs.warn (fun fmt -> fmt "%s: Fetch error: %s" url msg)
+    | `Fetch_error (`Http code) ->
+      Logs.warn (fun fmt -> fmt "%s: Fetch error: Http status %d" url code)
+    | `Fetch_error `Unknown ->
+      Logs.warn (fun fmt -> fmt "%s: Unknown fetch error" url)
+    | `Parsing_error ((line, col), msg) ->
+      Logs.warn (fun fmt -> fmt "%s: Parsing error: %d:%d: %s" url line col msg)
+
+  let log_updated url ~entries =
+    Logs.info (fun fmt -> fmt "%s: %d new entries" url entries)
+
+end
+
+module StringMap = Map.Make (String)
+
+module Feed_datas =
+struct
+
+  type t = Rss_to_mail.feed_data StringMap.t
+
+  let get t url = StringMap.find_opt url t
+  let set t url data = StringMap.add url data t
+
+end
+
 module Main
     (Time : TIME)
     (Resolver: Resolver_lwt.S)
     (Conduit: Conduit_mirage.S)
     (Kv_rw: Mirage_kv_lwt.RW)
 = struct
-  let start _time _res_dns _conduit _kv_rw =
-    Lwt.return_unit
+
+  let feeds = [
+    Feed_desc.(Feed "https://www.commitstrip.com/feed/", make_options ())
+  ]
+
+  let start _time res_dns conduit _kv_rw =
+    let module Fetch = struct
+      include Fetch
+      let ctx = Cohttp_mirage.Client.ctx res_dns conduit
+      let fetch uri = fetch ~ctx uri
+    end in
+    let module Rss_to_mail = Rss_to_mail.Make (Fetch) (Log) (Feed_datas) in
+    Rss_to_mail.check_all ~now:0L StringMap.empty feeds
+    |> Lwt.map ignore
+
 end
