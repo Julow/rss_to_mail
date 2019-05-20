@@ -65,26 +65,19 @@ BODY: <!DOCTYPE html>
   <table>
    <tr>
     <td>
-        				
      <img src="some%20url" alt="thumbnail" class="thumbnail" width="60"
       height="60"/>
-     
-     			
     </td>
-    <td>
-        					
-     <h1 class="entry_title"><a href="link%20url">title</a></h1>
-                                                                					
-     <p class="entry_header">
+    <td><h1 class="entry_title"><a href="link%20url">title</a></h1>
+     <p>
       <img src="icon%20uri" alt="Atom Test" width="16" height="16"
        style="display: inline !important;
-					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important"
+        height: 1em !important;
+        margin: 0 0 -0.1em 0 !important"
        />
-       <a href="feed%20link%20url">Atom Test</a> (Cat 1, Cat 2) on Some date
-       by <a href="uri">Author 1</a>, Author 2
+       <a href="feed%20link%20url">Atom Test</a> (Cat 1) on Some date
+       by <a href="uri">Author 1</a>, Author 2 
      </p>
-         				
     </td>
    </tr>
   </table>
@@ -108,12 +101,9 @@ a { text-decoration: none; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
 		</style></head><body><span style="display:none;font-size:1px;color:#333333;
 		line-height:1px;max-height:0px;max-width:0px;opacity:0;
-		overflow:hidden;">Title 2</span><table><tr><td>
-					<h1 class="entry_title">Title 2</h1>
-					<p class="entry_header"><img src="Feed%20icon" alt="Title" width="16" height="16" style="display: inline !important;
-					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important"/> <a href="Feed%20link">Title</a> with label Label</p>
-				</td></tr></table><div class="content"><div>
+		overflow:hidden;">Title 2</span><h1 class="entry_title">Title 2</h1><p><img src="Feed%20icon" alt="Title" width="16" height="16" style="display: inline !important;
+        height: 1em !important;
+        margin: 0 0 -0.1em 0 !important"/> <a href="Feed%20link">Title</a>    with label Label</p><div class="content"><div>
 				<div>
 					<p><a><b></b></a></p>
 				</div>
@@ -137,25 +127,15 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">Title 2</h1>
-                                         					
-     <p class="entry_header">
-      <img src="Feed%20icon" alt="RSS Test" width="16" height="16"
-       style="display: inline !important;
-					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important"
-       />
-       <a href="Feed%20link">RSS Test</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table>
+ <body><h1 class="entry_title">Title 2</h1>
+  <p>
+   <img src="Feed%20icon" alt="RSS Test" width="16" height="16"
+    style="display: inline !important;
+        height: 1em !important;
+        margin: 0 0 -0.1em 0 !important"
+    />
+    <a href="Feed%20link">RSS Test</a>    
+  </p>
   <div class="content">
    <div>
         				<div>
@@ -183,20 +163,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="../60.0/releasenotes/">60.0</a></h1>
-     
-     					<p class="entry_header">firefox.html</p>
-                                                  				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="../60.0/releasenotes/">60.0</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 60.0.1
@@ -216,20 +186,10 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="../60.0.1/releasenotes/">60.0.1</a>
-     </h1>
-          					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title"><a href="../60.0.1/releasenotes/">60.0.1</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 60.0.2
@@ -249,20 +209,10 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="../60.0.2/releasenotes/">60.0.2</a>
-     </h1>
-          					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title"><a href="../60.0.2/releasenotes/">60.0.2</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 59.0
@@ -281,20 +231,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="../59.0/releasenotes/">59.0</a></h1>
-     
-     					<p class="entry_header">firefox.html</p>
-                                                  				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="../59.0/releasenotes/">59.0</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 59.0.1
@@ -314,20 +254,10 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="../59.0.1/releasenotes/">59.0.1</a>
-     </h1>
-          					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title"><a href="../59.0.1/releasenotes/">59.0.1</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 59.0.2
@@ -347,20 +277,10 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="../59.0.2/releasenotes/">59.0.2</a>
-     </h1>
-          					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title"><a href="../59.0.2/releasenotes/">59.0.2</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 59.0.3
@@ -380,20 +300,10 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="../59.0.3/releasenotes/">59.0.3</a>
-     </h1>
-          					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title"><a href="../59.0.3/releasenotes/">59.0.3</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 58.0
@@ -412,20 +322,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="../58.0/releasenotes/">58.0</a></h1>
-     
-     					<p class="entry_header">firefox.html</p>
-                                                  				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="../58.0/releasenotes/">58.0</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 58.0.1
@@ -445,20 +345,10 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="../58.0.1/releasenotes/">58.0.1</a>
-     </h1>
-          					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title"><a href="../58.0.1/releasenotes/">58.0.1</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 58.0.2
@@ -478,20 +368,10 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="../58.0.2/releasenotes/">58.0.2</a>
-     </h1>
-          					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title"><a href="../58.0.2/releasenotes/">58.0.2</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 1.0
@@ -510,20 +390,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="1.0.html">1.0</a></h1>
-                                                            					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="1.0.html">1.0</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 1.0.1
@@ -542,20 +412,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="1.0.1.html">1.0.1</a></h1>
-                                                                					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="1.0.1.html">1.0.1</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 1.0.2
@@ -574,20 +434,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="1.0.2.html">1.0.2</a></h1>
-                                                                					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="1.0.2.html">1.0.2</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 1.0.3
@@ -606,20 +456,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="1.0.3.html">1.0.3</a></h1>
-                                                                					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="1.0.3.html">1.0.3</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 1.0.4
@@ -638,20 +478,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="1.0.4.html">1.0.4</a></h1>
-                                                                					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="1.0.4.html">1.0.4</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 1.0.5
@@ -670,20 +500,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="1.0.5.html">1.0.5</a></h1>
-                                                                					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="1.0.5.html">1.0.5</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 1.0.6
@@ -702,20 +522,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="1.0.6.html">1.0.6</a></h1>
-                                                                					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="1.0.6.html">1.0.6</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 1.0.7
@@ -734,20 +544,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="1.0.7.html">1.0.7</a></h1>
-                                                                					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="1.0.7.html">1.0.7</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 1.0.8
@@ -766,20 +566,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="1.0.8.html">1.0.8</a></h1>
-                                                                					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="1.0.8.html">1.0.8</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.1
@@ -798,20 +588,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.1.html">0.1</a></h1>
-                                                            					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.1.html">0.1</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.3
@@ -830,20 +610,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.3.html">0.3</a></h1>
-                                                            					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.3.html">0.3</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.4
@@ -862,20 +632,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.4.html">0.4</a></h1>
-                                                            					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.4.html">0.4</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.5
@@ -894,20 +654,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.5.html">0.5</a></h1>
-                                                            					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.5.html">0.5</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.6
@@ -926,20 +676,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.6.html">0.6</a></h1>
-                                                            					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.6.html">0.6</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.6.1
@@ -958,20 +698,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.6.1.html">0.6.1</a></h1>
-                                                                					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.6.1.html">0.6.1</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.7
@@ -990,20 +720,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.7.html">0.7</a></h1>
-                                                            					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.7.html">0.7</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.7.1
@@ -1022,20 +742,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.7.1.html">0.7.1</a></h1>
-                                                                					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.7.1.html">0.7.1</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.8
@@ -1054,20 +764,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.8.html">0.8</a></h1>
-                                                            					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.8.html">0.8</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.9
@@ -1086,20 +786,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.9.html">0.9</a></h1>
-                                                            					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.9.html">0.9</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.9.1/0.9.2
@@ -1118,20 +808,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.9.1.html">0.9.1/0.9.2</a></h1>
-     
-     					<p class="entry_header">firefox.html</p>
-                                                  				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.9.1.html">0.9.1/0.9.2</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 0.9.3
@@ -1150,20 +830,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.9.3.html">0.9.3</a></h1>
-                                                                					
-     <p class="entry_header">firefox.html</p>
-                                             				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+ <body><h1 class="entry_title"><a href="0.9.3.html">0.9.3</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: firefox.html
 SUBJECT: 1.0 Preview Release
@@ -1183,19 +853,10 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="0.10.html">1.0 Preview Release</a></h1>
-     
-     					<p class="entry_header">firefox.html</p>
-                                                  				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title"><a href="0.10.html">1.0 Preview Release</a></h1>
+  <p> firefox.html    </p>
+                          
+                          </body>
 </html>
 FROM: no_title.rss
 SUBJECT: New entry from no_title.rss
@@ -1214,20 +875,10 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">no_title.rss</p>
-                                             				
-    </td>
-   </tr>
-  </table><div class="content"><div>no title</div></div>
-                                                        
-                                                        </body>
+ <body><h1 class="entry_title">New entry</h1><p> no_title.rss    </p>
+  <div class="content"><div>no title</div></div>
+                                                
+                                                </body>
 </html>
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
@@ -1246,22 +897,11 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table><div class="content"><div><p>CDATA</p></div></div>
-                                                            
-                                                            </body>
+ <body><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <div class="content"><div><p>CDATA</p></div></div>
+                                                    
+                                                    </body>
 </html>
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
@@ -1280,20 +920,8 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table>
+ <body><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
   <div class="content"><div>
                             			<div>
                                     				<p>Xhtml</p>
@@ -1320,22 +948,11 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table><div class="content"><div><p>Html!</p></div></div>
-                                                            
-                                                            </body>
+ <body><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <div class="content"><div><p>Html!</p></div></div>
+                                                    
+                                                    </body>
 </html>
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
@@ -1354,22 +971,11 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table><div class="content"><div>Text?</div></div>
-                                                     
-                                                     </body>
+ <body><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <div class="content"><div>Text?</div></div>
+                                             
+                                             </body>
 </html>
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
@@ -1394,22 +1000,11 @@ BODY: <!DOCTYPE html>
 		line-height:1px;max-height:0px;max-width:0px;opacity:0;
 		overflow:hidden;"
    >Text!
-  </span>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table><div class="content">Text!</div>
-                                          
-                                          </body>
+  </span><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <div class="content">Text!</div>
+                                  
+                                  </body>
 </html>
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
@@ -1434,22 +1029,11 @@ BODY: <!DOCTYPE html>
 		line-height:1px;max-height:0px;max-width:0px;opacity:0;
 		overflow:hidden;"
    >Text
-  </span>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table><div class="content">Text</div>
-                                         
-                                         </body>
+  </span><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <div class="content">Text</div>
+                                 
+                                 </body>
 </html>
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
@@ -1468,22 +1052,11 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table><div class="content"><div><p>CDATA</p></div></div>
-                                                            
-                                                            </body>
+ <body><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <div class="content"><div><p>CDATA</p></div></div>
+                                                    
+                                                    </body>
 </html>
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
@@ -1502,20 +1075,8 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table>
+ <body><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
   <div class="content"><div>
                             			<div>
                                     				<p>Xhtml</p>
@@ -1542,22 +1103,11 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table><div class="content"><div><p>Html!</p></div></div>
-                                                            
-                                                            </body>
+ <body><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <div class="content"><div><p>Html!</p></div></div>
+                                                    
+                                                    </body>
 </html>
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
@@ -1576,22 +1126,11 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table><div class="content"><div>Text?</div></div>
-                                                     
-                                                     </body>
+ <body><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <div class="content"><div>Text?</div></div>
+                                             
+                                             </body>
 </html>
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
@@ -1610,22 +1149,11 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table><div class="content">Text!</div>
-                                          
-                                          </body>
+ <body><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <div class="content">Text!</div>
+                                  
+                                  </body>
 </html>
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
@@ -1644,22 +1172,11 @@ BODY: <!DOCTYPE html>
    		
   </style>
  </head>
- <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">New entry</h1>
-                                           					
-     <p class="entry_header">
-      <a href="feed%20link%20url">Atom content type</a>
-     </p>
-         				
-    </td>
-   </tr>
-  </table><div class="content">Text</div>
-                                         
-                                         </body>
+ <body><h1 class="entry_title">New entry</h1>
+  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <div class="content">Text</div>
+                                 
+                                 </body>
 </html>
 FROM: dune_blog.html
 SUBJECT: How configurator reads C constants
@@ -1679,23 +1196,12 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">
-      <a href="/blog/configurator-constants/">
-       How configurator reads C constants
-      </a>
-     </h1>
-          					
-     <p class="entry_header">dune_blog.html with label OCaml</p>
-                                                                				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title">
+   <a href="/blog/configurator-constants/">How configurator reads C constants
+   </a>
+  </h1><p> dune_blog.html    with label OCaml</p>
+                                                 
+                                                 </body>
 </html>
 FROM: dune_blog.html
 SUBJECT: Virtual libraries
@@ -1715,21 +1221,11 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">
-      <a href="/blog/virtual-libraries/">Virtual libraries</a>
-     </h1>
-          					
-     <p class="entry_header">dune_blog.html with label OCaml</p>
-                                                                				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title">
+   <a href="/blog/virtual-libraries/">Virtual libraries</a>
+  </h1><p> dune_blog.html    with label OCaml</p>
+                                                 
+                                                 </body>
 </html>
 FROM: dune_blog.html
 SUBJECT: A new general computation model for Dune
@@ -1749,23 +1245,13 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">
-      <a href="/blog/new-computation-model/">
-       A new general computation model for Dune
-      </a>
-     </h1>
-          					
-     <p class="entry_header">dune_blog.html with label OCaml</p>
-                                                                				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title">
+   <a href="/blog/new-computation-model/">
+    A new general computation model for Dune
+   </a>
+  </h1><p> dune_blog.html    with label OCaml</p>
+                                                 
+                                                 </body>
 </html>
 FROM: dune_blog.html
 SUBJECT: Dune 1.2.0
@@ -1785,20 +1271,10 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title"><a href="/blog/dune-1-2-0/">Dune 1.2.0</a></h1>
-     
-     					<p class="entry_header">dune_blog.html with label OCaml</p>
-     
-     				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title"><a href="/blog/dune-1-2-0/">Dune 1.2.0</a></h1>
+  <p> dune_blog.html    with label OCaml</p>
+                                            
+                                            </body>
 </html>
 FROM: dune_blog.html
 SUBJECT: What’s coming in Dune 1.1.0?
@@ -1818,19 +1294,9 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body>
-  <table>
-   <tr>
-    <td>
-        					
-     <h1 class="entry_title">
-      <a href="/blog/dune-1-1-0/">What’s coming in Dune 1.1.0?</a>
-     </h1>
-          					
-     <p class="entry_header">dune_blog.html with label OCaml</p>
-                                                                				
-    </td>
-   </tr>
-  </table>
-          
-          </body>
+  <h1 class="entry_title">
+   <a href="/blog/dune-1-1-0/">What’s coming in Dune 1.1.0?</a>
+  </h1><p> dune_blog.html    with label OCaml</p>
+                                                 
+                                                 </body>
 </html>

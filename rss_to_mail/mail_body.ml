@@ -1,112 +1,172 @@
 open Feed
 open Tyxml
 
-let opt_link text = function
-  | Some uri	->
-    [%html "<a href=" (Uri.to_string uri) ">"[ Html.txt text ]"</a>"]
-  | None		-> Html.txt text
-
 let rec list_interleave elt = function
   | [ _ ] as last	-> last
   | hd :: tl		-> hd :: elt :: list_interleave elt tl
   | []			-> []
 
-let gen_entry ~sender ?label feed entry =
-  let entry_title =
-    match entry.title, entry.link with
-    | Some t, link				-> opt_link t link
-    | None, (Some l as link)	-> opt_link (Uri.to_string l) link
-    | None, None				-> [%html "New entry"]
+module Render (Impl : sig
 
-  and header =
-    let feed_icon = match feed.feed_icon with
-      | Some url	-> [ [%html "<img width=\"16\" height=\"16\"
-				src=" (Uri.to_string url) "
-				alt=" sender "
-				style=\"display: inline !important;
-					height: 1em !important;
-					margin: 0 0 -0.1em 0 !important\" />"];
-                      Html.txt " " ]
-      | None		-> []
+    type inline
+    type block
 
-    and feed_title = [ opt_link sender feed.feed_link ]
+    type 'a t
 
-    and categories =
-      match List.filter_map (function
-          | { label = Some _ as c; _ }
-          | { term = Some _ as c; _ } -> c
+    val none : 'a t
+    val string : string -> inline t
+    val list : ?sep:'a t -> 'a t list -> 'a t
+
+    val link : Uri.t -> string -> inline t
+    val raw_content : Feed.content -> block t
+
+    val feed_icon : Uri.t -> alt:string -> inline t
+    val entry_title : string -> Uri.t option -> block t
+    val entry_header : inline t -> block t
+    val thumbnail_table : Uri.t -> block t -> block t
+    val attachment_table : (Uri.t * string option * string option) list -> block t
+
+  end) =
+struct
+
+  let opt_link url text =
+    match url with
+    | Some url -> Impl.link url text
+    | None -> Impl.string text
+
+  let render_entry ~sender ?label feed entry =
+    let entry_title =
+      let title = Option.get "New entry" entry.title in
+      Impl.entry_title title entry.link
+
+    and info_header =
+      let feed_icon =
+        match feed.feed_icon with
+        | Some url -> Impl.feed_icon url ~alt:sender
+        | None -> Impl.none
+
+      and feed_title = opt_link feed.feed_link sender
+
+      and categories =
+        let category = function
+          | { label = Some _ as c; term = None }
+          | { label = None; term = Some _ as c } -> c
           | _ -> None
-        ) entry.categories with
-      | []	-> []
-      | lst	-> [ Html.txt (" (" ^ String.concat ", " lst ^ ")") ]
+        in
+        match List.filter_map category entry.categories with
+        | []	-> Impl.none
+        | lst	-> Impl.string ("(" ^ String.concat ", " lst ^ ")")
 
-    and date =
-      match entry.date with
-      | Some date		-> [ Html.txt (" on " ^ date) ]
-      | None			-> []
+      and date =
+        match entry.date with
+        | Some date -> Impl.string ("on " ^ date)
+        | None -> Impl.none
 
-    and authors =
-      let author a = opt_link a.author_name a.author_link in
-      match List.map author entry.authors with
-      | []		-> []
-      | authors	->
-        Html.txt " by " :: list_interleave (Html.txt ", ") authors
+      and authors =
+        let author a = opt_link a.author_link a.author_name in
+        match List.map author entry.authors with
+        | [] -> Impl.none
+        | ts -> Impl.list (Impl.string "by " :: list_interleave (Impl.string ", ") ts)
 
-    and label =
-      match label with
-      | Some l	-> [ Html.txt (" with label " ^ l) ]
-      | None		-> []
-    in
+      and label =
+        Option.map_or Impl.none (fun l -> Impl.string ("with label " ^ l)) label
 
-    [%html feed_icon feed_title categories date authors label ]
-
-  and thumbnail =
-    match entry.thumbnail with
-    | Some src	-> [ [%html "<td>
-				<img class=\"thumbnail\" alt=\"thumbnail\"
-					width=\"60\" height=\"60\"
-					src=" (Uri.to_string src) " />
-			</td>"] ]
-    | None		-> []
-
-  and attachments =
-    let attachment i t =
-      let info =
-        match Option.map Utils.size t.attach_size, t.attach_type with
-        | Some i, None | None, Some i -> [ Html.txt (" (" ^ i ^ ")") ]
-        | Some s, Some t -> [ Html.txt (" (" ^ s ^ ", " ^ t ^ ")") ]
-        | None, None -> []
-      and link =
-        [ opt_link (Uri.path t.attach_url) (Some t.attach_url) ]
-      and index = [ Html.txt (string_of_int (i + 1)) ]
       in
-      [%html "<tr><td>Attachment " index ": " link "" info "</td></tr>"]
+      Impl.entry_header @@
+      Impl.list ~sep:(Impl.string " ")
+        [ feed_icon; feed_title; categories; date; authors; label ]
+
     in
-    match entry.attachments with
-    | []		-> []
-    | attchmts	-> [ Html.table (List.mapi attachment attchmts) ]
+    let full_header =
+      let header = Impl.list [ entry_title; info_header ] in
+      match entry.thumbnail with
+      | Some url -> Impl.thumbnail_table url header
+      | None -> header
 
-  and content =
+    and attachments =
+      let attachment t =
+        t.attach_url, Option.map Utils.size t.attach_size, t.attach_type
+      in
+      match entry.attachments with
+      | [] -> Impl.none
+      | ts -> Impl.attachment_table (List.map attachment ts)
+
+    and content =
+      Option.or_ ~else_:entry.summary entry.content
+      |> Option.map_or Impl.none Impl.raw_content
+    in
+    Impl.list [ full_header; attachments; content ]
+
+end
+
+module HtmlRender = Render (struct
+
+  type inline = Html_types.p_content_fun
+  type block = Html_types.div_content
+
+  type 'a t = 'a Tyxml_html.elt list
+
+  let none = []
+
+  let string s = [ Html.txt s ]
+
+  let list ?sep l =
+    let l = match sep with Some sep -> list_interleave sep l | None -> l in
+    List.concat l
+
+  let link url s =
+    Html.[ a ~a:[ a_href (Uri.to_string url) ] [ txt s ] ]
+
+  let raw_content =
     let w cont = [ [%html "<div class=\"content\">"[ cont ]"</div>"] ] in
-    match Option.or_ ~else_:entry.summary entry.content with
-    | Some (Text txt)	-> w (Html.txt txt)
-    | Some (Html node)	-> w node
-    | None				-> []
-  in
+    function
+    | Text txt -> w (Html.txt txt)
+    | Html node -> w node
 
-  let header_table =
-    [ Html.table [
-          Html.tr (
-            thumbnail
-            @ [ [%html "<td>
-					<h1 class=\"entry_title\">"[ entry_title ]"</h1>
-					<p class=\"entry_header\">" header "</p>
-				</td>"] ]
-          )
-        ] ]
-  in
+  let feed_icon url ~alt =
+    [ [%html "<img width=\"16\" height=\"16\"
+      src="(Uri.to_string url)"
+      alt="alt"
+      style=\"display: inline !important;
+        height: 1em !important;
+        margin: 0 0 -0.1em 0 !important\" />"] ]
 
-  [%html header_table attachments content]
+  let entry_title title entry_link =
+    let link =
+      match entry_link with
+      | Some url -> link url title
+      | None -> string title
+    in
+    [ [%html "<h1 class=\"entry_title\">"link"</h1>"] ]
+
+  let entry_header t = [ Html.p t ]
+
+  let thumbnail_table url t =
+    let thumbnail = [%html
+      "<img class=\"thumbnail\" alt=\"thumbnail\"
+          width=\"60\" height=\"60\"
+          src="(Uri.to_string url)" />"
+    ] in
+    [ Html.table [ Html.tr [ Html.td [ thumbnail ]; Html.td t ] ] ]
+
+  let attachment_table =
+    let attachment index (url, size, mime) =
+      let info =
+        match size, mime with
+        | Some a, Some b -> string (" (" ^ a ^ ", " ^ b ^ ")")
+        | Some a, None | None, Some a -> string (" (" ^ a ^ ")")
+        | None, None -> none
+      and link = link url (Uri.path url)
+      and index = string (string_of_int (index + 1)) in
+      [%html "<tr><td>Attachment "index": "link""info"</td></tr>"]
+    in
+    function
+    | [] -> []
+    | ts -> [ Html.table (List.mapi attachment ts) ]
+
+end)
+
+let gen_entry = HtmlRender.render_entry
 
 let gen_summary sum =
   [%html "<span style=\"display:none;font-size:1px;color:#333333;
