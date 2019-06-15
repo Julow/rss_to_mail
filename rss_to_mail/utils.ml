@@ -33,3 +33,8 @@ let rec size s u =
   | u' :: tl			-> size (Int64.div s 1024L) u' tl
 
 let size s = size s "b" [ "Kb"; "Mb"; "Gb" ]
+
+let rec list_interleave elt = function
+  | [] -> []
+  | [ _ ] as last -> last
+  | hd :: tl -> hd :: elt :: list_interleave elt tl
