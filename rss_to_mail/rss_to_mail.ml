@@ -1,4 +1,4 @@
-type mail = Utils.mail = {
+type mail = Mail_body.t = {
   sender		: string;
   subject		: string;
   body		: string

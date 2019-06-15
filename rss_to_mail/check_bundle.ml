@@ -6,22 +6,11 @@ struct
 
   module Check_feed = Check_feed.Make (Fetch)
 
-  let prepare_bundle ~sender feed options entries =
-    let len = List.length entries in
-    if len = 0
-    then []
-    else
-      let subject = string_of_int len ^ " entries from " ^ sender in
-      let hidden_summary =
-        List.filter_map (fun e -> e.Feed.title) entries
-        |> String.concat ", "
-        |> Mail_body.gen_summary in
+  let prepare_bundle ~sender feed options = function
+    | [] -> []
+    | entries ->
       let label = options.Feed_desc.label in
-      let body =
-        List.map (Mail_body.gen_entry ~sender ?label feed) entries
-        |> Mail_body.gen_mail ~sender ~hidden_summary
-        |> sprintf "%a" (Tyxml.Html.pp ()) in
-      [ Utils.{ sender; subject; body } ]
+      [ Mail_body.gen_mail ~sender ?label feed entries ]
 
   let update ~first_update ~now uri options seen_ids =
     Lwt.bind (Check_feed.fetch_feed uri) begin function

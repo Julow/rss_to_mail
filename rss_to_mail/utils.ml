@@ -1,9 +1,3 @@
-type mail = {
-  sender		: string;
-  subject		: string;
-  body		: string
-}
-
 module C = CalendarLib.Calendar.Precise
 
 let next_day_at h m t =

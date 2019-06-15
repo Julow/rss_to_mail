@@ -8,21 +8,8 @@ struct
   let remove_date_from = Int64.add 2678400L
 
   let prepare_mail ~sender feed options entry =
-    let subject =
-      match entry.Feed.title with
-      | Some title	-> title
-      | None			-> "New entry from " ^ sender
-    in
-    let hidden_summary =
-      match entry.summary with
-      | Some (Feed.Text sum)		-> Some (Mail_body.gen_summary sum)
-      | Some (Feed.Html _) | None	-> None
-    in
     let label = options.Feed_desc.label in
-    let entries = [ Mail_body.gen_entry ~sender ?label feed entry ] in
-    let body = Mail_body.gen_mail ~sender ?hidden_summary entries in
-    let body = sprintf "%a" (Tyxml.Html.pp ~indent:true ()) body in
-    Utils.{ sender; subject; body }
+    Mail_body.gen_mail ~sender ?label feed [ entry ]
 
   let new_entries remove_date seen_ids entries =
     let ids, news = Array.fold_right (fun e (ids, news) ->

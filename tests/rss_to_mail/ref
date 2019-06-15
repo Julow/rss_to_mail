@@ -58,8 +58,8 @@ BODY: <!DOCTYPE html>
  <body>
   <span
    style="display:none;font-size:1px;color:#333333;
-		line-height:1px;max-height:0px;max-width:0px;opacity:0;
-		overflow:hidden;"
+          line-height:1px;max-height:0px;max-width:0px;opacity:0;
+          overflow:hidden;"
    >summary
   </span>
   <table>
@@ -90,26 +90,41 @@ BODY: <!DOCTYPE html>
   </body>
 </html>
 FROM: Title
-SUBJECT: 1 entries from Title
+SUBJECT: Title 2
 BODY: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><title>Title</title><style>
-a { text-decoration: none; }
-.entry_title { margin: 0; }
-.entry_title a { border-bottom: 1px dashed black; }
-.entry_header { margin-top: 0; }
-.content { margin: 20px 0 25px 10px; max-width: 600px; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
-		</style></head><body><span style="display:none;font-size:1px;color:#333333;
-		line-height:1px;max-height:0px;max-width:0px;opacity:0;
-		overflow:hidden;">Title 2</span><h1 class="entry_title">Title 2</h1><p><img src="Feed%20icon" alt="Title" width="16" height="16" style="display: inline !important;
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>Title</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+   		
+  </style>
+ </head>
+ <body><h1 class="entry_title">Title 2</h1>
+  <p>
+   <img src="Feed%20icon" alt="Title" width="16" height="16"
+    style="display: inline !important;
         height: 1em !important;
-        margin: 0 0 -0.1em 0 !important"/> <a href="Feed%20link">Title</a>    with label Label</p><div class="content"><div>
-				<div>
-					<p><a><b></b></a></p>
-				</div>
-			</div></div>
-
-</body></html>
+        margin: 0 0 -0.1em 0 !important"
+    />
+    <a href="Feed%20link">Title</a>    with label Label
+  </p>
+  <div class="content">
+   <div>
+        				<div>
+                 					<p><a><b></b></a></p>
+                                           				</div>
+                                                     			</div>
+  </div>
+        
+        </body>
+</html>
 FROM: RSS Test
 SUBJECT: Title 2
 BODY: <!DOCTYPE html>
@@ -997,8 +1012,8 @@ BODY: <!DOCTYPE html>
  <body>
   <span
    style="display:none;font-size:1px;color:#333333;
-		line-height:1px;max-height:0px;max-width:0px;opacity:0;
-		overflow:hidden;"
+          line-height:1px;max-height:0px;max-width:0px;opacity:0;
+          overflow:hidden;"
    >Text!
   </span><h1 class="entry_title">New entry</h1>
   <p> <a href="feed%20link%20url">Atom content type</a>    </p>
@@ -1026,8 +1041,8 @@ BODY: <!DOCTYPE html>
  <body>
   <span
    style="display:none;font-size:1px;color:#333333;
-		line-height:1px;max-height:0px;max-width:0px;opacity:0;
-		overflow:hidden;"
+          line-height:1px;max-height:0px;max-width:0px;opacity:0;
+          overflow:hidden;"
    >Text
   </span><h1 class="entry_title">New entry</h1>
   <p> <a href="feed%20link%20url">Atom content type</a>    </p>

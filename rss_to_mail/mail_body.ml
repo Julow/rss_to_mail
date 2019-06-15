@@ -166,17 +166,18 @@ module HtmlRender = Render (struct
 
 end)
 
-let gen_entry = HtmlRender.render_entry
-
-let gen_summary sum =
-  [%html "<span style=\"display:none;font-size:1px;color:#333333;
-		line-height:1px;max-height:0px;max-width:0px;opacity:0;
-		overflow:hidden;\">"[ Html.txt sum ]"</span>"]
-
-let gen_mail ~sender ?hidden_summary entries =
+let gen_html_body ~sender ?hidden_summary entries =
   let entries = match entries with
     | [ e ]		-> e
     | entries	-> List.map (fun e -> [%html "<div>" e "</div>"]) entries
+  in
+  let hidden_summary =
+    match hidden_summary with
+    | Some s ->
+      [ [%html "<span style=\"display:none;font-size:1px;color:#333333;
+          line-height:1px;max-height:0px;max-width:0px;opacity:0;
+          overflow:hidden;\">"[ Html.txt s ]"</span>"] ]
+    | None -> []
   in
   [%html "
 <html lang=\"en\">
@@ -192,8 +193,39 @@ a { text-decoration: none; }
 		<title>" (Html.txt sender) "</title>
 	</head>
 	<body>"
-      (Option.to_list hidden_summary)
+      hidden_summary
       entries
       "</body>
 </html>
 "]
+
+type t = {
+  sender		: string;
+  subject		: string;
+  body  		: string
+}
+
+let gen_summary =
+  function
+  | [] -> None
+  | [ { summary = Some (Feed.Text sum); _ } ] -> Some sum
+  | [ { summary = (Some (Feed.Html _) | None); _ } ] -> None
+  | entries ->
+    let titles = List.filter_map (fun e -> e.Feed.title) entries in
+    Some (String.concat ", " titles)
+
+let gen_mail ~sender ?label feed entries =
+  let subject =
+    match entries with
+    | [ { title = Some title; _ } ] -> title
+    | [ { title = None; _ } ] -> "New entry from " ^ sender
+    | entries ->
+      string_of_int (List.length entries) ^ " entries from " ^ sender
+  in
+  let hidden_summary = gen_summary entries in
+  let body =
+    List.map (HtmlRender.render_entry ~sender ?label feed) entries
+    |> gen_html_body ~sender ?hidden_summary
+    |> sprintf "%a" (Tyxml.Html.pp ~indent:true ())
+  in
+  { sender; subject; body }
