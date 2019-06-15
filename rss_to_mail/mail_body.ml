@@ -11,7 +11,7 @@ module Render (Impl : sig
     val string : string -> inline t
     val list : ?sep:'a t -> 'a t list -> 'a t
 
-    val link : Uri.t -> string -> inline t
+    val link : ?text:string -> Uri.t -> inline t
 
     val raw_content_html : [< Html_types.div ] Tyxml_html.elt -> block t
     val raw_content_text : string -> block t
@@ -20,30 +20,33 @@ module Render (Impl : sig
     val entry_title : string -> Uri.t option -> block t
     val entry_header : inline t -> block t
     val thumbnail_table : Uri.t -> block t -> block t
-    val attachment_table : (Uri.t * string option * string option) list -> block t
+    val attachment_table : inline t list -> block t
 
     val body : sender:string -> ?hidden_summary:string -> block t list -> string
 
   end) =
 struct
 
+  open Impl
+
   let opt_link url text =
     match url with
-    | Some url -> Impl.link url text
-    | None -> Impl.string text
+    | Some url -> link url ~text
+    | None -> string text
 
   let render_entry ~sender ?label feed entry =
     let entry_title =
       let title = Option.get "New entry" entry.title in
-      Impl.entry_title title entry.link
+      entry_title title entry.link
 
     and info_header =
-      let feed_icon =
-        match feed.feed_icon with
-        | Some url -> Impl.feed_icon url ~alt:sender
-        | None -> Impl.none
-
-      and feed_title = opt_link feed.feed_link sender
+      let feed_title =
+        let feed_icon =
+          match feed.feed_icon with
+          | Some url -> feed_icon url ~alt:sender
+          | None -> none
+        in
+        Some (list [ string "From "; feed_icon; opt_link feed.feed_link sender ])
 
       and categories =
         let category = function
@@ -52,65 +55,77 @@ struct
           | _ -> None
         in
         match List.filter_map category entry.categories with
-        | []	-> Impl.none
-        | lst	-> Impl.string ("(" ^ String.concat ", " lst ^ ")")
+        | []	-> None
+        | lst	-> Some (string ("(" ^ String.concat ", " lst ^ ")"))
 
       and date =
         match entry.date with
-        | Some date -> Impl.string ("on " ^ date)
-        | None -> Impl.none
+        | Some date -> Some (string ("on " ^ date))
+        | None -> None
 
       and authors =
         let author a = opt_link a.author_link a.author_name in
         match List.map author entry.authors with
-        | [] -> Impl.none
+        | [] -> None
         | ts ->
-          let ts = Utils.list_interleave (Impl.string ", ") ts in
-          Impl.list (Impl.string "by " :: ts)
+          let ts = Utils.list_interleave (string ", ") ts in
+          Some (list (string "by " :: ts))
 
       and label =
-        Option.map_or Impl.none (fun l -> Impl.string ("with label " ^ l)) label
+        Option.map (fun l -> string ("with label " ^ l)) label
 
       in
-      Impl.entry_header @@
-      Impl.list ~sep:(Impl.string " ")
-        [ feed_icon; feed_title; categories; date; authors; label ]
+      entry_header @@
+      list ~sep:(string " ") @@
+      List.filter_option @@
+      [ feed_title; categories; date; authors; label ]
 
     in
     let full_header =
-      let header = Impl.list [ entry_title; info_header ] in
+      let header = list [ entry_title; info_header ] in
       match entry.thumbnail with
-      | Some url -> Impl.thumbnail_table url header
+      | Some url -> thumbnail_table url header
       | None -> header
 
     and attachments =
-      let attachment t =
-        t.attach_url, Option.map Utils.size t.attach_size, t.attach_type
+      let attachment index t =
+        let index = string (string_of_int (index + 1)) in
+        let link = link t.attach_url in
+        let info =
+          let size = Option.map Utils.size t.attach_size in
+          match size, t.attach_type with
+          | Some s, Some m -> string (" (" ^ s ^ ", " ^ m ^ ")")
+          | Some i, None | None, Some i -> string (" (" ^ i ^ ")")
+          | None, None -> none
+        in
+        list [ string "Attachment "; index; string ": "; link; info ]
       in
       match entry.attachments with
-      | [] -> Impl.none
-      | ts -> Impl.attachment_table (List.map attachment ts)
+      | [] -> none
+      | ts -> attachment_table (List.mapi attachment ts)
 
     and content =
       match Option.or_ ~else_:entry.summary entry.content with
-      | Some (Html html) -> Impl.raw_content_html html
-      | Some (Text txt) -> Impl.raw_content_text txt
-      | None -> Impl.none
+      | Some (Html html) -> raw_content_html html
+      | Some (Text txt) -> raw_content_text txt
+      | None -> none
     in
-    Impl.list [ full_header; attachments; content ]
+    list [ full_header; attachments; content ]
 
   let render_body ~sender ?label ?hidden_summary feed entries =
     List.map (render_entry ~sender ?label feed) entries
-    |> Impl.body ~sender ?hidden_summary
+    |> body ~sender ?hidden_summary
 
 end
 
 module HtmlRender = Render (Mail_body_html)
+module TextRender = Render (Mail_body_text)
 
 type t = {
-  sender		: string;
-  subject		: string;
-  body  		: string
+  sender    : string;
+  subject   : string;
+  body_html : string;
+  body_text : string;
 }
 
 let gen_summary =
@@ -131,7 +146,9 @@ let gen_mail ~sender ?label feed entries =
       string_of_int (List.length entries) ^ " entries from " ^ sender
   in
   let hidden_summary = gen_summary entries in
-  let body =
+  let body_html =
     HtmlRender.render_body ~sender ?label ?hidden_summary feed entries
+  and body_text =
+    TextRender.render_body ~sender ?label ?hidden_summary feed entries
   in
-  { sender; subject; body }
+  { sender; subject; body_html; body_text }

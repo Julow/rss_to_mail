@@ -40,7 +40,7 @@ Options: (refresh 2.000000)
 Options: (refresh 2.000000) (label OCaml)
 atom.atom: 1 entries./atom.atom: 0 entries././rss.rss: 1 entries./././rss.rss: 1 entriesfirefox.html: 32 entriesempty.rss: 0 entriesno_title.rss: 1 entriescontent_type.atom: 12 entriesdune_blog.html: 5 entriesFROM: Atom Test
 SUBJECT: title
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom Test</title>
   <style>
@@ -69,14 +69,14 @@ BODY: <!DOCTYPE html>
       height="60"/>
     </td>
     <td><h1 class="entry_title"><a href="link%20url">title</a></h1>
-     <p>
+     <p>From 
       <img src="icon%20uri" alt="Atom Test" width="16" height="16"
        style="display: inline !important;
         height: 1em !important;
         margin: 0 0 -0.1em 0 !important"
        />
-       <a href="feed%20link%20url">Atom Test</a> (Cat 1) on Some date
-       by <a href="uri">Author 1</a>, Author 2 
+      <a href="feed%20link%20url">Atom Test</a> (Cat 1) on Some date 
+      by <a href="uri">Author 1</a>, Author 2
      </p>
     </td>
    </tr>
@@ -89,9 +89,23 @@ BODY: <!DOCTYPE html>
   
   </body>
 </html>
+BODY text: # title
+
+link%20url
+
+From [Atom Test](feed%20link%20url) (Cat 1) on Some date by [Author 1](uri), Author 2
+
+Attachments:
+
+Attachment 1: attach%201 (truc)
+Attachment 2: attach%202 (2b)
+
+<html content>
+
+
 FROM: Title
 SUBJECT: Title 2
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Title</title>
   <style>
@@ -107,13 +121,13 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">Title 2</h1>
-  <p>
+  <p>From 
    <img src="Feed%20icon" alt="Title" width="16" height="16"
     style="display: inline !important;
         height: 1em !important;
         margin: 0 0 -0.1em 0 !important"
     />
-    <a href="Feed%20link">Title</a>    with label Label
+   <a href="Feed%20link">Title</a> with label Label
   </p>
   <div class="content">
    <div>
@@ -125,9 +139,16 @@ BODY: <!DOCTYPE html>
         
         </body>
 </html>
+BODY text: # Title 2
+
+From [Title](Feed%20link) with label Label
+
+<html content>
+
+
 FROM: RSS Test
 SUBJECT: Title 2
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>RSS Test</title>
   <style>
@@ -143,13 +164,13 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">Title 2</h1>
-  <p>
+  <p>From 
    <img src="Feed%20icon" alt="RSS Test" width="16" height="16"
     style="display: inline !important;
         height: 1em !important;
         margin: 0 0 -0.1em 0 !important"
     />
-    <a href="Feed%20link">RSS Test</a>    
+   <a href="Feed%20link">RSS Test</a>
   </p>
   <div class="content">
    <div>
@@ -161,9 +182,16 @@ BODY: <!DOCTYPE html>
         
         </body>
 </html>
+BODY text: # Title 2
+
+From [RSS Test](Feed%20link)
+
+<html content>
+
+
 FROM: firefox.html
 SUBJECT: 60.0
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -179,13 +207,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="../60.0/releasenotes/">60.0</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 60.0
+
+../60.0/releasenotes/
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 60.0.1
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -202,13 +237,20 @@ BODY: <!DOCTYPE html>
  </head>
  <body>
   <h1 class="entry_title"><a href="../60.0.1/releasenotes/">60.0.1</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 60.0.1
+
+../60.0.1/releasenotes/
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 60.0.2
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -225,13 +267,20 @@ BODY: <!DOCTYPE html>
  </head>
  <body>
   <h1 class="entry_title"><a href="../60.0.2/releasenotes/">60.0.2</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 60.0.2
+
+../60.0.2/releasenotes/
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 59.0
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -247,13 +296,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="../59.0/releasenotes/">59.0</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 59.0
+
+../59.0/releasenotes/
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 59.0.1
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -270,13 +326,20 @@ BODY: <!DOCTYPE html>
  </head>
  <body>
   <h1 class="entry_title"><a href="../59.0.1/releasenotes/">59.0.1</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 59.0.1
+
+../59.0.1/releasenotes/
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 59.0.2
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -293,13 +356,20 @@ BODY: <!DOCTYPE html>
  </head>
  <body>
   <h1 class="entry_title"><a href="../59.0.2/releasenotes/">59.0.2</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 59.0.2
+
+../59.0.2/releasenotes/
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 59.0.3
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -316,13 +386,20 @@ BODY: <!DOCTYPE html>
  </head>
  <body>
   <h1 class="entry_title"><a href="../59.0.3/releasenotes/">59.0.3</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 59.0.3
+
+../59.0.3/releasenotes/
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 58.0
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -338,13 +415,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="../58.0/releasenotes/">58.0</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 58.0
+
+../58.0/releasenotes/
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 58.0.1
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -361,13 +445,20 @@ BODY: <!DOCTYPE html>
  </head>
  <body>
   <h1 class="entry_title"><a href="../58.0.1/releasenotes/">58.0.1</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 58.0.1
+
+../58.0.1/releasenotes/
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 58.0.2
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -384,13 +475,20 @@ BODY: <!DOCTYPE html>
  </head>
  <body>
   <h1 class="entry_title"><a href="../58.0.2/releasenotes/">58.0.2</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 58.0.2
+
+../58.0.2/releasenotes/
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 1.0
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -406,13 +504,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="1.0.html">1.0</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 1.0
+
+1.0.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 1.0.1
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -428,13 +533,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="1.0.1.html">1.0.1</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 1.0.1
+
+1.0.1.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 1.0.2
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -450,13 +562,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="1.0.2.html">1.0.2</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 1.0.2
+
+1.0.2.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 1.0.3
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -472,13 +591,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="1.0.3.html">1.0.3</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 1.0.3
+
+1.0.3.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 1.0.4
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -494,13 +620,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="1.0.4.html">1.0.4</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 1.0.4
+
+1.0.4.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 1.0.5
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -516,13 +649,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="1.0.5.html">1.0.5</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 1.0.5
+
+1.0.5.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 1.0.6
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -538,13 +678,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="1.0.6.html">1.0.6</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 1.0.6
+
+1.0.6.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 1.0.7
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -560,13 +707,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="1.0.7.html">1.0.7</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 1.0.7
+
+1.0.7.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 1.0.8
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -582,13 +736,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="1.0.8.html">1.0.8</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 1.0.8
+
+1.0.8.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.1
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -604,13 +765,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.1.html">0.1</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.1
+
+0.1.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.3
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -626,13 +794,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.3.html">0.3</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.3
+
+0.3.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.4
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -648,13 +823,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.4.html">0.4</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.4
+
+0.4.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.5
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -670,13 +852,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.5.html">0.5</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.5
+
+0.5.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.6
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -692,13 +881,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.6.html">0.6</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.6
+
+0.6.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.6.1
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -714,13 +910,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.6.1.html">0.6.1</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.6.1
+
+0.6.1.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.7
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -736,13 +939,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.7.html">0.7</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.7
+
+0.7.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.7.1
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -758,13 +968,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.7.1.html">0.7.1</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.7.1
+
+0.7.1.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.8
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -780,13 +997,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.8.html">0.8</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.8
+
+0.8.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.9
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -802,13 +1026,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.9.html">0.9</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.9
+
+0.9.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.9.1/0.9.2
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -824,13 +1055,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.9.1.html">0.9.1/0.9.2</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.9.1/0.9.2
+
+0.9.1.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 0.9.3
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -846,13 +1084,20 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title"><a href="0.9.3.html">0.9.3</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 0.9.3
+
+0.9.3.html
+
+From firefox.html
+
+
 FROM: firefox.html
 SUBJECT: 1.0 Preview Release
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>firefox.html</title>
   <style>
@@ -869,13 +1114,20 @@ BODY: <!DOCTYPE html>
  </head>
  <body>
   <h1 class="entry_title"><a href="0.10.html">1.0 Preview Release</a></h1>
-  <p> firefox.html    </p>
+  <p>From firefox.html</p>
                           
                           </body>
 </html>
+BODY text: # 1.0 Preview Release
+
+0.10.html
+
+From firefox.html
+
+
 FROM: no_title.rss
 SUBJECT: New entry from no_title.rss
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>no_title.rss</title>
   <style>
@@ -890,14 +1142,21 @@ BODY: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1><p> no_title.rss    </p>
+ <body><h1 class="entry_title">New entry</h1><p>From no_title.rss</p>
   <div class="content"><div>no title</div></div>
                                                 
                                                 </body>
 </html>
+BODY text: # New entry
+
+From no_title.rss
+
+<html content>
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -913,14 +1172,21 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><div><p>CDATA</p></div></div>
                                                     
                                                     </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+<html content>
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -936,7 +1202,7 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><div>
                             			<div>
                                     				<p>Xhtml</p>
@@ -946,9 +1212,16 @@ BODY: <!DOCTYPE html>
   
   </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+<html content>
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -964,14 +1237,21 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><div><p>Html!</p></div></div>
                                                     
                                                     </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+<html content>
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -987,14 +1267,21 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><div>Text?</div></div>
                                              
                                              </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+<html content>
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -1016,14 +1303,23 @@ BODY: <!DOCTYPE html>
           overflow:hidden;"
    >Text!
   </span><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">Text!</div>
                                   
                                   </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+Content:
+
+Text!
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -1045,14 +1341,23 @@ BODY: <!DOCTYPE html>
           overflow:hidden;"
    >Text
   </span><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">Text</div>
                                  
                                  </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+Content:
+
+Text
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -1068,14 +1373,21 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><div><p>CDATA</p></div></div>
                                                     
                                                     </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+<html content>
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -1091,7 +1403,7 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><div>
                             			<div>
                                     				<p>Xhtml</p>
@@ -1101,9 +1413,16 @@ BODY: <!DOCTYPE html>
   
   </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+<html content>
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -1119,14 +1438,21 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><div><p>Html!</p></div></div>
                                                     
                                                     </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+<html content>
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -1142,14 +1468,21 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><div>Text?</div></div>
                                              
                                              </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+<html content>
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -1165,14 +1498,23 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">Text!</div>
                                   
                                   </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+Content:
+
+Text!
+
+
 FROM: Atom content type
 SUBJECT: New entry from Atom content type
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>Atom content type</title>
   <style>
@@ -1188,14 +1530,23 @@ BODY: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p> <a href="feed%20link%20url">Atom content type</a>    </p>
+  <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">Text</div>
                                  
                                  </body>
 </html>
+BODY text: # New entry
+
+From [Atom content type](feed%20link%20url)
+
+Content:
+
+Text
+
+
 FROM: dune_blog.html
 SUBJECT: How configurator reads C constants
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>dune_blog.html</title>
   <style>
@@ -1214,13 +1565,20 @@ BODY: <!DOCTYPE html>
   <h1 class="entry_title">
    <a href="/blog/configurator-constants/">How configurator reads C constants
    </a>
-  </h1><p> dune_blog.html    with label OCaml</p>
-                                                 
-                                                 </body>
+  </h1><p>From dune_blog.html with label OCaml</p>
+                                                  
+                                                  </body>
 </html>
+BODY text: # How configurator reads C constants
+
+/blog/configurator-constants/
+
+From dune_blog.html with label OCaml
+
+
 FROM: dune_blog.html
 SUBJECT: Virtual libraries
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>dune_blog.html</title>
   <style>
@@ -1238,13 +1596,20 @@ BODY: <!DOCTYPE html>
  <body>
   <h1 class="entry_title">
    <a href="/blog/virtual-libraries/">Virtual libraries</a>
-  </h1><p> dune_blog.html    with label OCaml</p>
-                                                 
-                                                 </body>
+  </h1><p>From dune_blog.html with label OCaml</p>
+                                                  
+                                                  </body>
 </html>
+BODY text: # Virtual libraries
+
+/blog/virtual-libraries/
+
+From dune_blog.html with label OCaml
+
+
 FROM: dune_blog.html
 SUBJECT: A new general computation model for Dune
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>dune_blog.html</title>
   <style>
@@ -1264,13 +1629,20 @@ BODY: <!DOCTYPE html>
    <a href="/blog/new-computation-model/">
     A new general computation model for Dune
    </a>
-  </h1><p> dune_blog.html    with label OCaml</p>
-                                                 
-                                                 </body>
+  </h1><p>From dune_blog.html with label OCaml</p>
+                                                  
+                                                  </body>
 </html>
+BODY text: # A new general computation model for Dune
+
+/blog/new-computation-model/
+
+From dune_blog.html with label OCaml
+
+
 FROM: dune_blog.html
 SUBJECT: Dune 1.2.0
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>dune_blog.html</title>
   <style>
@@ -1287,13 +1659,20 @@ BODY: <!DOCTYPE html>
  </head>
  <body>
   <h1 class="entry_title"><a href="/blog/dune-1-2-0/">Dune 1.2.0</a></h1>
-  <p> dune_blog.html    with label OCaml</p>
-                                            
-                                            </body>
+  <p>From dune_blog.html with label OCaml</p>
+                                             
+                                             </body>
 </html>
+BODY text: # Dune 1.2.0
+
+/blog/dune-1-2-0/
+
+From dune_blog.html with label OCaml
+
+
 FROM: dune_blog.html
 SUBJECT: What’s coming in Dune 1.1.0?
-BODY: <!DOCTYPE html>
+BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
  <head><title>dune_blog.html</title>
   <style>
@@ -1311,7 +1690,14 @@ BODY: <!DOCTYPE html>
  <body>
   <h1 class="entry_title">
    <a href="/blog/dune-1-1-0/">What’s coming in Dune 1.1.0?</a>
-  </h1><p> dune_blog.html    with label OCaml</p>
-                                                 
-                                                 </body>
+  </h1><p>From dune_blog.html with label OCaml</p>
+                                                  
+                                                  </body>
 </html>
+BODY text: # What’s coming in Dune 1.1.0?
+
+/blog/dune-1-1-0/
+
+From dune_blog.html with label OCaml
+
+

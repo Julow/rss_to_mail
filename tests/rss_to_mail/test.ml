@@ -48,7 +48,8 @@ module Rss_to_mail = Rss_to_mail.Make (Local_fetch) (Log) (Feed_datas)
 let now = 12345678L
 
 let print_mail (m : Rss_to_mail.mail) =
-  printf "FROM: %s\nSUBJECT: %s\nBODY: %s\n" m.sender m.subject m.body
+  printf "FROM: %s\nSUBJECT: %s\nBODY html: %s\nBODY text: %s\n"
+    m.sender m.subject m.body_html m.body_text
 
 let print_options (opts : Feed_desc.options) =
   printf "Options:";

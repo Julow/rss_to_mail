@@ -30,6 +30,11 @@ struct
       end
     | [] -> []
 
+  let rec filter_option = function
+    | Some e :: tl -> e :: filter_option tl
+    | None :: tl -> filter_option tl
+    | [] -> []
+
   let rec find_map f = function
     | hd :: tl ->
       begin match f hd with

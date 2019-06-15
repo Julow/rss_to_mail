@@ -229,8 +229,10 @@ let load_feed_datas (sexp : sexp) =
   in
   let parse_unsent =
     function
-    | `List [ `Atom sender; `Atom subject; `Atom body ] ->
-      Rss_to_mail.{ sender; subject; body }
+    | `List [ `Atom sender; `Atom subject; `Atom body_html ] ->
+      Rss_to_mail.{ sender; subject; body_html; body_text = "" }
+    | `List [ `Atom sender; `Atom subject; `Atom body_html; `Atom body_text ] ->
+      Rss_to_mail.{ sender; subject; body_html; body_text }
     | _ -> failwith ""
   in
   let feed_datas =
@@ -255,9 +257,8 @@ let save_feed_datas { feed_datas; unsent_mails } : sexp =
     `List [ `Atom uri;
             `Atom (Int64.to_string date);
             `List (SeenSet.fold gen_id ids []) ] :: lst
-  and gen_unsent t =
-    let open Rss_to_mail in
-    `List [ `Atom t.sender; `Atom t.subject; `Atom t.body ]
+  and gen_unsent Rss_to_mail.{ sender; subject; body_html; body_text } =
+    `List [ `Atom sender; `Atom subject; `Atom body_html; `Atom body_text ]
   in
   let feed_datas = StringMap.fold gen_data feed_datas []
   and unsent_mails = List.map gen_unsent unsent_mails in

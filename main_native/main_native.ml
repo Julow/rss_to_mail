@@ -102,12 +102,22 @@ let send_mails ~random_seed (conf : Persistent_data.config) mails =
     in
     let from = Some t.sender, conf.from_address in
     let to_ = None, conf.to_address in
+    let boundary = "rss_to_mail-boundary-" ^ random_seed in
     let headers = [
-      "Content-type: text/html";
+      "Content-Type: multipart/alternative; boundary=" ^ boundary;
       "X-Entity-Ref-ID: " ^ random_seed ^ string_of_int i;
     ] in
     let do_send () =
-      let body = Client_unix.stream_of_list (String.split_on_char '\n' t.body) in
+      let part content_type content =
+        Client_unix.stream_of_list @@
+        ("--" ^ boundary) :: ("Content-Type: " ^ content_type) :: "" ::
+        String.split_on_char '\n' content
+      in
+      let body = Client_unix.stream_concat [
+        part "text/plain" t.body_text;
+        part "text/html" t.body_html;
+        Client_unix.stream_of_list [ "--" ^ boundary ^ "--" ]
+      ] in
       Client_unix.send_mail ~auth ~server ~from ~to_ ~headers t.subject body
       |> Lwt.map (fun () -> None)
       |> lwt_timeout 5.

@@ -13,7 +13,12 @@ let list ?sep l =
   let l = match sep with Some sep -> Utils.list_interleave sep l | None -> l in
   List.concat l
 
-let link url s =
+let link ?text url =
+  let s =
+    match text with
+    | Some s -> s
+    | None -> Uri.path url
+  in
   Html.[ a ~a:[ a_href (Uri.to_string url) ] [ txt s ] ]
 
 let raw_content_html cont = [ [%html "<div class=\"content\">"[ cont ]"</div>"] ]
@@ -31,7 +36,7 @@ let feed_icon url ~alt =
 let entry_title title entry_link =
   let link =
     match entry_link with
-    | Some url -> link url title
+    | Some url -> link url ~text:title
     | None -> string title
   in
   [ [%html "<h1 class=\"entry_title\">"link"</h1>"] ]
@@ -47,19 +52,12 @@ let thumbnail_table url t =
   [ Html.table [ Html.tr [ Html.td [ thumbnail ]; Html.td t ] ] ]
 
 let attachment_table =
-  let attachment index (url, size, mime) =
-    let info =
-      match size, mime with
-      | Some a, Some b -> string (" (" ^ a ^ ", " ^ b ^ ")")
-      | Some a, None | None, Some a -> string (" (" ^ a ^ ")")
-      | None, None -> none
-    and link = link url (Uri.path url)
-    and index = string (string_of_int (index + 1)) in
-    [%html "<tr><td>Attachment "index": "link""info"</td></tr>"]
-  in
+  let attachment ts =
+    let ts = (ts : inline t :> Html_types.td_content_fun t) in
+    [%html "<tr><td>" ts "</td></tr>"] in
   function
   | [] -> []
-  | ts -> [ Html.table (List.mapi attachment ts) ]
+  | ts -> [ Html.table (List.map attachment ts) ]
 
 let body ~sender ?hidden_summary entries =
   let entries = match entries with
@@ -94,4 +92,3 @@ a { text-decoration: none; }
     "</body>
 </html>
 "]
-

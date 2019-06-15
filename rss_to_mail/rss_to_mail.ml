@@ -1,7 +1,8 @@
 type mail = Mail_body.t = {
-  sender		: string;
-  subject		: string;
-  body		: string
+  sender    : string;
+  subject   : string;
+  body_html : string;
+  body_text : string;
 }
 
 (** [last_update * seen_ids] *)
