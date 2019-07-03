@@ -168,39 +168,42 @@ let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
    | [] -> ());
   Lwt.return Persistent_data.{ feed_datas; unsent_mails }
 
-let check_config_file f =
-  try ignore (parse_config_file f)
+(* CLI *)
+
+let run_command config_file () = Lwt_main.run (with_feed_datas config_file run)
+
+let check_config_command config_file () =
+  try ignore (parse_config_file config_file)
   with Failure msg ->
     Printf.eprintf "The configuration file contains some errors:\n  %s\n" msg;
     exit 1
 
-let run check_config config_file () =
-  if check_config
-  then check_config_file config_file
-  else Lwt_main.run (with_feed_datas config_file run)
+open Cmdliner
+open Arg
+
+let verbose =
+  let setup_log level =
+    Logs.set_level level;
+    Logs.set_reporter (Logs_fmt.reporter ())
+  in
+  Term.(const setup_log $ Logs_cli.level ())
+
+let config_file =
+  let doc = "Configuration file" in
+  value & pos 0 string "feeds.sexp" & info [] ~docv:"CONFIG" ~doc
+
+let run_term =
+  let doc = "Fetch a list of feeds and send a mail for new entries" in
+  Term.(const run_command $ config_file $ verbose),
+  Term.info "run" ~doc
+
+let check_config_term =
+  let doc = "Check the configuration file for errors and exit" in
+  Term.(const check_config_command $ config_file $ verbose),
+  Term.info "check-config" ~doc
 
 let () =
-  let open Cmdliner in
-  let open Arg in
-  let check_config =
-    let doc = "Check the configuration file for errors and exit" in
-    value & flag & info [ "check-config" ] ~doc
-
-  and config =
-    let doc = "Configuration file" in
-    value & pos 0 string "feeds.sexp" & info [] ~docv:"CONFIG" ~doc
-
-  and verbose =
-    let setup_log level =
-      Logs.set_level level;
-      Logs.set_reporter (Logs_fmt.reporter ())
-    in
-    Term.(const setup_log $ Logs_cli.level ())
-  in
-
-  let term =
-    let doc = "Fetch a list of feeds and send a mail for new entries" in
-    Term.(const run $ check_config $ config $ verbose),
-    Term.info "rss_to_mail" ~doc
-  in
-  Term.exit @@ Term.eval term
+  Term.exit @@ Term.eval_choice run_term [
+    run_term;
+    check_config_term;
+  ]
