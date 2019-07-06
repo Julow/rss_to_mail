@@ -6,8 +6,10 @@ let rec get ?(max_redirect=5) url =
   let open Cohttp in
   let%lwt resp, body = Cohttp_lwt_unix.Client.get url in
   match resp.status with
-  | (`Moved_permanently
+  | ( `Multiple_choices
+    | `Moved_permanently
     | `Found
+    | `See_other
     | `Temporary_redirect)
     when max_redirect > 0 ->
     let max_redirect = max_redirect - 1 in
