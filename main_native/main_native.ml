@@ -4,49 +4,13 @@ let pooled n f =
   let pool = Lwt_pool.create n (fun _ -> Lwt.return_unit) in
   fun x -> Lwt_pool.use pool (fun () -> f x)
 
-module Fetch =
+module PooledFetch =
 struct
 
-  (** Wrapper around cohttp's [get] that support following redirections
-      		If there is chain of more than [max_redirect] redirections,
-      		simply returns the last response (with status 30x).
-      		Same if there is no "Location" header *)
-  let rec get ?(max_redirect=5) url =
-    let open Cohttp in
-    let%lwt resp, body = Cohttp_lwt_unix.Client.get url in
-    match resp.status with
-    | (`Moved_permanently
-      | `Found
-      | `Temporary_redirect)
-      when max_redirect > 0 ->
-      let max_redirect = max_redirect - 1 in
-      let headers = Response.headers resp in
-      begin match Header.get headers "location" with
-        | Some url		-> get ~max_redirect (Uri.of_string url)
-        | None			-> Lwt.return (resp, body)
-      end
-    | _ -> Lwt.return (resp, body)
-
-  type error = [ `System of string | `Http of int | `Unknown ]
-
-  let fetch url =
-    Logs.info (fun fmt -> fmt "Fetching %a" Uri.pp url);
-    match%lwt get url with
-    | exception Failure msg					->
-      Lwt.return (Error (`System msg))
-    | exception Unix.Unix_error (_, msg, _)	->
-      Lwt.return (Error (`System msg))
-    | exception _ ->
-      Lwt.return (Error (`Unknown))
-    | { status = `OK; _ }, body	->
-      let%lwt body = Cohttp_lwt.Body.to_string body in
-      Lwt.return (Ok body)
-    | { status; _ }, _			->
-      let code = Cohttp.Code.code_of_status status in
-      Lwt.return (Error (`Http code))
+  type error = Fetch.error
 
   (** at most 5 fetch at once *)
-  let fetch = pooled 5 fetch
+  let fetch = pooled 5 Fetch.fetch
 
 end
 
@@ -57,12 +21,8 @@ struct
   let log_i ~url msg = Logs.info (fun fmt -> fmt "%s: %s" url msg)
 
   let log_error url = function
-    | `Fetch_error (`Http code) ->
-      log_e ~url (sprintf "Http error: %d" code)
-    | `Fetch_error (`System msg) ->
-      log_e ~url (sprintf "Error: %s" msg)
-    | `Fetch_error `Unknown ->
-      log_e ~url "Unknown error"
+    | `Fetch_error err ->
+      log_e ~url (Fetch.error_to_string err)
     | `Parsing_error ((line, col), msg) ->
       log_e ~url (sprintf "Parsing error: %d:%d: %s" line col msg)
 
@@ -81,7 +41,7 @@ struct
 
 end
 
-module Rss_to_mail = Rss_to_mail.Make (Fetch) (Log) (Feed_datas)
+module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Log) (Feed_datas)
 
 let lwt_timeout t r =
   let timeout =
@@ -178,8 +138,12 @@ let check_config_command config_file () =
     Printf.eprintf "The configuration file contains some errors:\n  %s\n" msg;
     exit 1
 
+let run_scraper_command src () =
+  match Lwt_main.run (Run_scraper.run src) with
+  | Ok () -> ()
+  | Error e -> Logs.err (fun fmt -> fmt "%s: %s" src e)
+
 open Cmdliner
-open Arg
 
 let verbose =
   let setup_log level =
@@ -190,7 +154,7 @@ let verbose =
 
 let config_file =
   let doc = "Configuration file" in
-  value & pos 0 string "feeds.sexp" & info [] ~docv:"CONFIG" ~doc
+  Arg.(value & pos 0 string "feeds.sexp" & info [] ~docv:"CONFIG" ~doc)
 
 let run_term =
   let doc = "Fetch a list of feeds and send a mail for new entries" in
@@ -202,8 +166,19 @@ let check_config_term =
   Term.(const check_config_command $ config_file $ verbose),
   Term.info "check-config" ~doc
 
+let run_scraper_term =
+  let source_arg =
+    let doc = "Url to an html web page or path to local file." in
+    Arg.(required & pos 0 (some string) None & info [] ~docv:"SRC" ~doc)
+  in
+  let doc = "Run a scraper against a web page. Useful for degugging. \
+             Read the scraper definition from stdin." in
+  Term.(const run_scraper_command $ source_arg $ verbose),
+  Term.info "run-scraper" ~doc
+
 let () =
   Term.exit @@ Term.eval_choice run_term [
     run_term;
     check_config_term;
+    run_scraper_term;
   ]
