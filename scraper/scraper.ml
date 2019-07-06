@@ -1,16 +1,19 @@
 open Feed
 
-type entry = Title | Link
+type entry = Title | Link | Summary
 type feed = Feed_title | Feed_icon | Entry of entry Scrap.t list
 
 let text node = String.concat "" (Soup.texts node)
 
 let scrap_entry node t = function
-  | Title			->
+  | Title ->
     Feed.{ t with title = Some (text node) }
-  | Link			->
+  | Link ->
     let link = Soup.attribute "href" node |> Option.map Uri.of_string in
     { t with link }
+  | Summary ->
+    let summary = String.concat "\n" (Soup.trimmed_texts node) in
+    { t with summary = Some (Text summary) }
 
 let scrap_feed node (title, icon, entries) = function
   | Feed_title	-> Some (text node), icon, entries

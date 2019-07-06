@@ -53,6 +53,7 @@ let parse_scraper =
         function
         | `Atom "title"		-> Title
         | `Atom "link"		-> Link
+        | `Atom "summary" -> Summary
         | _					-> failwith "Invalid target"
       in
       Entry (List.map (scraper ~target) ts)
