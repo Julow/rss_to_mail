@@ -2,6 +2,8 @@
     	and serializer/deserializer for the `feed_datas.sexp` persistent file
     	Used by main_native *)
 
+open Std
+
 type sexp = [ `Atom of string | `List of sexp list ]
 
 let record field =
@@ -206,64 +208,78 @@ let load_feeds (sexp : sexp) =
   check_duplicate feeds;
   { server; server_auth; from_address; to_address; feeds }
 
-type feed_datas = {
-  feed_datas : (int64 * SeenSet.t) StringMap.t;
-  unsent_mails : Rss_to_mail.mail list
-}
+open Sexplib.Std
 
-let empty_datas = { feed_datas = StringMap.empty; unsent_mails = [] }
+module Feed_datas =
+struct
 
-let load_feed_datas (sexp : sexp) =
-  let parse_ids set =
-    function
-    | `List [ `Atom id; `Atom date ] ->
-      SeenSet.remove (Int64.of_string date) id set
-    | `Atom id	-> SeenSet.add id set
-    | `List _	-> failwith ""
-  in
-  let parse_data m =
-    function
-    | `List [ `Atom url; `Atom date; `List ids ] ->
-      let ids = List.fold_left parse_ids SeenSet.empty ids in
-      StringMap.add url (Int64.of_string date, ids) m
-    | _ -> failwith ""
-  in
-  let parse_unsent =
-    function
-    | `List [ `Atom sender; `Atom subject; `Atom body_html ] ->
-      Rss_to_mail.{ sender; subject; body_html; body_text = "" }
-    | `List [ `Atom sender; `Atom subject; `Atom body_html; `Atom body_text ] ->
-      Rss_to_mail.{ sender; subject; body_html; body_text }
-    | _ -> failwith ""
-  in
-  let feed_datas =
-    record "feed_data" sexp
-    |> Option.map_or [] (list id)
-    |> List.fold_left parse_data empty_datas.feed_datas
-  and unsent_mails =
-    record "unsent" sexp
-    |> Option.map_or [] (list (List.map parse_unsent))
-  in
-  { feed_datas; unsent_mails }
+  module Raw =
+  struct
 
-let save_feed_datas { feed_datas; unsent_mails } : sexp =
-  let gen_id id removed lst =
-    match removed with
-    | Some date		->
-      let date = Int64.to_string date in
-      `List [ `Atom id; `Atom date ] :: lst
-    | None			-> `Atom id :: lst
-  in
-  let gen_data uri (date, ids) lst =
-    `List [ `Atom uri;
-            `Atom (Int64.to_string date);
-            `List (SeenSet.fold gen_id ids []) ] :: lst
-  and gen_unsent Rss_to_mail.{ sender; subject; body_html; body_text } =
-    `List [ `Atom sender; `Atom subject; `Atom body_html; `Atom body_text ]
-  in
-  let feed_datas = StringMap.fold gen_data feed_datas []
-  and unsent_mails = List.map gen_unsent unsent_mails in
-  `List [
-      `List [ `Atom "feed_data"; `List feed_datas ];
-      `List [ `Atom "unsent"; `List unsent_mails ]
-    ]
+    type unsent_mail = Rss_to_mail.mail = {
+      sender : string;
+      subject : string;
+      body_html : string;
+      body_text : string;
+    }
+    [@@deriving sexp]
+
+    type seenset = (string * int64 option) list
+    [@@deriving sexp]
+
+    type feed_data = string * int64 * seenset
+    [@@deriving sexp]
+
+    type t = {
+      feed_data : feed_data list;
+      unsent_mails : unsent_mail list
+    }
+    [@@deriving sexp]
+
+    let parse_file name =
+      match t_of_sexp (Sexplib.Sexp.load_sexp name) with
+      | exception Failure msg -> Error msg
+      | exception Sexplib0.Sexp_conv.Of_sexp_error (Failure msg, _) -> Error msg
+      | exception Sexplib.Sexp.Parse_error { err_msg; _ } -> Error err_msg
+      | t -> Ok t
+
+    let save_to_file name t =
+      Sexplib.Sexp.save_mach name (sexp_of_t t)
+
+  end
+
+  module StringMap = Map.Make (String)
+
+  type t = {
+    feed_datas : (int64 * SeenSet.t) StringMap.t;
+    unsent_mails : Rss_to_mail.mail list;
+  }
+
+  let empty = { feed_datas = StringMap.empty; unsent_mails = [] }
+
+  let gen_seenset acc = function
+    | id, None -> SeenSet.add id acc
+    | id, Some tm -> SeenSet.remove tm id acc
+
+  let gen_datas acc (url, tm, seens) =
+    let seens = List.fold_left gen_seenset SeenSet.empty seens in
+    StringMap.add url (tm, seens) acc
+
+  let ungen_seenset id rem acc =
+    (id, rem) :: acc
+
+  let ungen_datas url (tm, seens) acc =
+    (url, tm, SeenSet.fold ungen_seenset seens []) :: acc
+
+  let parse_file name =
+    match Raw.parse_file name with
+    | Error _ as err -> err
+    | Ok Raw.{ feed_data; unsent_mails } ->
+      let feed_datas = List.fold_left gen_datas StringMap.empty feed_data in
+      Ok { feed_datas; unsent_mails }
+
+  let save_to_file name { feed_datas; unsent_mails } =
+    let feed_data = StringMap.fold ungen_datas feed_datas [] in
+    Raw.save_to_file name Raw.{ feed_data; unsent_mails }
+
+end

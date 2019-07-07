@@ -71,10 +71,10 @@ let print_feed (feed, options) =
   print_options options
 
 let () =
-  let { Persistent_data.feed_datas; _ } =
-    match CCSexp.parse_file "feed_datas.sexp" with
-    | Error _ -> failwith "Error parsing datas"
-    | Ok sexp -> Persistent_data.load_feed_datas sexp
+  let feed_datas =
+    match Persistent_data.Feed_datas.parse_file "feed_datas.sexp" with
+    | Error msg -> failwith ("Error parsing datas: " ^ msg)
+    | Ok { feed_datas; _ } -> feed_datas
   in
   let { Persistent_data.feeds; _ } =
     match CCSexp.parse_file "feeds.sexp" with

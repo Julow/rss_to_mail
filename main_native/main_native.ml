@@ -92,28 +92,7 @@ let send_mails ~random_seed (conf : Persistent_data.config) mails =
   |> Lwt_list.mapi_p (fun i t -> send_pooled (i, t))
   |> Lwt.map (List.filter_map id)
 
-let feed_datas_file = "feed_datas.sexp"
-
-let parse_config_file config_file =
-  let err msg = failwith (sprintf "Error: %s: %s" config_file msg) in
-  match CCSexp.parse_file config_file with
-  | exception Sys_error msg	-> err msg
-  | Error msg					-> err msg
-  | Ok sexp						-> Persistent_data.load_feeds sexp
-
-let with_feed_datas config_file f =
-  let config = parse_config_file config_file in
-  let datas =
-    match CCSexp.parse_file feed_datas_file with
-    | exception Sys_error _ -> Persistent_data.empty_datas
-    | Error _ -> Persistent_data.empty_datas
-    | Ok sexp -> Persistent_data.load_feed_datas sexp
-  in
-  let%lwt datas = f config datas in
-  CCSexp.to_file feed_datas_file (Persistent_data.save_feed_datas datas);
-  Lwt.return_unit
-
-let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
+let run (conf : Persistent_data.config) (datas : Persistent_data.Feed_datas.t) =
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = Unix.time () |> Int64.of_float in
   let%lwt feed_datas, mails = Rss_to_mail.check_all ~now datas.feed_datas conf.feeds in
@@ -126,11 +105,32 @@ let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
    | _ :: _ -> Logs.warn (fun fmt ->
         fmt "%d mails could not be sent" (List.length unsent_mails))
    | [] -> ());
-  Lwt.return Persistent_data.{ feed_datas; unsent_mails }
+  Lwt.return Persistent_data.Feed_datas.{ feed_datas; unsent_mails }
+
+let parse_config_file config_file =
+  let err msg = failwith (sprintf "Error: %s: %s" config_file msg) in
+  match CCSexp.parse_file config_file with
+  | exception Sys_error msg	-> err msg
+  | Error msg					-> err msg
+  | Ok sexp						-> Persistent_data.load_feeds sexp
+
+let parse_datas_file fname =
+  match Persistent_data.Feed_datas.parse_file fname with
+  | Error _ -> Persistent_data.Feed_datas.empty
+  | Ok t -> t
+
+let feed_datas_file = "feed_datas.sexp"
+
+let run config_file =
+  let config = parse_config_file config_file in
+  let datas = parse_datas_file feed_datas_file in
+  let%lwt datas = run config datas in
+  Persistent_data.Feed_datas.save_to_file feed_datas_file datas;
+  Lwt.return_unit
 
 (* CLI *)
 
-let run_command config_file () = Lwt_main.run (with_feed_datas config_file run)
+let run_command config_file () = Lwt_main.run (run config_file)
 
 let check_config_command config_file () =
   try ignore (parse_config_file config_file)
