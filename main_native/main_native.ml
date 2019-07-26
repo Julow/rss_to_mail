@@ -43,10 +43,10 @@ end
 
 module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Log) (Feed_datas)
 
+exception Timeout
+
 let lwt_timeout t r =
-  let timeout =
-    Lwt.bind (Lwt_unix.sleep t) (fun () -> Lwt.fail_with "timeout")
-  in
+  let timeout = Lwt.bind (Lwt_unix.sleep t) (fun () -> Lwt.fail Timeout) in
   Lwt.pick [ r; timeout ]
 
 (** Send a list of mail to [to_]
@@ -80,10 +80,16 @@ let send_mails ~random_seed (conf : Persistent_data.config) mails =
       ] in
       Client_unix.send_mail ~auth ~server ~from ~to_ ~headers t.subject body
       |> Lwt.map (fun () -> None)
-      |> lwt_timeout 5.
+      |> lwt_timeout 15.
     in
-    Lwt.catch do_send (fun _ ->
-        Logs.err (fun fmt -> fmt "Failed sending mail \"%s\"" t.subject);
+    Lwt.catch do_send (fun exn ->
+        let msg =
+          match exn with
+          | Timeout -> "Aborted because too slow"
+          | exn -> "Exception: " ^ Printexc.to_string exn
+        in
+        Logs.err (fun fmt ->
+            fmt "Failed sending mail \"%s\"\n%s" t.subject msg);
         Lwt.return (Some t))
   in
   (* At most 2 mails sending in parallel *)
