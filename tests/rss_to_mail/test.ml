@@ -24,12 +24,12 @@ struct
 
   let log_error url = function
     | `Fetch_error code					->
-      printf "%s: Fetch error %d" url code
+      printf "Log: %s: Fetch error %d\n" url code
     | `Parsing_error ((line, col), msg)	->
-      printf "%s: Parsing error (line %d, col %d)\n%s\n" url line col msg
+      printf "Log: %s: Parsing error (line %d, col %d)\n%s\n" url line col msg
 
   let log_updated url ~entries =
-    printf "%s: %d entries" url entries
+    printf "Log: %s: %d entries\n" url entries
 
 end
 
@@ -82,6 +82,7 @@ let () =
     | Ok sexp -> Persistent_data.load_feeds sexp
   in
   List.iter print_feed feeds;
+  printf "\n# Done parsing\n\n";
   let _, mails =
     Rss_to_mail.check_all ~now feed_datas feeds
     |> Lwt_main.run

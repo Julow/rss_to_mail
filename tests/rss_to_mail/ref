@@ -38,7 +38,29 @@ Options: (refresh 2.000000)
 # scraper dune_blog.html
 
 Options: (refresh 2.000000) (label OCaml)
-atom.atom: 1 entries./atom.atom: 0 entries././rss.rss: 1 entries./././rss.rss: 1 entriesfirefox.html: 32 entriesempty.rss: 0 entriesno_title.rss: 1 entriescontent_type.atom: 12 entriesdune_blog.html: 5 entriesFROM: Atom Test
+
+# ./empty.rss
+
+Options: (refresh 2.000000) (label Lbl)
+
+# ././empty.rss
+
+Options: (refresh 2.000000) (label Lbl)
+
+# Done parsing
+
+Log: atom.atom: 1 entries
+Log: ./atom.atom: 0 entries
+Log: ././rss.rss: 1 entries
+Log: ./././rss.rss: 1 entries
+Log: firefox.html: 32 entries
+Log: empty.rss: 0 entries
+Log: no_title.rss: 1 entries
+Log: content_type.atom: 12 entries
+Log: dune_blog.html: 5 entries
+Log: ./empty.rss: 0 entries
+Log: ././empty.rss: 0 entries
+FROM: Atom Test
 SUBJECT: title
 BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">

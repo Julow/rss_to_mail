@@ -163,6 +163,17 @@ let load_feeds (sexp : sexp) =
     | _ -> failwith "feeds: Syntax error"
   in
 
+  let parse_feeds ~default_opts t =
+    let parse acc = function
+      | `List (`Atom "with-options" :: `List opts :: feeds) ->
+        let default_opts = parse_options default_opts opts in
+        List.rev_map (parse_feed ~default_opts) feeds @ acc
+      | feed ->
+        parse_feed ~default_opts feed :: acc
+    in
+    list (List.fold_left parse []) t |> List.rev
+  in
+
   let parse_smtp t =
     let server =
       match record "server" t with
@@ -193,7 +204,7 @@ let load_feeds (sexp : sexp) =
     Feed_desc.make_options ?refresh ()
   in
   let feeds = match record "feeds" sexp with
-    | Some t	-> list (List.map (parse_feed ~default_opts)) t
+    | Some t	-> parse_feeds ~default_opts t
     | None		-> failwith "Missing field `feeds`"
   and server, server_auth, from_address = match record "smtp" sexp with
     | Some t	-> parse_smtp t

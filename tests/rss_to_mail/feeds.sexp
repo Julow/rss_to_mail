@@ -26,4 +26,7 @@
 				(R ("h1" (T title)))
 			))))
 		(label "OCaml"))
+  (with-options ((label "Lbl"))
+   ./empty.rss
+   ././empty.rss)
 )))

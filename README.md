@@ -9,7 +9,10 @@ Send a mail for new entries on an RSS or Atom feeds
  (address "destination email address")
  (feeds
   ((http://feed_url (option1 value) (option2 value) ...)
-   (http://feed_url2 options ...))))
+   (http://feed_url2 options ...)
+   (with-options ((option1 value) ...)
+    feed1
+    (feed2 options ...)))))
 ```
 
 #### Options
