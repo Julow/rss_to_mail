@@ -16,5 +16,7 @@ depends: [
 	"tyxml"
 	"tyxml-ppx"
 	"calendar"
+	"colombe"
+	"sendmail-lwt"
 ]
 build: [[ "dune" "build" "-p" name "-j" jobs ]]
