@@ -99,7 +99,7 @@ let stream_strings_to_lines t =
         nl := true;
         r
 
-let send_mail (conf : Persistent_data.config) _ body =
+let send_mail (conf : Persistent_data.config) body =
   let open Colombe in
   let hostname, port = conf.server in
   let hostname = Domain_name.of_string_exn hostname
@@ -125,6 +125,7 @@ let send_mails ~random_seed conf mails =
     Logs.debug (fun fmt -> fmt "Sending \"%s\" \"%s\"" t.sender t.subject);
     let boundary = "rss_to_mail-boundary-" ^ random_seed in
     let headers = [
+      Printf.sprintf "From: %s <%s>" t.sender conf.Persistent_data.from_address;
       "Subject: " ^ t.subject;
       "Content-Type: multipart/alternative; boundary=" ^ boundary;
       "X-Entity-Ref-ID: " ^ random_seed ^ string_of_int i;
@@ -148,7 +149,7 @@ let send_mails ~random_seed conf mails =
         stream_of_strings [ "--" ^ boundary ^ "--"; "" ]
       ]
     in
-    send_mail conf t.sender body
+    send_mail conf body
   in
   (* At most 2 mails sending in parallel *)
   let send_pooled = pooled 2 send in
