@@ -66,17 +66,47 @@ let stream_of_strings lst =
   let ptr = ref lst in
   fun () ->
     match !ptr with
-    | hd :: tl -> ptr := tl; Some (hd, 0, String.length hd)
+    | hd :: tl ->
+      ptr := tl;
+      Some (hd, 0, String.length hd)
     | [] -> None
 
-let send_mail (conf : Persistent_data.config) sender body =
+let stream_of_multiline_string s =
+  let i = ref 0 in
+  fun () ->
+    let off = !i in
+    if off >= String.length s then None
+    else
+      let next =
+        match String.index_from s off '\n' with
+        | exception Not_found -> String.length s
+        | next -> next
+      in
+      i := next + 1;
+      Some (s, off, next - off)
+
+(** Yields "\r\n" after every elements in [t] *)
+let stream_strings_to_lines t =
+  let nl = ref false in
+  fun () ->
+    if !nl then (
+      nl := false;
+      Some ("\r\n", 0, 2)
+    )
+    else match t () with
+      | None -> None
+      | Some _ as r ->
+        nl := true;
+        r
+
+let send_mail (conf : Persistent_data.config) _ body =
   let open Colombe in
   let hostname, port = conf.server in
   let hostname = Domain_name.of_string_exn hostname
   and domain = Domain.of_string_exn hostname in
   let from, _ =
     Reverse_path.Parser.of_string
-      (Printf.sprintf "%s <%s>" sender conf.from_address)
+      (Printf.sprintf "<%s>" conf.from_address)
   in
   let recipients = [
     fst @@
@@ -95,22 +125,27 @@ let send_mails ~random_seed conf mails =
     Logs.debug (fun fmt -> fmt "Sending \"%s\" \"%s\"" t.sender t.subject);
     let boundary = "rss_to_mail-boundary-" ^ random_seed in
     let headers = [
+      "Subject: " ^ t.subject;
       "Content-Type: multipart/alternative; boundary=" ^ boundary;
       "X-Entity-Ref-ID: " ^ random_seed ^ string_of_int i;
     ] in
     let part content_type content =
-      stream_of_strings @@
-      ("--" ^ boundary) :: ("Content-Type: " ^ content_type) :: "" ::
-      (* TODO: Don't split, the stream could return (buf, offset, len) *)
-      String.split_on_char '\n' content
+      stream_concat [
+        stream_of_strings [
+          "--" ^ boundary;
+          "Content-Type: " ^ content_type;
+          "";
+        ];
+        stream_of_multiline_string content
+      ]
     in
     let body =
+      stream_strings_to_lines @@
       stream_concat [
-        stream_of_strings [ Printf.sprintf "Subject: %s" t.subject ];
         stream_of_strings headers;
         part "text/plain" t.body_text;
         part "text/html" t.body_html;
-        stream_of_strings [ "--" ^ boundary ^ "--"; "."; "" ]
+        stream_of_strings [ "--" ^ boundary ^ "--"; "" ]
       ]
     in
     send_mail conf t.sender body
