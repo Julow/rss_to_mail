@@ -124,6 +124,9 @@ let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
   let now = Unix.time () |> Int64.of_float in
   let%lwt feed_datas, mails = Rss_to_mail.check_all ~now datas.feed_datas conf.feeds in
   Logs.app (fun fmt -> fmt "%d new entries" (List.length mails));
+  let unsent_count = List.length datas.unsent_mails in
+  if unsent_count > 0 then
+    Logs.app (fun fmt -> fmt "%d unsent mails to retry" unsent_count);
   let%lwt unsent_mails =
     let random_seed = Int64.to_string now in
     send_mails ~random_seed conf (datas.unsent_mails @ mails)
