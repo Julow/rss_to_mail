@@ -49,53 +49,123 @@ let lwt_timeout t r =
   let timeout = Lwt.bind (Lwt_unix.sleep t) (fun () -> Lwt.fail Timeout) in
   Lwt.pick [ r; timeout ]
 
+let stream_concat streams =
+  let streams = ref streams in
+  let rec next () =
+    match !streams with
+    | s :: tl ->
+        begin match s () with
+        | Some _ as r -> r
+        | None -> streams := tl; next ()
+        end
+    | [] -> None
+  in
+  next
+
+let stream_of_strings lst =
+  let ptr = ref lst in
+  fun () ->
+    match !ptr with
+    | hd :: tl ->
+      ptr := tl;
+      Some (hd, 0, String.length hd)
+    | [] -> None
+
+let stream_of_multiline_string s =
+  let i = ref 0 in
+  fun () ->
+    let off = !i in
+    if off >= String.length s then None
+    else
+      let next =
+        match String.index_from s off '\n' with
+        | exception Not_found -> String.length s
+        | next -> next
+      in
+      i := next + 1;
+      Some (s, off, next - off)
+
+(** Yields "\r\n" after every elements in [t] *)
+let stream_strings_to_lines t =
+  let nl = ref false in
+  fun () ->
+    if !nl then (
+      nl := false;
+      Some ("\r\n", 0, 2)
+    )
+    else match t () with
+      | None -> None
+      | Some _ as r ->
+        nl := true;
+        r
+
+let send_mail (conf : Persistent_data.config) body =
+  let open Colombe in
+  let hostname, port = conf.server in
+  let hostname = Domain_name.of_string_exn hostname
+  and domain = Domain.of_string_exn hostname in
+  let from, _ =
+    Reverse_path.Parser.of_string
+      (Printf.sprintf "<%s>" conf.from_address)
+  in
+  let recipients = [
+    fst @@
+    Forward_path.Parser.of_string
+      (Printf.sprintf "<%s>" conf.to_address)
+  ] in
+  let `Plain (username, password) = conf.server_auth in
+  let auth = Some (Auth.make ~username password) in
+  let%lwt authenticator = X509_lwt.authenticator `No_authentication_I'M_STUPID in
+  Sendmail_lwt.run ~hostname ~port ~domain ~authenticator ~from ~recipients auth body
+
 (** Send a list of mail to [to_]
     	Returns the list of unsent emails *)
-let send_mails ~random_seed (conf : Persistent_data.config) mails =
+let send_mails ~random_seed conf mails =
   let send (i, (t : Rss_to_mail.mail)) =
     Logs.debug (fun fmt -> fmt "Sending \"%s\" \"%s\"" t.sender t.subject);
-    let server = conf.server in
-    let auth =
-      let encode s = Base64.encode_string ~pad:true s in
-      let `Plain (login, password) = conf.server_auth in
-      encode login, encode password
-    in
-    let from = Some t.sender, conf.from_address in
-    let to_ = None, conf.to_address in
     let boundary = "rss_to_mail-boundary-" ^ random_seed in
     let headers = [
+      Printf.sprintf "From: %s <%s>" t.sender conf.Persistent_data.from_address;
+      "Subject: " ^ t.subject;
       "Content-Type: multipart/alternative; boundary=" ^ boundary;
       "X-Entity-Ref-ID: " ^ random_seed ^ string_of_int i;
     ] in
-    let do_send () =
-      let part content_type content =
-        Client_unix.stream_of_list @@
-        ("--" ^ boundary) :: ("Content-Type: " ^ content_type) :: "" ::
-        String.split_on_char '\n' content
-      in
-      let body = Client_unix.stream_concat [
+    let part content_type content =
+      stream_concat [
+        stream_of_strings [
+          "--" ^ boundary;
+          "Content-Type: " ^ content_type;
+          "";
+        ];
+        stream_of_multiline_string content
+      ]
+    in
+    let body =
+      stream_strings_to_lines @@
+      stream_concat [
+        stream_of_strings headers;
         part "text/plain" t.body_text;
         part "text/html" t.body_html;
-        Client_unix.stream_of_list [ "--" ^ boundary ^ "--" ]
-      ] in
-      Client_unix.send_mail ~auth ~server ~from ~to_ ~headers t.subject body
-      |> Lwt.map (fun () -> None)
-      |> lwt_timeout 15.
+        stream_of_strings [ "--" ^ boundary ^ "--"; "" ]
+      ]
     in
-    Lwt.catch do_send (fun exn ->
-        let msg =
-          match exn with
-          | Timeout -> "Aborted because too slow"
-          | exn -> "Exception: " ^ Printexc.to_string exn
-        in
-        Logs.err (fun fmt ->
-            fmt "Failed sending mail \"%s\"\n%s" t.subject msg);
-        Lwt.return (Some t))
+    send_mail conf body
   in
   (* At most 2 mails sending in parallel *)
   let send_pooled = pooled 2 send in
   mails
-  |> Lwt_list.mapi_p (fun i t -> send_pooled (i, t))
+  |> Lwt_list.mapi_p (fun i t ->
+      match%lwt send_pooled (i, t) |> lwt_timeout 15. with
+      | exception Timeout ->
+        Logs.err (fun fmt -> fmt "Timed out sending mail \"%s\"" t.subject);
+        Lwt.return_some t
+      | Error e ->
+        Logs.err (fun fmt ->
+            fmt "Failed sending mail \"%s\":\n %a"
+              t.subject Sendmail_lwt.pp_error e);
+        Lwt.return_some t
+      | Ok () -> Lwt.return_none
+    )
   |> Lwt.map (List.filter_map id)
 
 let feed_datas_file = "feed_datas.sexp"
@@ -124,6 +194,9 @@ let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
   let now = Unix.time () |> Int64.of_float in
   let%lwt feed_datas, mails = Rss_to_mail.check_all ~now datas.feed_datas conf.feeds in
   Logs.app (fun fmt -> fmt "%d new entries" (List.length mails));
+  let unsent_count = List.length datas.unsent_mails in
+  if unsent_count > 0 then
+    Logs.app (fun fmt -> fmt "%d unsent mails to retry" unsent_count);
   let%lwt unsent_mails =
     let random_seed = Int64.to_string now in
     send_mails ~random_seed conf (datas.unsent_mails @ mails)
