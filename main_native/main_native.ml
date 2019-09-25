@@ -209,9 +209,10 @@ let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
 
 (* CLI *)
 
-let run_command config_file () = Lwt_main.run (with_feed_datas config_file run)
+let run_command (`Config, config_file) () =
+  Lwt_main.run (with_feed_datas config_file run)
 
-let check_config_command config_file () =
+let check_config_command (`Config, config_file) () =
   try ignore (parse_config_file config_file)
   with Failure msg ->
     Printf.eprintf "The configuration file contains some errors:\n  %s\n" msg;
@@ -224,6 +225,9 @@ let run_scraper_command src () =
 
 open Cmdliner
 
+let tagged tag arg =
+  Term.app (Term.const (fun v -> tag, v)) (Arg.value arg)
+
 let verbose =
   let setup_log level =
     Logs.set_level level;
@@ -233,7 +237,7 @@ let verbose =
 
 let config_file =
   let doc = "Configuration file" in
-  Arg.(value & pos 0 string "feeds.sexp" & info [] ~docv:"CONFIG" ~doc)
+  Arg.(tagged `Config & pos 0 string "feeds.sexp" & info [] ~docv:"CONFIG" ~doc)
 
 let run_term =
   let doc = "Fetch a list of feeds and send a mail for new entries" in
