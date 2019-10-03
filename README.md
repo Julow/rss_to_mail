@@ -1,6 +1,6 @@
 # RSS to Mail
 
-Send a mail for new entries on an RSS or Atom feeds
+Send a mail for new entries on RSS and Atom feeds
 
 ### Config
 
@@ -17,7 +17,7 @@ Send a mail for new entries on an RSS or Atom feeds
 
 #### Options
 
-- `(label "...")` Inserted into the body of the message: " with label ..."
+- `(label "...")` Inserted in the header line: " with label ..."
 - `(title "...")` Override the feed title
 - `(refresh 1.5)` Feed is refreshed every 1 hour and 30 minutes
 	The default can be controled with the `default_refresh` global option, by default 6 hours
@@ -29,9 +29,9 @@ Send a mail for new entries on an RSS or Atom feeds
 - `(filter (not "..."))` Negative filter. Keep entries that do not have "..." in their title.
 - `(filter "..." (not "..."))` Keep entries that match at least one of the filter
 
-#### Other kind of feeds
+#### Other kind of feed
 
-- `scraper` Custom scraper
+- `scraper` Parse entries from HTML documents
 
 	`((scraper http://url (scraper definition)) options ...)`
 
@@ -41,20 +41,27 @@ Send a mail for new entries on an RSS or Atom feeds
 
 ### Install
 
-Depends on `swaks`, install it with your package manager.
-
-Then, pin this repo with opam:
+Using OPAM:
 
 ```shell
-opam pin add rss_to_mail git://github.com/Julow/rss_to_mail
+opam pin add rss_to_mail https://github.com/olleolleolle/rss_to_mail.git
 ```
 
 ### Usage
 
 ```shell
-rss_to_mail [config_file]
+rss_to_mail check-config [CONFIG]
+   Check the configuration file for errors and exit
+
+rss_to_mail run [CONFIG]
+   Fetch a list of feeds and send a mail for new entries
+
+rss_to_mail run-scraper SRC
+   Run a scraper against a web page. Useful for degugging. Read the
+   scraper definition from stdin.
+   SRC is a path or an url
 ```
 
-By default, the config file is `feeds.sexp`.
+By default, the config file is `./feeds.sexp`.
 
 An other file, `feed_datas.sexp`, will be created in the current directory.
