@@ -82,6 +82,7 @@ a { text-decoration: none; }
 .entry_title a { border-bottom: 1px dashed black; }
 .entry_header { margin-top: 0; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
+.content img { max-width: 100%; max-height: auto; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
     </style>
     <title>" (Html.txt sender) "</title>

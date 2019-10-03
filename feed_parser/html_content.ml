@@ -10,6 +10,40 @@ open Tyxml
 
 let make_attribs = List.map (fun ((_, k), v) -> Html.Unsafe.string_attrib k v)
 
+let map_css_styles f styles =
+  let buf = Buffer.create (String.length styles) in
+  String.split_on_char ';' styles
+  |> List.iter (fun s ->
+      match String.index_opt s ':' with
+      | None -> Buffer.add_string buf s
+      | Some i ->
+        let key = String.trim (String.sub s 0 i) in
+        let value = String.sub s (i + 1) (String.length s - i - 1) in
+        let key, value = f key value in
+        Buffer.add_string buf key;
+        Buffer.add_char buf ':';
+        Buffer.add_string buf value;
+        Buffer.add_char buf ';'
+    );
+  Buffer.contents buf
+
+let filter_attrs tag attrs =
+  List.filter_map (fun ((_, key as name), value as attr) ->
+      match tag, key with
+      (* Remove width and height attributes on images *)
+      | "img", ("width" | "height") -> None
+      | _, "style" ->
+        let map_style s v =
+          match s with
+          (* Turn width and height styles into max-width and max-height *)
+          | "width" -> "max-width", v
+          | "height" -> "max-height", v
+          | _ -> s, v
+        in
+        Some (name, map_css_styles map_style value)
+      | _, _ -> Some attr
+    ) attrs
+
 let of_xml =
   let rec make_node = function
     | Text txt -> Html.txt txt
@@ -31,6 +65,7 @@ let of_string contents =
   |> trees
     ~text:(fun s -> Html.txt (String.concat "" s))
     ~element:(fun (_, tag) attrs childs ->
+        let attrs = filter_attrs tag attrs in
         Html.Unsafe.node tag ~a:(make_attribs attrs) childs)
   |> to_list
   |> Html.div
