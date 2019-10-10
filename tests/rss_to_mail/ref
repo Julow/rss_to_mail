@@ -99,7 +99,8 @@ BODY html: <!DOCTYPE html>
         margin: 0 0 -0.1em 0 !important"
        />
       <a href="feed%20link%20url">Atom Test</a> (Cat 1) on Some date 
-      by <a href="uri">Author 1</a>, Author 2
+      by <a href="uri">Author 1</a>, Author 2 
+      <label for="collapse-0">[collapse]</label>
      </p>
     </td>
    </tr>
@@ -107,16 +108,16 @@ BODY html: <!DOCTYPE html>
   <table>
    <tr><td>Attachment 1: <a href="attach%201">attach%201</a> (truc)</td></tr>
    <tr><td>Attachment 2: <a href="attach%202">attach%202</a> (2b)</td></tr>
-  </table><div class="content"><div><p>Some content here</p></div></div>
-  
-  
-  </body>
+  </table><input type="checkbox" id="collapse-0" style="display:none;"/>
+  <div class="content"><div><p>Some content here</p></div></div>
+                                                                
+                                                                </body>
 </html>
 BODY text: # title
 
 link%20url
 
-From [Atom Test](feed%20link%20url) (Cat 1) on Some date by [Author 1](uri), Author 2
+From [Atom Test](feed%20link%20url) (Cat 1) on Some date by [Author 1](uri), Author 2 
 
 Attachments:
 
@@ -151,8 +152,9 @@ BODY html: <!DOCTYPE html>
         height: 1em !important;
         margin: 0 0 -0.1em 0 !important"
     />
-   <a href="Feed%20link">Title</a> with label Label
-  </p>
+   <a href="Feed%20link">Title</a> with label Label 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content">
    <div>
         				<div>
@@ -165,7 +167,7 @@ BODY html: <!DOCTYPE html>
 </html>
 BODY text: # Title 2
 
-From [Title](Feed%20link) with label Label
+From [Title](Feed%20link) with label Label 
 
 <html content>
 
@@ -195,8 +197,9 @@ BODY html: <!DOCTYPE html>
         height: 1em !important;
         margin: 0 0 -0.1em 0 !important"
     />
-   <a href="Feed%20link">RSS Test</a>
-  </p>
+   <a href="Feed%20link">RSS Test</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content">
    <div>
         				<div>
@@ -209,7 +212,7 @@ BODY html: <!DOCTYPE html>
 </html>
 BODY text: # Title 2
 
-From [RSS Test](Feed%20link)
+From [RSS Test](Feed%20link) 
 
 <html content>
 
@@ -1200,14 +1203,16 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1><p>From no_title.rss</p>
+ <body><h1 class="entry_title">New entry</h1>
+  <p>From no_title.rss <label for="collapse-0">[collapse]</label></p>
+  <input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content"><div>no title</div></div>
                                                 
                                                 </body>
 </html>
 BODY text: # New entry
 
-From no_title.rss
+From no_title.rss 
 
 <html content>
 
@@ -1231,14 +1236,16 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content"><div><p>CDATA</p></div></div>
                                                     
                                                     </body>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 <html content>
 
@@ -1262,7 +1269,9 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content"><div>
                             			<div>
                                     				<p>Xhtml</p>
@@ -1274,7 +1283,7 @@ BODY html: <!DOCTYPE html>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 <html content>
 
@@ -1298,14 +1307,16 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content"><div><p>Html!</p></div></div>
                                                     
                                                     </body>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 <html content>
 
@@ -1329,14 +1340,16 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content"><div>Text?</div></div>
                                              
                                              </body>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 <html content>
 
@@ -1366,14 +1379,16 @@ BODY html: <!DOCTYPE html>
           overflow:hidden;"
    >Text!
   </span><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content">Text!</div>
                                   
                                   </body>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 Content:
 
@@ -1405,14 +1420,16 @@ BODY html: <!DOCTYPE html>
           overflow:hidden;"
    >Text
   </span><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content">Text</div>
                                  
                                  </body>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 Content:
 
@@ -1438,14 +1455,16 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content"><div><p>CDATA</p></div></div>
                                                     
                                                     </body>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 <html content>
 
@@ -1469,7 +1488,9 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content"><div>
                             			<div>
                                     				<p>Xhtml</p>
@@ -1481,7 +1502,7 @@ BODY html: <!DOCTYPE html>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 <html content>
 
@@ -1505,14 +1526,16 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content"><div><p>Html!</p></div></div>
                                                     
                                                     </body>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 <html content>
 
@@ -1536,14 +1559,16 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content"><div>Text?</div></div>
                                              
                                              </body>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 <html content>
 
@@ -1567,14 +1592,16 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content">Text!</div>
                                   
                                   </body>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 Content:
 
@@ -1600,14 +1627,16 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1>
-  <p>From <a href="feed%20link%20url">Atom content type</a></p>
+  <p>From <a href="feed%20link%20url">Atom content type</a> 
+   <label for="collapse-0">[collapse]</label>
+  </p><input type="checkbox" id="collapse-0" style="display:none;"/>
   <div class="content">Text</div>
                                  
                                  </body>
 </html>
 BODY text: # New entry
 
-From [Atom content type](feed%20link%20url)
+From [Atom content type](feed%20link%20url) 
 
 Content:
 

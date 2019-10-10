@@ -21,9 +21,17 @@ let link ?text url =
   in
   Html.[ a ~a:[ a_href (Uri.to_string url) ] [ txt s ] ]
 
-let raw_content_html cont = [ [%html "<div class=\"content\">"[ cont ]"</div>"] ]
+let collapse_label ~collapse_id =
+  let id = "collapse-" ^ collapse_id in
+  Html.[ label ~a:[ a_label_for id ] [ txt "[collapse]" ] ]
 
-let raw_content_text txt = raw_content_html (Html.txt txt)
+let raw_content_html ~collapse_id cont =
+  let id = "collapse-" ^ collapse_id in
+  [%html "\
+  <input type=\"checkbox\" id="id" style=\"display:none;\" />\
+  <div class=\"content\">"[ cont ]"</div>"]
+
+let raw_content_text ~collapse_id txt = raw_content_html ~collapse_id (Html.txt txt)
 
 let feed_icon url ~alt =
   [ [%html "<img width=\"16\" height=\"16\"
@@ -83,6 +91,7 @@ a { text-decoration: none; }
 .entry_header { margin-top: 0; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .content img { max-width: 100%; max-height: auto; }
+input[type='checkbox']:checked ~ .content { display: none; }
 .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
     </style>
     <title>" (Html.txt sender) "</title>

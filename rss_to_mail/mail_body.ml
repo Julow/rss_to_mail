@@ -12,9 +12,11 @@ module Render (Impl : sig
     val list : ?sep:'a t -> 'a t list -> 'a t
 
     val link : ?text:string -> Uri.t -> inline t
+    val collapse_label : collapse_id:string -> inline t
 
-    val raw_content_html : [< Html_types.div ] Tyxml_html.elt -> block t
-    val raw_content_text : string -> block t
+    val raw_content_html : collapse_id:string ->
+        [< Html_types.div ] Tyxml_html.elt -> block t
+    val raw_content_text : collapse_id:string -> string -> block t
 
     val feed_icon : Uri.t -> alt:string -> inline t
     val entry_title : string -> Uri.t option -> block t
@@ -34,7 +36,8 @@ struct
     | Some url -> link url ~text
     | None -> string text
 
-  let render_entry ~sender ?label feed entry =
+  let render_entry ~sender ?label feed ~entry_index entry =
+    let collapse_id = string_of_int entry_index in
     let entry_title =
       let title = Option.get "New entry" entry.title in
       entry_title title entry.link
@@ -74,11 +77,16 @@ struct
       and label =
         Option.map (fun l -> string ("with label " ^ l)) label
 
+      and collapse_label =
+        match entry with
+        | { summary = None; content = None; _ } -> None
+        | _ -> Some (collapse_label ~collapse_id)
+
       in
       entry_header @@
       list ~sep:(string " ") @@
       List.filter_option @@
-      [ feed_title; categories; date; authors; label ]
+      [ feed_title; categories; date; authors; label; collapse_label ]
 
     in
     let full_header =
@@ -106,14 +114,17 @@ struct
 
     and content =
       match Option.or_ ~else_:entry.summary entry.content with
-      | Some (Html html) -> raw_content_html html
-      | Some (Text txt) -> raw_content_text txt
+      | Some (Html html) -> raw_content_html ~collapse_id html
+      | Some (Text txt) -> raw_content_text ~collapse_id txt
       | None -> none
     in
     list [ full_header; attachments; content ]
 
   let render_body ~sender ?label ?hidden_summary feed entries =
-    List.map (render_entry ~sender ?label feed) entries
+    let render_entry entry_index entry =
+      render_entry ~sender ?label feed ~entry_index entry
+    in
+    List.mapi render_entry entries
     |> body ~sender ?hidden_summary
 
 end

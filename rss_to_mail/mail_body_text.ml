@@ -22,13 +22,15 @@ let link ?text url k =
   | Some s -> k "["; k s; k "]("; k url; k ")"
   | None -> k url
 
+let collapse_label ~collapse_id:_ _ = ()
+
 let feed_icon _ ~alt:_ _ = ()
 
 (* block *)
 
-let raw_content_html _ k = k "<html content>\n\n"
+let raw_content_html ~collapse_id:_ _ k = k "<html content>\n\n"
 
-let raw_content_text txt k = k "Content:\n\n"; k txt; k "\n\n"
+let raw_content_text ~collapse_id:_ txt k = k "Content:\n\n"; k txt; k "\n\n"
 
 let entry_title title title_link k =
   k "# "; k title; k "\n\n";
