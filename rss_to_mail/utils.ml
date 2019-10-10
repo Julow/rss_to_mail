@@ -4,9 +4,11 @@ let next_day_at h m t =
   let t = C.next t `Day in
   C.create (C.to_date t) (C.Time.(make h m (Second.from_int 0)))
 
+let day_equal a b = C.Date.int_of_day a = C.Date.int_of_day b
+
 let next_week_at day h m t =
   let rec loop t =
-    if Pervasives.(=) (C.day_of_week t) day
+    if day_equal (C.day_of_week t) day
     then t
     else loop (C.next t `Day)
   in
@@ -23,7 +25,7 @@ let is_uptodate now last_update options =
     | `At (h, m)			-> next_day_at h m last_update
     | `At_weekly (d, h, m)	-> next_week_at d h m last_update
   in
-  Pervasives.(>) due now
+  C.compare due now > 0
 
 let rec size s u =
   let to_s () = Int64.to_string s ^ u in
