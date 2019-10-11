@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+	xmlns:media="http://search.yahoo.com/mrss/">
+
+	<title>Test relative links</title>
+
+	<entry>
+		<id>1</id>
+		<title>1</title>
+    <content type="html">&lt;p&gt;Some content &lt;a href="link1"&gt;here&lt;/a&gt;&lt;/p&gt;&lt;img src="img1" /&gt;</content>
+		<link href="link" />
+    <link href="attach/1" type="truc" rel="enclosure" />
+    <link href="attach/2" length="2" rel="enclosure" />
+    <media:thumbnail url="thumbnail/1" />
+		<author>
+			<name>Author 1</name>
+      <uri>author/1</uri>
+		</author>
+	</entry>
+
+	<entry>
+		<id>2</id>
+		<title>2</title>
+    <content type="xhtml">
+      <p>Some content <a href="link2">here</a> <img src="img2" /></p>
+    </content>
+	</entry>
+
+</feed>

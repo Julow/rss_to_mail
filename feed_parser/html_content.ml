@@ -27,7 +27,7 @@ let map_css_styles f styles =
     );
   Buffer.contents buf
 
-let filter_attrs tag attrs =
+let filter_attrs ~resolve_uri tag attrs =
   List.filter_map (fun ((_, key as name), value as attr) ->
       match tag, key with
       (* Remove width and height attributes on images *)
@@ -41,14 +41,25 @@ let filter_attrs tag attrs =
           | _ -> s, v
         in
         Some (name, map_css_styles map_style value)
+      (* Resolve URIs *)
+      | "a", "href"
+      | "img", "src" ->
+          let value = Uri.to_string (resolve_uri (Uri.of_string value)) in
+          Some (name, value)
       | _, _ -> Some attr
     ) attrs
 
-let of_xml =
+(* TODO: filter attrs in [of_xml] ? *)
+
+let element ~resolve_uri (_, tag) attrs childs =
+  let attrs = filter_attrs ~resolve_uri tag attrs in
+  Html.Unsafe.node tag ~a:(make_attribs attrs) childs
+
+let of_xml ~resolve_uri =
   let rec make_node = function
     | Text txt -> Html.txt txt
-    | Node (((_, tag), attrs), nodes) ->
-      Html.Unsafe.node tag ~a:(make_attribs attrs) (make_nodes nodes)
+    | Node ((name, attrs), nodes) ->
+        element ~resolve_uri name attrs (make_nodes nodes)
   and make_nodes nodes = List.map make_node nodes in
   function
   | [ Node (((_, "div"), attrs), nodes) ] ->
@@ -56,7 +67,7 @@ let of_xml =
   | nodes ->
     Html.div (make_nodes nodes)
 
-let of_string contents =
+let parse ~resolve_uri contents =
   let open Markup in
   contents
   |> string
@@ -64,8 +75,6 @@ let of_string contents =
   |> signals
   |> trees
     ~text:(fun s -> Html.txt (String.concat "" s))
-    ~element:(fun (_, tag) attrs childs ->
-        let attrs = filter_attrs tag attrs in
-        Html.Unsafe.node tag ~a:(make_attribs attrs) childs)
+    ~element:(element ~resolve_uri)
   |> to_list
   |> Html.div

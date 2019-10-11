@@ -7,4 +7,6 @@
    (no_title.rss 0 ())
    (content_type.atom 0 ())
    (dune_blog.html 0 ())
+   (https://some-website/relative.atom 0 ())
+   (https://some-website/relative.rss 0 ())
   )))

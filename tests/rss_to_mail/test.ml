@@ -8,7 +8,8 @@ struct
   type error = int
 
   let fetch uri =
-    let f = "feeds/" ^ Uri.to_string uri in
+    (* Take path, ignore the rest of URI *)
+    let f = "feeds/" ^ Uri.path uri in
     eprintf "opening %s\n" f;
     Lwt.return @@
     match open_in f with

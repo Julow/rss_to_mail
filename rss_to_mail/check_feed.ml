@@ -51,17 +51,17 @@ struct
         Uri.host feed_uri ||| fun () ->
           Uri.to_string feed_uri
 
-  let process ~now feed_uri options seen_ids feed =
-    let feed = Feed.resolve_urls feed_uri feed in
-    let entries = filter_entries options.Feed_desc.filter feed.entries in
+  let process ~now _feed_uri options seen_ids feed =
+    let entries = filter_entries options.Feed_desc.filter feed.Feed.entries in
     let seen_ids, entries =
       new_entries (remove_date_from now) seen_ids entries
     in
     feed, seen_ids, entries
 
   let fetch_feed uri =
+    let resolve_uri = Uri.resolve "" uri in
     let parse_content contents =
-      match Feed_parser.parse (`String (0, contents)) with
+      match Feed_parser.parse ~resolve_uri (`String (0, contents)) with
       | exception Feed_parser.Error (pos, err) -> Error (`Parsing_error (pos, err))
       | feed -> Ok feed
     in

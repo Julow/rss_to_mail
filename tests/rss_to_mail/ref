@@ -47,6 +47,14 @@ Options: (refresh 2.000000) (label Lbl)
 
 Options: (refresh 2.000000) (label Lbl)
 
+# https://some-website/relative.atom
+
+Options: (refresh 2.000000)
+
+# https://some-website/relative.rss
+
+Options: (refresh 2.000000)
+
 # Done parsing
 
 Log: atom.atom: 1 entries
@@ -60,6 +68,8 @@ Log: content_type.atom: 12 entries
 Log: dune_blog.html: 5 entries
 Log: ./empty.rss: 0 entries
 Log: ././empty.rss: 0 entries
+Log: https://some-website/relative.atom: 2 entries
+Log: https://some-website/relative.rss: 1 entries
 FROM: Atom Test
 SUBJECT: title
 BODY html: <!DOCTYPE html>
@@ -1774,5 +1784,161 @@ BODY text: # What’s coming in Dune 1.1.0?
 /blog/dune-1-1-0/
 
 From dune_blog.html with label OCaml
+
+
+FROM: Test relative links
+SUBJECT: 2
+BODY html: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>Test relative links</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .content img { max-width: 100%; max-height: auto; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+       
+  </style>
+ </head>
+ <body><h1 class="entry_title">2</h1><p>From Test relative links</p>
+  <div class="content">
+   <div>
+              
+    <p>Some content <a href="https://some-website/link2">here</a> 
+     <img src="https://some-website/img2"/>
+    </p>
+            
+   </div>
+  </div>
+        
+        </body>
+</html>
+BODY text: # 2
+
+From Test relative links
+
+<html content>
+
+
+FROM: Test relative links
+SUBJECT: 1
+BODY html: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>Test relative links</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .content img { max-width: 100%; max-height: auto; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+       
+  </style>
+ </head>
+ <body>
+  <table>
+   <tr>
+    <td>
+     <img src="https://some-website/thumbnail/1" alt="thumbnail"
+      class="thumbnail" width="60" height="60"/>
+    </td>
+    <td>
+     <h1 class="entry_title"><a href="https://some-website/link">1</a></h1>
+     <p>From Test relative links by 
+      <a href="https://some-website/author/1">Author 1</a>
+     </p>
+    </td>
+   </tr>
+  </table>
+  <table>
+   <tr>
+    <td>Attachment 1: <a href="https://some-website/attach/1">/attach/1</a>
+      (truc)
+    </td>
+   </tr>
+   <tr>
+    <td>Attachment 2: <a href="https://some-website/attach/2">/attach/2</a>
+      (2b)
+    </td>
+   </tr>
+  </table>
+  <div class="content">
+   <div><p>Some content <a href="https://some-website/link1">here</a></p>
+    <img src="https://some-website/img1"/>
+   </div>
+  </div>
+        
+        </body>
+</html>
+BODY text: # 1
+
+https://some-website/link
+
+From Test relative links by [Author 1](https://some-website/author/1)
+
+Attachments:
+
+Attachment 1: https://some-website/attach/1 (truc)
+Attachment 2: https://some-website/attach/2 (2b)
+
+<html content>
+
+
+FROM: Relative links
+SUBJECT: 1
+BODY html: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>Relative links</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .content img { max-width: 100%; max-height: auto; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+       
+  </style>
+ </head>
+ <body><h1 class="entry_title"><a href="https://some-website/url1">1</a></h1>
+  <p>From Relative links</p>
+  <table>
+   <tr>
+    <td>Attachment 1: 
+     <a href="https://some-website/attachment/1">/attachment/1</a>
+      (some type)
+    </td>
+   </tr>
+  </table>
+  <div class="content">
+   <div>
+    <a href="https://some-website/link1">
+     <img src="https://some-website/img1"/>
+    </a>
+   </div>
+  </div>
+        
+        </body>
+</html>
+BODY text: # 1
+
+https://some-website/url1
+
+From Relative links
+
+Attachments:
+
+Attachment 1: https://some-website/attachment/1 (some type)
+
+<html content>
 
 

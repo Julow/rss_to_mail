@@ -29,4 +29,6 @@
   (with-options ((label "Lbl"))
    ./empty.rss
    ././empty.rss)
+  https://some-website/relative.atom
+  https://some-website/relative.rss
 )))
