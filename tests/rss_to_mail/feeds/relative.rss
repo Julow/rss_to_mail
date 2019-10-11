@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/">
+	<channel>
+
+		<title>Relative links</title>
+
+		<item>
+			<title>1</title>
+			<link>url1</link>
+			<guid>1</guid>
+			<content:encoded><![CDATA[<a href="link1"><img src="img1" /></a>]]></content:encoded>
+			<enclosure url="attachment/1" type="some type" />
+		</item>
+
+	</channel>
+</rss>
