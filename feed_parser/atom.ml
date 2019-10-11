@@ -44,48 +44,51 @@ struct
 
 end
 
-let content node =
+let uri ~resolve_uri s =
+  resolve_uri (Uri.of_string s)
+
+let content ~resolve_uri node =
   match attr "type" node with
   | None
   | Some "text"	->
     Some (Feed.Text (text node))
   | Some "html"	->
-    Some (Html (Html_content.of_string (text node)))
+    Some (Html (Html_content.parse ~resolve_uri (text node)))
   | Some "xhtml"	->
     Some (Html (Html_content.of_xml (children_all node)))
   | Some _		->
     None
 
-let attachment (href, node) =
-  { attach_url = Uri.of_string href;
+let attachment ~resolve_uri (href, node) =
+  { attach_url = uri ~resolve_uri href;
     attach_size = attr "length" node >$ Int64.of_string_opt;
     attach_type = attr "type" node }
 
-let author node =
+let author ~resolve_uri node =
   node < "name" > fun name ->
     { author_name = text name;
-      author_link = node < "uri" > Uri.of_string % text }
+      author_link = node < "uri" > uri ~resolve_uri % text }
 
 let category node = { term = attr "term" node; label = attr "label" node }
 
-let entry node =
+let entry ~resolve_uri node =
   let links = Links.of_nodes (children ~ns "link" node) in
   { id = node < "id" > text;
     title = node < "title" > text;
-    summary = node < "summary" >$ content;
-    content = node < "content" >$ content;
+    summary = node < "summary" >$ content ~resolve_uri;
+    content = node < "content" >$ content ~resolve_uri;
     date = node < "updated" > text;
-    link = Links.(get Alternate) links > Uri.of_string % fst;
-    attachments = Links.(get_all Enclosure) links >> attachment;
-    thumbnail = (<) ~ns:media_ns node "thumbnail" >$ attr "url" > Uri.of_string;
-    authors = node << "author" >>$ author;
+    link = Links.(get Alternate) links > uri ~resolve_uri % fst;
+    attachments = Links.(get_all Enclosure) links >> attachment ~resolve_uri;
+    thumbnail = (<) ~ns:media_ns node "thumbnail" >$ attr "url" > uri ~resolve_uri;
+    authors = node << "author" >>$ author ~resolve_uri;
     categories = node << "category" >> category }
 
-let feed node =
+let feed ~resolve_uri node =
   let links = Links.of_nodes (children ~ns "link" node) in
   { feed_title = node < "title" > text;
-    feed_icon = node < "icon" > Uri.of_string % text;
-    feed_link = Links.(get Alternate) links > Uri.of_string % fst;
-    entries = node << "entry" >> entry |> Array.of_list }
+    feed_icon = node < "icon" > uri ~resolve_uri % text;
+    feed_link = Links.(get Alternate) links > uri ~resolve_uri % fst;
+    entries = node << "entry" >> entry ~resolve_uri |> Array.of_list }
 
 let parse = feed

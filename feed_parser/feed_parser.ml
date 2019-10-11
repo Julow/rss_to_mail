@@ -14,13 +14,13 @@ let ns =
   | "dc"		-> Some "http://purl.org/dc/elements/1.1/"
   | ns		-> Some ns
 
-let parse source =
+let parse ~resolve_uri source =
   let inp = Xmlm.make_input ~ns source in
   try
     let node = Xml.parse_from_begining inp in
     match Xml.name node with
-    | "rss"		-> Rss.parse node
-    | "feed"	-> Atom.parse node
+    | "rss"		-> Rss.parse ~resolve_uri node
+    | "feed"	-> Atom.parse ~resolve_uri node
     | _			-> failwith "Unsupported format"
   with Failure msg ->
     raise (Error (Xmlm.pos inp, msg))
