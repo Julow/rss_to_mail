@@ -51,11 +51,15 @@ let filter_attrs ~resolve_uri tag attrs =
 
 (* TODO: filter attrs in [of_xml] ? *)
 
-let of_xml =
+let element ~resolve_uri (_, tag) attrs childs =
+  let attrs = filter_attrs ~resolve_uri tag attrs in
+  Html.Unsafe.node tag ~a:(make_attribs attrs) childs
+
+let of_xml ~resolve_uri =
   let rec make_node = function
     | Text txt -> Html.txt txt
-    | Node (((_, tag), attrs), nodes) ->
-      Html.Unsafe.node tag ~a:(make_attribs attrs) (make_nodes nodes)
+    | Node ((name, attrs), nodes) ->
+        element ~resolve_uri name attrs (make_nodes nodes)
   and make_nodes nodes = List.map make_node nodes in
   function
   | [ Node (((_, "div"), attrs), nodes) ] ->
@@ -71,8 +75,6 @@ let parse ~resolve_uri contents =
   |> signals
   |> trees
     ~text:(fun s -> Html.txt (String.concat "" s))
-    ~element:(fun (_, tag) attrs childs ->
-        let attrs = filter_attrs ~resolve_uri tag attrs in
-        Html.Unsafe.node tag ~a:(make_attribs attrs) childs)
+    ~element:(element ~resolve_uri)
   |> to_list
   |> Html.div

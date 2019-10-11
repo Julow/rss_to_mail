@@ -55,7 +55,7 @@ let content ~resolve_uri node =
   | Some "html"	->
     Some (Html (Html_content.parse ~resolve_uri (text node)))
   | Some "xhtml"	->
-    Some (Html (Html_content.of_xml (children_all node)))
+    Some (Html (Html_content.of_xml ~resolve_uri (children_all node)))
   | Some _		->
     None
 
