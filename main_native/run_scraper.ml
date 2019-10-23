@@ -6,10 +6,16 @@ let http_uri uri =
   | Some "http" | Some "https" -> Some uri
   | Some _ | None -> None
 
-let fetch src =
+let source_kind src =
   match http_uri src with
-  | Some src -> Fetch.fetch src |> Lwt.map (map_error Fetch.error_to_string)
-  | None -> Lwt.return (CCIO.File.read src)
+  | Some uri ->
+    let resolve_uri = Uri.resolve "" uri
+    and fetch () = Fetch.fetch uri |> Lwt.map (map_error Fetch.error_to_string) in
+    resolve_uri, fetch
+  | None ->
+    let resolve_uri u = u
+    and fetch () = Lwt.return (CCIO.File.read src) in
+    resolve_uri, fetch
 
 let read_scraper () =
   match CCSexp.parse_chan stdin with
@@ -39,7 +45,8 @@ let (>>=) x f = Lwt.bind x (function Ok x -> f x | Error _ as e -> Lwt.return e)
 
 let run src =
   Lwt.return (read_scraper ()) >>= fun scraper ->
-  fetch src >>= fun contents ->
-  let feed = Scraper.scrap scraper contents in
+  let resolve_uri, fetch = source_kind src in
+  fetch () >>= fun contents ->
+  let feed = Scraper.scrap ~resolve_uri scraper contents in
   print_feed feed;
   Lwt.return (Ok ())

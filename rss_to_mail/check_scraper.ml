@@ -10,7 +10,8 @@ struct
     Lwt.bind (Fetch.fetch uri) begin function
       | Error e		-> Lwt.return (`Fetch_error e)
       | Ok contents	->
-        let feed = Scraper.scrap scraper contents in
+        let resolve_uri = Uri.resolve "" uri in
+        let feed = Scraper.scrap ~resolve_uri scraper contents in
         let feed, seen_ids, entries =
           Check_feed.process ~now uri options seen_ids feed
         in
