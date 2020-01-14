@@ -1,3 +1,6 @@
+let () =
+  Conduit_lwt_unix.(tls_library := OpenSSL)
+
 (** Wrapper around cohttp's [get] that support following redirections
     If there is chain of more than [max_redirect] redirections,
     simply returns the last response (with status 30x).
