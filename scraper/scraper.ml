@@ -1,11 +1,13 @@
 open Feed
 
-type entry = Title | Link | Summary
+type entry = Id | Title | Link | Summary
 type feed = Feed_title | Feed_icon | Entry of entry Scrap.t list
 
 let text node = String.concat "" (Soup.texts node)
 
 let scrap_entry ~parse_uri node t = function
+  | Id ->
+    Feed.{ t with id = Some (text node) }
   | Title ->
     Feed.{ t with title = Some (text node) }
   | Link ->

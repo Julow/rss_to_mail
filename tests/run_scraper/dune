@@ -9,3 +9,15 @@
  (alias runtest)
  (action
   (diff simple.expected simple.output)))
+
+(rule
+  (with-stdout-to
+   scrap_id.output
+   (with-stdin-from
+    scrap_id.sexp
+    (run rss_to_mail run-scraper %{dep:simple.html}))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff scrap_id.expected scrap_id.output)))

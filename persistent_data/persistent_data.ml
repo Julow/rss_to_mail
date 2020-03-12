@@ -51,6 +51,7 @@ let parse_scraper =
     | `List (`Atom "entry" :: ts)	->
       let target =
         function
+        | `Atom "id" -> Id
         | `Atom "title"		-> Title
         | `Atom "link"		-> Link
         | `Atom "summary" -> Summary
