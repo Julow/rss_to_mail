@@ -4,17 +4,16 @@
  (flags :standard -open Std))
 
 (rule
- (targets output)
  (deps
   feeds.sexp
   feed_datas.sexp
   (glob_files feeds/*))
  (action
   (with-stdout-to
-   %{targets}
-   (run %{dep:test.exe}))))
+   output
+   (run ./test.exe))))
 
-(alias
- (name runtest)
+(rule
+ (alias runtest)
  (action
-  (diff %{dep:ref} %{dep:output})))
+  (diff ref output)))
