@@ -1,0 +1,11 @@
+(rule
+  (with-stdout-to
+   simple.output
+   (with-stdin-from
+    simple.sexp
+    (run rss_to_mail run-scraper %{dep:simple.html}))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff simple.expected simple.output)))
