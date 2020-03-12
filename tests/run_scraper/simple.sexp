@@ -2,4 +2,4 @@
  (T
   (entry
    (R ("a"
-    (T title link))))))
+    (T id title link))))))
