@@ -20,20 +20,6 @@ struct
 
 end
 
-module Log =
-struct
-
-  let log_error url = function
-    | `Fetch_error code					->
-      printf "Log: %s: Fetch error %d\n" url code
-    | `Parsing_error ((line, col), msg)	->
-      printf "Log: %s: Parsing error (line %d, col %d)\n%s\n" url line col msg
-
-  let log_updated url ~entries =
-    printf "Log: %s: %d entries\n" url entries
-
-end
-
 module Feed_datas =
 struct
 
@@ -44,7 +30,7 @@ struct
 
 end
 
-module Rss_to_mail = Rss_to_mail.Make (Local_fetch) (Log) (Feed_datas)
+module Rss_to_mail = Rss_to_mail.Make (Local_fetch) (Feed_datas)
 
 let now = 12345678L
 
@@ -71,6 +57,16 @@ let print_feed (feed, options) =
   end;
   print_options options
 
+let print_log = function
+  | url, `Fetch_error code ->
+    printf "Log: %s: Fetch error %d\n" url code
+  | url, `Parsing_error ((line, col), msg) ->
+    printf "Log: %s: Parsing error (line %d, col %d)\n%s\n" url line col msg
+  | url, `Update { Rss_to_mail.entries } ->
+    printf "Log: %s: %d entries\n" url entries
+  | url, `Uptodate ->
+    printf "Log: %s: Uptodate\n" url
+
 let () =
   let { Persistent_data.feed_datas; _ } =
     match CCSexp.parse_file "feed_datas.sexp" with
@@ -84,8 +80,9 @@ let () =
   in
   List.iter print_feed feeds;
   printf "\n# Done parsing\n\n";
-  let _, mails =
+  let _, mails, logs =
     Rss_to_mail.check_all ~now feed_datas feeds
     |> Lwt_main.run
   in
+  List.iter print_log logs;
   List.iter print_mail (List.rev mails)

@@ -14,23 +14,6 @@ struct
 
 end
 
-module Log =
-struct
-
-  let log_e ~url msg = Logs.warn (fun fmt -> fmt "%s: %s" url msg)
-  let log_i ~url msg = Logs.info (fun fmt -> fmt "%s: %s" url msg)
-
-  let log_error url = function
-    | `Fetch_error err ->
-      log_e ~url (Fetch.error_to_string err)
-    | `Parsing_error ((line, col), msg) ->
-      log_e ~url (sprintf "Parsing error: %d:%d: %s" line col msg)
-
-  let log_updated url ~entries =
-    log_i ~url (sprintf "%d new entries" entries)
-
-end
-
 module Feed_datas =
 struct
 
@@ -41,7 +24,7 @@ struct
 
 end
 
-module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Log) (Feed_datas)
+module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Feed_datas)
 
 exception Timeout
 
@@ -189,22 +172,46 @@ let with_feed_datas config_file f =
   CCSexp.to_file feed_datas_file (Persistent_data.save_feed_datas datas);
   Lwt.return_unit
 
+let metrics_updates ~mails logs =
+  let updated = ref 0 and errors = ref 0 in
+  let log_update = function
+    | url, `Update { Rss_to_mail.entries } ->
+      incr updated;
+      Logs.info (fun fmt -> fmt "%s: %d new entries" url entries)
+    | url, `Parsing_error ((line, col), msg) ->
+      incr errors;
+      Logs.warn (fun fmt -> fmt "%s: Parsing error: %d:%d: %s" url line col msg)
+    | url, `Fetch_error err ->
+      incr errors;
+      Logs.warn (fun fmt -> fmt "%s: %s" url (Fetch.error_to_string err))
+    | _, `Uptodate -> ()
+  in
+  List.iter log_update logs;
+  Logs.app (fun fmt ->
+      fmt "%d feeds updated, %d errors, %d new entries"
+        !updated !errors mails)
+
+let metrics_mails ~to_retry ~unsent_mails =
+  Logs.app (fun fmt ->
+      let retried = List.length to_retry in
+      if retried > 0 then
+        fmt "%d unsent emails to retry" retried);
+  Logs.warn (fun fmt ->
+      let unsent = List.length unsent_mails in
+      if unsent > 0 then
+        fmt "%d emails could not be sent" unsent)
+
 let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = Unix.time () |> Int64.of_float in
-  let%lwt feed_datas, mails = Rss_to_mail.check_all ~now datas.feed_datas conf.feeds in
-  Logs.app (fun fmt -> fmt "%d new entries" (List.length mails));
-  let unsent_count = List.length datas.unsent_mails in
-  if unsent_count > 0 then
-    Logs.app (fun fmt -> fmt "%d unsent mails to retry" unsent_count);
+  let%lwt feed_datas, mails, logs = Rss_to_mail.check_all ~now datas.feed_datas conf.feeds in
+  metrics_updates ~mails:(List.length mails) logs;
+  let to_retry = datas.unsent_mails in
   let%lwt unsent_mails =
     let random_seed = Int64.to_string now in
-    send_mails ~random_seed conf (datas.unsent_mails @ mails)
+    send_mails ~random_seed conf (to_retry @ mails)
   in
-  (match unsent_mails with
-   | _ :: _ -> Logs.warn (fun fmt ->
-        fmt "%d mails could not be sent" (List.length unsent_mails))
-   | [] -> ());
+  metrics_mails ~to_retry ~unsent_mails;
   Lwt.return Persistent_data.{ feed_datas; unsent_mails }
 
 (* CLI *)
