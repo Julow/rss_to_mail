@@ -27,10 +27,16 @@ let scrap_feed ~parse_uri node (title, icon, entries) = function
     let e = List.fold_left scrap_entry Feed.empty_entry s in
     title, icon, e :: entries
 
+let scrap_default_title node =
+  match Soup.select_one "title" node with
+  | Some node -> Soup.leaf_text node
+  | None -> None
+
 let scrap ~resolve_uri node s =
   let parse_uri s = resolve_uri (Uri.of_string s) in
+  let feed_title = scrap_default_title node in
   let feed_title, feed_icon, entries =
-    Scrap.scrap node (scrap_feed ~parse_uri) (None, None, []) s in
+    Scrap.scrap node (scrap_feed ~parse_uri) (feed_title, None, []) s in
   Feed.{ feed_title; feed_icon;
          feed_link = None;
          entries = Array.of_list entries }
