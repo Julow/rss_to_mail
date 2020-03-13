@@ -18,7 +18,7 @@ let source_kind src =
     resolve_uri, fetch
 
 let read_scraper () =
-  match CCSexp.parse_chan stdin with
+  match CCSexp.parse_chan_list stdin with
   | Ok sexp -> (
       try Ok (Persistent_data.parse_scraper sexp)
       with Failure e -> Error e

@@ -31,6 +31,11 @@ let one =
   | [ v ]		-> v
   | _			-> failwith "Expecting a single value"
 
+let one_or_more =
+  function
+  | [] -> failwith "Expecting a value"
+  | v -> v
+
 let parse_scraper =
   let open Scrap in
   let rec scraper ~target =
@@ -60,7 +65,7 @@ let parse_scraper =
       Entry (List.map (scraper ~target) ts)
     | _								-> failwith "Invalid target"
   in
-  fun t -> R [ rule ~target t ]
+  fun ts -> R (List.map (rule ~target) ts)
 
 let parse_filter =
   function
@@ -152,7 +157,7 @@ let load_feeds (sexp : sexp) =
     | `Atom url					->
       Feed url, default_opts
     | `List ((`List (`Atom "scraper" :: url :: scraper)) :: opts) ->
-      let url = atom url and scraper = one scraper in
+      let url = atom url and scraper = one_or_more scraper in
       let scraper = try parse_scraper scraper
         with Failure msg -> failwith (url ^ ": " ^ msg) in
       Scraper (url, scraper), parse_options ~url opts
