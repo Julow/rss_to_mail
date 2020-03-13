@@ -2,11 +2,10 @@ opam-version: "1.2"
 version: "dev"
 homepage: "https://github.com/Julow/rss_to_mail"
 depends: [
-	"dune" { build & >= "1.0" }
+	"dune" { build & >= "2.0" }
 	"containers"
 	"uri"
 	"xmlm"
-	"base64" { >= "3.1.0" }
 	"markup"
 	"lambdasoup"
   "lwt_ssl"
@@ -19,5 +18,7 @@ depends: [
 	"calendar"
 	"colombe"
 	"sendmail-lwt"
+  "logs"
+  "alcotest" { with-test }
 ]
 build: [[ "dune" "build" "-p" name "-j" jobs ]]

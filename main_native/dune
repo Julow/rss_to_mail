@@ -2,7 +2,7 @@
  (name main_native)
  (public_name rss_to_mail)
  (libraries std lwt cohttp-lwt-unix rss_to_mail scraper cmdliner
-   persistent_data colombe sendmail-lwt base64 logs logs.cli logs.fmt
+   persistent_data colombe sendmail-lwt logs logs.cli logs.fmt
    containers containers.sexp)
  (flags :standard -open Std)
  (preprocess
