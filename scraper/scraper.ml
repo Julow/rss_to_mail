@@ -37,14 +37,20 @@ let scrap_default_icon ~parse_uri node =
   | Some node -> Some (parse_uri (Soup.R.attribute "href" node))
   | None -> None
 
+let guess_feed_link ~resolve_uri =
+  let r = resolve_uri (Uri.of_string ".") in
+  match Uri.scheme r with
+  | Some ("http" | "https") -> Some r
+  | Some _ | None -> None
+
 let scrap ~resolve_uri node s =
   let parse_uri s = resolve_uri (Uri.of_string s) in
   let feed_title = scrap_default_title node
-  and feed_icon = scrap_default_icon ~parse_uri node in
+  and feed_icon = scrap_default_icon ~parse_uri node
+  and feed_link = guess_feed_link ~resolve_uri in
   let feed_title, feed_icon, entries =
     Scrap.scrap node (scrap_feed ~parse_uri) (feed_title, feed_icon, []) s in
-  Feed.{ feed_title; feed_icon;
-         feed_link = None;
+  Feed.{ feed_title; feed_icon; feed_link;
          entries = Array.of_list entries }
 
 type t = feed Scrap.t
