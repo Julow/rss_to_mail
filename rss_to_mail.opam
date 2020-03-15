@@ -19,7 +19,9 @@ depends: [
 	"colombe"
 	"sendmail-lwt"
   "logs"
-  "x509" { < "0.10" }
+  "x509" { >= "0.10" }
+  "ptime"
+  "cstruct-unix"
   "alcotest" { with-test }
 ]
 build: [[ "dune" "build" "-p" name "-j" jobs ]]

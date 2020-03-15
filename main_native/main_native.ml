@@ -28,6 +28,12 @@ module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Feed_datas)
 
 exception Timeout
 
+let parse_certs certs_file =
+  let mapped = Unix_cstruct.of_fd Unix.(openfile certs_file [ O_RDONLY ] 0o0) in
+  match X509.Certificate.decode_pem_multiple mapped with
+  | Error (`Msg e) -> failwith e
+  | Ok certs -> certs
+
 let lwt_timeout t r =
   let timeout = Lwt.bind (Lwt_unix.sleep t) (fun () -> Lwt.fail Timeout) in
   Lwt.pick [ r; timeout ]
@@ -82,7 +88,7 @@ let stream_strings_to_lines t =
         nl := true;
         r
 
-let send_mail (conf : Persistent_data.config) body =
+let send_mail ~certs (conf : Persistent_data.config) body =
   let open Colombe in
   let hostname, port = conf.server in
   let hostname = Domain_name.of_string_exn hostname
@@ -98,12 +104,15 @@ let send_mail (conf : Persistent_data.config) body =
   ] in
   let `Plain (username, password) = conf.server_auth in
   let auth = Some (Auth.make ~username password) in
-  let%lwt authenticator = X509_lwt.authenticator `No_authentication_I'M_STUPID in
+  let authenticator =
+    let time () = Some (Ptime_clock.now ()) in
+    X509.Authenticator.chain_of_trust ~time certs
+  in
   Sendmail_lwt.run ~hostname ~port ~domain ~authenticator ~from ~recipients auth body
 
 (** Send a list of mail to [to_]
     	Returns the list of unsent emails *)
-let send_mails ~random_seed conf mails =
+let send_mails ~certs ~random_seed conf mails =
   let send (i, (t : Rss_to_mail.mail)) =
     Logs.debug (fun fmt -> fmt "Sending \"%s\" \"%s\"" t.sender t.subject);
     let boundary = "rss_to_mail-boundary-" ^ random_seed in
@@ -132,7 +141,7 @@ let send_mails ~random_seed conf mails =
         stream_of_strings [ "--" ^ boundary ^ "--"; "" ]
       ]
     in
-    send_mail conf body
+    send_mail ~certs conf body
   in
   (* At most 2 mails sending in parallel *)
   let send_pooled = pooled 2 send in
@@ -201,7 +210,8 @@ let metrics_mails ~to_retry ~unsent_mails =
       if unsent > 0 then
         fmt "%d emails could not be sent" unsent)
 
-let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
+let run ~certs (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
+  let certs = parse_certs certs in
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = Unix.time () |> Int64.of_float in
   let%lwt feed_datas, mails, logs = Rss_to_mail.check_all ~now datas.feed_datas conf.feeds in
@@ -209,15 +219,15 @@ let run (conf : Persistent_data.config) (datas : Persistent_data.feed_datas) =
   let to_retry = datas.unsent_mails in
   let%lwt unsent_mails =
     let random_seed = Int64.to_string now in
-    send_mails ~random_seed conf (to_retry @ mails)
+    send_mails ~certs ~random_seed conf (to_retry @ mails)
   in
   metrics_mails ~to_retry ~unsent_mails;
   Lwt.return Persistent_data.{ feed_datas; unsent_mails }
 
 (* CLI *)
 
-let run_command (`Config, config_file) () =
-  Lwt_main.run (with_feed_datas config_file run)
+let run_command (`Config, config_file) () (`Certs, certs) =
+  Lwt_main.run (with_feed_datas config_file (run ~certs))
 
 let check_config_command (`Config, config_file) () =
   try ignore (parse_config_file config_file)
@@ -233,7 +243,7 @@ let run_scraper_command src () =
 open Cmdliner
 
 let tagged tag arg =
-  Term.app (Term.const (fun v -> tag, v)) (Arg.value arg)
+  Term.app (Term.const (fun v -> tag, v)) arg
 
 let verbose =
   let setup_log level =
@@ -242,13 +252,18 @@ let verbose =
   in
   Term.(const setup_log $ Logs_cli.level ())
 
+let certs =
+  let doc = "Path to certificate bundle file, in pem format." in
+  let env = Arg.env_var "CA_BUNDLE" ~doc in
+  Arg.(tagged `Certs & required & opt (some file) None & info [ "certs" ] ~env ~docs:"FILE" ~doc)
+
 let config_file =
   let doc = "Configuration file" in
-  Arg.(tagged `Config & pos 0 string "feeds.sexp" & info [] ~docv:"CONFIG" ~doc)
+  Arg.(tagged `Config & value & pos 0 string "feeds.sexp" & info [] ~docv:"CONFIG" ~doc)
 
 let run_term =
   let doc = "Fetch a list of feeds and send a mail for new entries" in
-  Term.(const run_command $ config_file $ verbose),
+  Term.(const run_command $ config_file $ verbose $ certs),
   Term.info "run" ~doc
 
 let check_config_term =
