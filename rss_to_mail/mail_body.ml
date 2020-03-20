@@ -36,7 +36,7 @@ struct
 
   let render_entry ~sender ?label feed entry =
     let entry_title =
-      let title = Option.get "New entry" entry.title in
+      let title = Option.value ~default:"New entry" entry.title in
       entry_title title entry.link
 
     and info_header =
@@ -77,7 +77,7 @@ struct
       in
       entry_header @@
       list ~sep:(string " ") @@
-      List.filter_option @@
+      List.filter_map Fun.id @@
       [ feed_title; categories; date; authors; label ]
 
     in
@@ -105,7 +105,7 @@ struct
       | ts -> attachment_table (List.mapi attachment ts)
 
     and content =
-      match Option.or_ ~else_:entry.summary entry.content with
+      match List.find_map Fun.id [ entry.content; entry.summary ] with
       | Some (Html html) -> raw_content_html html
       | Some (Text txt) -> raw_content_text txt
       | None -> none

@@ -43,6 +43,6 @@ let fetch url =
     Lwt.return (Error (`Http code))
 
 let error_to_string = function
-  | `Http code -> sprintf "Http error: %d" code
-  | `System msg -> sprintf "Error: %s" msg
+  | `Http code -> Printf.sprintf "Http error: %d" code
+  | `System msg -> Printf.sprintf "Error: %s" msg
   | `Unknown -> "Unknown error"

@@ -72,7 +72,7 @@ let body ~sender ?hidden_summary entries =
           overflow:hidden;\">"[ Html.txt s ]"</span>"] ]
     | None -> []
   in
-  sprintf "%a" (Tyxml.Html.pp ~indent:true ()) @@
+  Format.asprintf "%a" (Tyxml.Html.pp ~indent:true ()) @@
   [%html "
 <html lang=\"en\">
   <head>

@@ -11,34 +11,21 @@ struct
     let label = options.Feed_desc.label in
     Mail_body.gen_mail ~sender ?label feed [ entry ]
 
-  let new_entries remove_date seen_ids entries =
-    let ids, news = Array.fold_right (fun e (ids, news) ->
-        match Feed.entry_id e with
-        | Some id	->
-          let news = if SeenSet.is_seen id seen_ids
-            then news else e :: news in
-          id :: ids, news
-        | None		-> ids, news
-      ) entries ([], []) in
-    SeenSet.new_ids remove_date ids seen_ids, news
-
-  let filter_entries filters entries =
-    let match_any_filter =
+  (** Empty list of filter match everything *)
+  let match_any_filter = function
+    | [] -> fun _ -> true
+    | filters ->
       function
       | Feed.{ title = Some title; _ } ->
-        let match_ (regexp, expctd) =
-          try
-            ignore (Str.search_forward regexp title 0);
-            expctd
-          with Not_found ->
-            not expctd
-        in
-        List.exists match_ filters
-      | { title = None; _ }			-> true
-    in
-    match filters with
-    | [] -> entries
-    | _ -> Array.filter match_any_filter entries
+          let match_ (regexp, expctd) =
+            try
+              ignore (Str.search_forward regexp title 0);
+              expctd
+            with Not_found ->
+              not expctd
+          in
+          List.exists match_ filters
+      | { title = None; _ } -> true
 
   let sender_name feed_uri feed options =
     let (|||) opt def =
@@ -52,10 +39,20 @@ struct
           Uri.to_string feed_uri
 
   let process ~now _feed_uri options seen_ids feed =
-    let entries = filter_entries options.Feed_desc.filter feed.Feed.entries in
-    let seen_ids, entries =
-      new_entries (remove_date_from now) seen_ids entries
+    let match_any_filter = match_any_filter options.Feed_desc.filter in
+    let new_ids, entries =
+      Array.fold_right (fun entry (ids, news) ->
+          match Feed.entry_id entry with
+          | Some id when match_any_filter entry ->
+              let news =
+                if SeenSet.is_seen id seen_ids then news else entry :: news
+              in
+              (id :: ids, news)
+          | Some _ | None -> (ids, news)
+          (* Ignore entries without an ID *))
+        feed.Feed.entries ([], [])
     in
+    let seen_ids = SeenSet.new_ids (remove_date_from now) new_ids seen_ids in
     feed, seen_ids, entries
 
   let fetch_feed uri =

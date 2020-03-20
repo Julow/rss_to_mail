@@ -3,7 +3,7 @@
 let feed_datas_file = "feed_datas.sexp"
 
 let parse_config_file config_file =
-  let err msg = failwith (sprintf "Error: %s: %s" config_file msg) in
+  let err msg = failwith (Printf.sprintf "Error: %s: %s" config_file msg) in
   match CCSexp.parse_file config_file with
   | exception Sys_error msg	-> err msg
   | Error msg					-> err msg

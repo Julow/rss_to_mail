@@ -30,12 +30,12 @@ let print_feed (feed : Feed.t) =
   let opt f = function Some s -> f s | None -> "None" in
   let p = Printf.printf in
   let print_entry (t : Feed.entry) =
-    p "\tid: %s\n" (opt id t.id);
-    p "\ttitle: %s\n" (opt id t.title);
+    p "\tid: %s\n" (opt Fun.id t.id);
+    p "\ttitle: %s\n" (opt Fun.id t.title);
     p "\tlink: %s\n" (opt Uri.to_string t.link);
     p "\tsummary: %s\n" (opt content_to_string t.summary);
   in
-  p "Feed title: %s\n" (opt id feed.feed_title);
+  p "Feed title: %s\n" (opt Fun.id feed.feed_title);
   p "Feed link: %s\n" (opt Uri.to_string feed.feed_link);
   p "Feed icon: %s\n" (opt Uri.to_string feed.feed_icon);
   p "Entries (%d):\n" (Array.length feed.entries);

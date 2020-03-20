@@ -124,4 +124,4 @@ let send_mails ~certs ~random_seed conf mails =
                    Sendmail_lwt.pp_error e);
              Lwt.return_some t
          | Ok () -> Lwt.return_none)
-  |> Lwt.map (List.filter_map id)
+  |> Lwt.map (List.filter_map Fun.id)

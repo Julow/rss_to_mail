@@ -74,12 +74,11 @@ let parse_filter =
   | _ -> failwith "Malformated"
 
 let check_duplicate feeds =
-  let module StringTbl = Hashtbl.Make (String) in
-  let tbl = StringTbl.create (List.length feeds) in
+  let tbl = Hashtbl.create (List.length feeds) in
   let check_url url =
-    if StringTbl.mem tbl url then
+    if Hashtbl.mem tbl url then
       failwith ("Feed declared twice: " ^ url);
-    StringTbl.add tbl url ()
+    Hashtbl.add tbl url ()
   in
   feeds |> List.iter Feed_desc.(function
       | Feed url, _			-> check_url url
@@ -254,12 +253,14 @@ let load_feed_datas (sexp : sexp) =
     | _ -> failwith ""
   in
   let feed_datas =
-    record "feed_data" sexp
-    |> Option.map_or [] (list id)
-    |> List.fold_left parse_data empty_datas.feed_datas
+    match record "feed_data" sexp with
+    | None -> empty_datas.feed_datas
+    | Some t ->
+      List.fold_left parse_data empty_datas.feed_datas (list (fun e -> e) t)
   and unsent_mails =
-    record "unsent" sexp
-    |> Option.map_or [] (list (List.map parse_unsent))
+    match record "unsent" sexp with
+    | None -> []
+    | Some t -> list (List.map parse_unsent) t
   in
   { feed_datas; unsent_mails }
 

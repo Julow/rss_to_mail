@@ -22,12 +22,12 @@ struct
 
   type t = (rel * (string * Xml.node)) list
 
-  let rel = Option.map_or Alternate @@
+  let rel =
     function
-    | "alternate"	-> Alternate
-    | "self"		-> Self
-    | "enclosure"	-> Enclosure
-    | rel			-> Other rel
+    | None | Some "alternate" -> Alternate
+    | Some "self" -> Self
+    | Some "enclosure" -> Enclosure
+    | Some rel -> Other rel
 
   let get_all rel links = List.assoc_all rel links
   let get rel links = List.assoc_opt rel links
