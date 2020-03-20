@@ -1,4 +1,1 @@
-let () =
-	Alcotest.run "Rss_to_mail" [
-		"uptodate", Uptodate.tests;
-	]
+let () = Alcotest.run "Rss_to_mail" [ ("uptodate", Uptodate.tests) ]

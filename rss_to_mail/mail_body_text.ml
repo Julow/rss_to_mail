@@ -1,4 +1,5 @@
 type inline
+
 type block
 
 type _ t = (string -> unit) -> unit
@@ -9,17 +10,26 @@ let none _ = ()
 
 let string s k = k s
 
-let list ?(sep=none) l k =
+let list ?(sep = none) l k =
   match l with
   | [] -> ()
   | e :: l ->
-    e k;
-    List.iter (fun e -> sep k; e k) l
+      e k;
+      List.iter
+        (fun e ->
+          sep k;
+          e k)
+        l
 
 let link ?text url k =
   let url = Uri.to_string url in
   match text with
-  | Some s -> k "["; k s; k "]("; k url; k ")"
+  | Some s ->
+      k "[";
+      k s;
+      k "](";
+      k url;
+      k ")"
   | None -> k url
 
 let feed_icon _ ~alt:_ _ = ()
@@ -28,16 +38,24 @@ let feed_icon _ ~alt:_ _ = ()
 
 let raw_content_html _ k = k "<html content>\n\n"
 
-let raw_content_text txt k = k "Content:\n\n"; k txt; k "\n\n"
+let raw_content_text txt k =
+  k "Content:\n\n";
+  k txt;
+  k "\n\n"
 
 let entry_title title title_link k =
-  k "# "; k title; k "\n\n";
-  begin match title_link with
-    | Some l -> link l k; k "\n\n"
-    | None -> ()
-  end
+  k "# ";
+  k title;
+  k "\n\n";
+  match title_link with
+  | Some l ->
+      link l k;
+      k "\n\n"
+  | None -> ()
 
-let entry_header t k = t k; k "\n\n"
+let entry_header t k =
+  t k;
+  k "\n\n"
 
 let thumbnail_table _thumbnail rhs k = rhs k
 
@@ -45,9 +63,13 @@ let attachment_table ts k =
   match ts with
   | [] -> ()
   | ts ->
-    k "Attachments:\n\n";
-    List.iter (fun t -> t k; k "\n") ts;
-    k "\n"
+      k "Attachments:\n\n";
+      List.iter
+        (fun t ->
+          t k;
+          k "\n")
+        ts;
+      k "\n"
 
 let body ~sender:_ ?hidden_summary:_ entries =
   let buff = Buffer.create 64 in

@@ -1,9 +1,9 @@
 (rule
-  (with-stdout-to
-   simple.output
-   (with-stdin-from
-    simple.sexp
-    (run rss_to_mail run-scraper %{dep:simple.html}))))
+ (with-stdout-to
+  simple.output
+  (with-stdin-from
+   simple.sexp
+   (run rss_to_mail run-scraper %{dep:simple.html}))))
 
 (rule
  (alias runtest)
@@ -11,11 +11,11 @@
   (diff simple.expected simple.output)))
 
 (rule
-  (with-stdout-to
-   advanced.output
-   (with-stdin-from
-    advanced.sexp
-    (run rss_to_mail run-scraper %{dep:advanced.html}))))
+ (with-stdout-to
+  advanced.output
+  (with-stdin-from
+   advanced.sexp
+   (run rss_to_mail run-scraper %{dep:advanced.html}))))
 
 (rule
  (alias runtest)
