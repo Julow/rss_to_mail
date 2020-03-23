@@ -44,7 +44,7 @@ Send a mail for new entries on RSS and Atom feeds
 Using OPAM:
 
 ```shell
-opam pin add rss_to_mail https://github.com/olleolleolle/rss_to_mail.git
+opam pin add rss_to_mail https://github.com/Julow/rss_to_mail.git
 ```
 
 ### Usage
