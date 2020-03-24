@@ -1,9 +1,8 @@
 (executable
  (name main_native)
  (public_name rss_to_mail)
- (libraries std lwt cohttp-lwt-unix rss_to_mail scraper cmdliner
-   persistent_data colombe sendmail-lwt logs logs.cli logs.fmt containers
-   containers.sexp x509 ptime cstruct-unix)
- (flags :standard -open Std)
+ (libraries lwt cohttp-lwt-unix rss_to_mail scraper cmdliner persistent_data
+   colombe sendmail-lwt logs logs.cli logs.fmt containers containers.sexp
+   x509 ptime cstruct-unix)
  (preprocess
   (pps lwt_ppx)))

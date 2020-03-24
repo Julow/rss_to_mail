@@ -1,4 +1,0 @@
-(library
- (name std)
- (public_name rss_to_mail.std)
- (wrapped false))

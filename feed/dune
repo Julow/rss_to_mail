@@ -2,5 +2,4 @@
  (name feed)
  (public_name rss_to_mail.feed)
  (wrapped false)
- (flags :standard -open Std)
- (libraries std uri tyxml))
+ (libraries uri tyxml))
