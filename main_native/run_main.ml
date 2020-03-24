@@ -6,6 +6,8 @@ module PooledFetch = struct
 end
 
 module Feed_datas = struct
+  module StringMap = Map.Make (String)
+
   type t = Rss_to_mail.feed_data StringMap.t
 
   let get t url = StringMap.find_opt url t

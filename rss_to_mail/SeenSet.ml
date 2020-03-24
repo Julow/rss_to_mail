@@ -1,3 +1,5 @@
+module StringMap = Map.Make (String)
+
 type t = int64 option StringMap.t
 
 let empty = StringMap.empty

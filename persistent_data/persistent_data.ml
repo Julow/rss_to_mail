@@ -1,6 +1,8 @@
 (** Parser for the `feeds.sexp` config file and serializer/deserializer for the
     `feed_datas.sexp` persistent file Used by main_native *)
 
+module StringMap = Map.Make (String)
+
 type sexp =
   [ `Atom of string
   | `List of sexp list
