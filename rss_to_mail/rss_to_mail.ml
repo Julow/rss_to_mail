@@ -29,13 +29,9 @@ struct
 
   type log = string * [ `Updated of update | error | `Uptodate ]
 
-  module Check_feed = struct
+  module Process_feed = struct
     (* Remove date for IDs that disapeared from the feed: 1 month *)
     let remove_date_from = Int64.add 2678400L
-
-    let prepare_mail ~sender feed options entry =
-      let label = options.Feed_desc.label in
-      Mail_body.gen_mail ~sender ?label feed [ entry ]
 
     (** Empty list of filter match everything *)
     let match_any_filter = function
@@ -52,14 +48,6 @@ struct
               List.exists match_ filters
           | { title = None; _ } -> true
         )
-
-    let sender_name feed_uri feed options =
-      let ( ||| ) opt def =
-        match opt with Some "" | None -> def () | Some v -> v
-      in
-      options.Feed_desc.title ||| fun () ->
-      feed.Feed.feed_title ||| fun () ->
-      Uri.host feed_uri ||| fun () -> Uri.to_string feed_uri
 
     let process ~now _feed_uri options seen_ids feed =
       let match_any_filter = match_any_filter options.Feed_desc.filter in
@@ -78,8 +66,14 @@ struct
       in
       let seen_ids = SeenSet.new_ids (remove_date_from now) new_ids seen_ids in
       (feed, seen_ids, entries)
+  end
 
-    let fetch_feed uri =
+  module Check_feed = struct
+    let prepare_mail ~sender feed options entry =
+      let label = options.Feed_desc.label in
+      Mail_body.gen_mail ~sender ?label feed [ entry ]
+
+    let fetch uri =
       let resolve_uri = Uri.resolve "" uri in
       let parse_content contents =
         match Feed_parser.parse ~resolve_uri (`String (0, contents)) with
@@ -92,70 +86,57 @@ struct
            | Error e -> Error (`Fetch_error e)
            | Ok contents -> parse_content contents)
 
-    let update ~first_update ~now uri options seen_ids =
-      Lwt.bind (fetch_feed uri) (function
-        | Ok feed ->
-            let feed, seen_ids, entries =
-              process ~now uri options seen_ids feed
-            in
-            let mails =
-              if first_update
-              then []
-              else
-                let sender = sender_name uri feed options in
-                List.map (prepare_mail ~sender feed options) entries
-            in
-            Lwt.return (`Ok (seen_ids, mails))
-        | Error err -> Lwt.return err)
+    let prepare ~sender feed options entries =
+      List.map (prepare_mail ~sender feed options) entries
   end
 
   module Check_scraper = struct
-    let update ~first_update ~now uri scraper options seen_ids =
-      Lwt.bind (Fetch.fetch uri) (function
-        | Error e -> Lwt.return (`Fetch_error e)
-        | Ok contents ->
-            let resolve_uri = Uri.resolve "" uri in
-            let feed = Scraper.scrap ~resolve_uri scraper contents in
-            let feed, seen_ids, entries =
-              Check_feed.process ~now uri options seen_ids feed
-            in
-            let mails =
-              if first_update
-              then []
-              else
-                let sender = Check_feed.sender_name uri feed options in
-                List.map (Check_feed.prepare_mail ~sender feed options) entries
-            in
-            Lwt.return (`Ok (seen_ids, mails)))
+    let fetch uri scraper =
+      Fetch.fetch uri
+      |> Lwt.map (function
+           | Error e -> Error (`Fetch_error e)
+           | Ok contents ->
+               let resolve_uri = Uri.resolve "" uri in
+               Ok (Scraper.scrap ~resolve_uri scraper contents))
+
+    let prepare ~sender feed options entries =
+      List.map (Check_feed.prepare_mail ~sender feed options) entries
   end
 
   module Check_bundle = struct
-    let prepare_bundle ~sender feed options = function
+    let fetch = Check_feed.fetch
+
+    let prepare ~sender feed options = function
       | [] -> []
       | entries ->
           let label = options.Feed_desc.label in
           [ Mail_body.gen_mail ~sender ?label feed entries ]
-
-    let update ~first_update ~now uri options seen_ids =
-      Lwt.bind (Check_feed.fetch_feed uri) (function
-        | Error e -> Lwt.return e
-        | Ok feed ->
-            let feed, seen_ids, entries =
-              Check_feed.process ~now uri options seen_ids feed
-            in
-            let mails =
-              if first_update
-              then []
-              else
-                let sender = Check_feed.sender_name uri feed options in
-                prepare_bundle ~sender feed options entries
-            in
-            Lwt.return (`Ok (seen_ids, mails)))
   end
 
   type nonrec mail = mail
 
   type nonrec feed_data = feed_data
+
+  let sender_name feed_uri feed options =
+    let ( ||| ) opt def =
+      match opt with Some "" | None -> def () | Some v -> v
+    in
+    options.Feed_desc.title ||| fun () ->
+    feed.Feed.feed_title ||| fun () ->
+    Uri.host feed_uri ||| fun () -> Uri.to_string feed_uri
+
+  let update_feed ~now uri options seen_ids ~fetch ~prepare =
+    let process = function
+      | Error e -> e
+      | Ok feed ->
+          let feed, seen_ids, entries =
+            Process_feed.process ~now uri options seen_ids feed
+          in
+          let sender = sender_name uri feed options in
+          let mails = prepare ~sender feed options entries in
+          `Ok (seen_ids, mails)
+    in
+    Lwt.map process (fetch uri)
 
   (** [Some (first_update, seen_ids)] if the feed need to be updated. *)
   let should_update ~now data options =
@@ -167,41 +148,37 @@ struct
     | None -> Some (true, SeenSet.empty)
 
   (** Call [update] to update the feed. *)
-  let check_feed ~now url feed_datas options ~update =
-    let update_result = function
+  let check_feed ~now url feed_datas options ~fetch ~prepare =
+    let update_result ~first_update = function
       | (`Fetch_error _ | `Parsing_error _) as error -> (url, error)
       | `Ok (seen_ids, mails) ->
           let seen_ids = SeenSet.filter_removed now seen_ids in
+          (* Don't send anything on first update *)
+          let mails = if first_update then [] else mails in
           (url, `Updated (mails, seen_ids))
     in
-    let data = Feed_datas.get feed_datas url in
+    let uri = Uri.of_string url and data = Feed_datas.get feed_datas url in
     match should_update ~now data options with
     | None -> Lwt.return (url, `Uptodate)
     | Some (first_update, seen_ids) ->
-        Lwt.map update_result (update ~first_update seen_ids)
+        Lwt.map
+          (update_result ~first_update)
+          (update_feed ~now uri options seen_ids ~fetch ~prepare)
 
   (** * Check a feed for updates * Returns the list of generated mails and
       updated feed datas * Log informations by calling [log] once for each feed *)
   let check_feed_desc ~now feed_datas (feed, options) =
     match feed with
     | Feed_desc.Feed url ->
-        let update ~first_update seen_ids =
-          let uri = Uri.of_string url in
-          Check_feed.update ~first_update ~now uri options seen_ids
-        in
-        check_feed ~now url feed_datas options ~update
+        let fetch = Check_feed.fetch and prepare = Check_feed.prepare in
+        check_feed ~now url feed_datas options ~fetch ~prepare
     | Scraper (url, scraper) ->
-        let update ~first_update seen_ids =
-          let uri = Uri.of_string url in
-          Check_scraper.update ~first_update ~now uri scraper options seen_ids
-        in
-        check_feed ~now url feed_datas options ~update
+        let fetch uri = Check_scraper.fetch uri scraper
+        and prepare = Check_scraper.prepare in
+        check_feed ~now url feed_datas options ~fetch ~prepare
     | Bundle url ->
-        let update ~first_update seen_ids =
-          let uri = Uri.of_string url in
-          Check_bundle.update ~first_update ~now uri options seen_ids
-        in
-        check_feed ~now url feed_datas options ~update
+        let fetch = Check_bundle.fetch and prepare = Check_bundle.prepare in
+        check_feed ~now url feed_datas options ~fetch ~prepare
 
   let reduce_updated ~now (acc_datas, acc_mails, logs) = function
     | url, `Updated (mails, seen_ids) ->
