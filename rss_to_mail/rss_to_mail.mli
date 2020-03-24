@@ -32,7 +32,7 @@ end) : sig
 
   type nonrec feed_data = feed_data
 
-  val check :
+  val check_all :
     now:int64 ->
     Feed_datas.t ->
     Feed_desc.t list ->

@@ -92,31 +92,21 @@ struct
            | Error e -> Error (`Fetch_error e)
            | Ok contents -> parse_content contents)
 
-    let check_data ~now options = function
-      | Some (last_update, seen_ids) ->
-          let uptodate = Utils.is_uptodate now last_update options in
-          (false, uptodate, seen_ids)
-      | None -> (true, false, SeenSet.empty)
-
-    let check ~now uri options data =
-      let first_update, uptodate, seen_ids = check_data ~now options data in
-      if uptodate
-      then Lwt.return `Uptodate
-      else
-        Lwt.bind (fetch_feed uri) (function
-          | Ok feed ->
-              let feed, seen_ids, entries =
-                process ~now uri options seen_ids feed
-              in
-              let mails =
-                if first_update
-                then []
-                else
-                  let sender = sender_name uri feed options in
-                  List.map (prepare_mail ~sender feed options) entries
-              in
-              Lwt.return (`Ok (seen_ids, mails))
-          | Error err -> Lwt.return err)
+    let update ~first_update ~now uri options seen_ids =
+      Lwt.bind (fetch_feed uri) (function
+        | Ok feed ->
+            let feed, seen_ids, entries =
+              process ~now uri options seen_ids feed
+            in
+            let mails =
+              if first_update
+              then []
+              else
+                let sender = sender_name uri feed options in
+                List.map (prepare_mail ~sender feed options) entries
+            in
+            Lwt.return (`Ok (seen_ids, mails))
+        | Error err -> Lwt.return err)
   end
 
   module Check_scraper = struct
@@ -137,18 +127,6 @@ struct
                 List.map (Check_feed.prepare_mail ~sender feed options) entries
             in
             Lwt.return (`Ok (seen_ids, mails)))
-
-    let check ~now uri scraper options data =
-      let first_update, uptodate, seen_ids =
-        match data with
-        | Some (last_update, seen_ids) ->
-            let uptodate = Utils.is_uptodate now last_update options in
-            (false, uptodate, seen_ids)
-        | None -> (true, false, SeenSet.empty)
-      in
-      if uptodate
-      then Lwt.return `Uptodate
-      else update ~first_update ~now uri scraper options seen_ids
   end
 
   module Check_bundle = struct
@@ -173,47 +151,57 @@ struct
                 prepare_bundle ~sender feed options entries
             in
             Lwt.return (`Ok (seen_ids, mails)))
-
-    let check ~now uri options data =
-      let first_update, uptodate, seen_ids =
-        match data with
-        | Some (last_update, seen_ids) ->
-            let uptodate = Utils.is_uptodate now last_update options in
-            (false, uptodate, seen_ids)
-        | None -> (true, false, SeenSet.empty)
-      in
-      if uptodate
-      then Lwt.return `Uptodate
-      else update ~first_update ~now uri options seen_ids
   end
 
   type nonrec mail = mail
 
   type nonrec feed_data = feed_data
 
-  (** * Check a feed for updates * Returns the list of generated mails and
-      updated feed datas * Log informations by calling [log] once for each feed *)
-  let check_one ~now feed_datas (feed, options) =
-    let updated url = function
+  (** [Some (first_update, seen_ids)] if the feed need to be updated. *)
+  let should_update ~now data options =
+    match data with
+    | Some (last_update, seen_ids) ->
+        if Utils.is_uptodate now last_update options
+        then None
+        else Some (false, seen_ids)
+    | None -> Some (true, SeenSet.empty)
+
+  (** Call [update] to update the feed. *)
+  let check_feed ~now url feed_datas options ~update =
+    let update_result = function
+      | (`Fetch_error _ | `Parsing_error _) as error -> (url, error)
       | `Ok (seen_ids, mails) ->
           let seen_ids = SeenSet.filter_removed now seen_ids in
           (url, `Updated (mails, seen_ids))
-      | (`Uptodate | `Fetch_error _ | `Parsing_error _) as r -> (url, r)
     in
-    let get_feed_data = Feed_datas.get feed_datas in
+    let data = Feed_datas.get feed_datas url in
+    match should_update ~now data options with
+    | None -> Lwt.return (url, `Uptodate)
+    | Some (first_update, seen_ids) ->
+        Lwt.map update_result (update ~first_update seen_ids)
+
+  (** * Check a feed for updates * Returns the list of generated mails and
+      updated feed datas * Log informations by calling [log] once for each feed *)
+  let check_feed_desc ~now feed_datas (feed, options) =
     match feed with
     | Feed_desc.Feed url ->
-        let uri, data = (Uri.of_string url, get_feed_data url) in
-        let r = Check_feed.check ~now uri options data in
-        Lwt.map (updated url) r
+        let update ~first_update seen_ids =
+          let uri = Uri.of_string url in
+          Check_feed.update ~first_update ~now uri options seen_ids
+        in
+        check_feed ~now url feed_datas options ~update
     | Scraper (url, scraper) ->
-        let uri, data = (Uri.of_string url, get_feed_data url) in
-        let r = Check_scraper.check ~now uri scraper options data in
-        Lwt.map (updated url) r
+        let update ~first_update seen_ids =
+          let uri = Uri.of_string url in
+          Check_scraper.update ~first_update ~now uri scraper options seen_ids
+        in
+        check_feed ~now url feed_datas options ~update
     | Bundle url ->
-        let uri, data = (Uri.of_string url, get_feed_data url) in
-        let r = Check_bundle.check ~now uri options data in
-        Lwt.map (updated url) r
+        let update ~first_update seen_ids =
+          let uri = Uri.of_string url in
+          Check_bundle.update ~first_update ~now uri options seen_ids
+        in
+        check_feed ~now url feed_datas options ~update
 
   let reduce_updated ~now (acc_datas, acc_mails, logs) = function
     | url, `Updated (mails, seen_ids) ->
@@ -225,7 +213,7 @@ struct
 
   (** Update a list of feeds in parallel *)
   let check_all ~now feed_datas feeds =
-    Lwt_list.map_p (check_one ~now feed_datas) feeds
+    Lwt_list.map_p (check_feed_desc ~now feed_datas) feeds
     |> Lwt.map (fun results ->
            let feed_datas, mails, logs =
              List.fold_left (reduce_updated ~now) (feed_datas, [], []) results
