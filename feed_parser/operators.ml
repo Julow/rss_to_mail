@@ -11,3 +11,5 @@ let ( >$ ) nopt f = Option.bind nopt f
 let ( >> ) nlst f = List.map f nlst
 
 let ( >>$ ) nlst f = List.filter_map f nlst
+
+let ( % ) f g x = f (g x)

@@ -63,4 +63,4 @@ type t = feed Scrap.t
 
 (** Perform scraping *)
 let scrap ~resolve_uri t source =
-  scrap ~resolve_uri (source |> Soup.(require % child_element % parse)) t
+  scrap ~resolve_uri (Soup.parse source |> Soup.R.child_element) t

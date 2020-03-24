@@ -8,5 +8,3 @@ module List = struct
 end
 
 module StringMap = Map.Make (String)
-
-let ( % ) f g x = f (g x)

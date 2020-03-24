@@ -61,10 +61,10 @@ struct
           Error (`Parsing_error (pos, err))
       | feed -> Ok feed
     in
-    Lwt.bind (Fetch.fetch uri)
-      (Lwt.return % function
-       | Error e -> Error (`Fetch_error e)
-       | Ok contents -> parse_content contents)
+    Fetch.fetch uri
+    |> Lwt.map (function
+         | Error e -> Error (`Fetch_error e)
+         | Ok contents -> parse_content contents)
 
   let check_data ~now options = function
     | Some (last_update, seen_ids) ->
