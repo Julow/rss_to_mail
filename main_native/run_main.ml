@@ -26,7 +26,7 @@ let parse_certs certs_file =
 let metrics_updates ~mails logs =
   let updated = ref 0 and errors = ref 0 in
   let log_update = function
-    | url, `Update { Rss_to_mail.entries } ->
+    | url, `Updated { Rss_to_mail.entries } ->
         incr updated;
         Logs.info (fun fmt -> fmt "%s: %d new entries" url entries)
     | url, `Parsing_error ((line, col), msg) ->

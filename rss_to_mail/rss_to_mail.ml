@@ -218,7 +218,7 @@ struct
   let reduce_updated ~now (acc_datas, acc_mails, logs) = function
     | url, `Updated (mails, seen_ids) ->
         let data = (now, seen_ids) in
-        let logs = (url, `Update { entries = List.length mails }) :: logs in
+        let logs = (url, `Updated { entries = List.length mails }) :: logs in
         (Feed_datas.set acc_datas url data, mails @ acc_mails, logs)
     | (_, (`Fetch_error _ | `Parsing_error _ | `Uptodate)) as log ->
         (acc_datas, acc_mails, log :: logs)
