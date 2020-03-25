@@ -61,7 +61,7 @@ let print_log = function
   | url, `Fetch_error code -> printf "Log: %s: Fetch error %d\n" url code
   | url, `Parsing_error ((line, col), msg) ->
       printf "Log: %s: Parsing error (line %d, col %d)\n%s\n" url line col msg
-  | url, `Update { Rss_to_mail.entries } ->
+  | url, `Updated { Rss_to_mail.entries } ->
       printf "Log: %s: %d entries\n" url entries
   | url, `Uptodate -> printf "Log: %s: Uptodate\n" url
 
