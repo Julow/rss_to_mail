@@ -141,6 +141,10 @@ let feed_datas_input = {|
  (unsent
   ((sender subject "body_html")
    (sender subject "body_html" "body_text")
+   ((sender sender)
+    (subject subject)
+    (body_html "body_html")
+    (body_text "body_text"))
 
   )))
 |}
@@ -160,13 +164,21 @@ Parsed:
   [{Rss_to_mail.sender = "sender"; subject = "subject";
     body_html = "body_html"; body_text = ""};
    {Rss_to_mail.sender = "sender"; subject = "subject";
+    body_html = "body_html"; body_text = "body_text"};
+   {Rss_to_mail.sender = "sender"; subject = "subject";
     body_html = "body_html"; body_text = "body_text"}]}
 ```
 
 Printed:
 
 ```ocaml
-# Persistent_data.save_feed_datas feed_datas |> CCSexp.to_string ;;
-- : string =
-"((feed_data ((feed_1 1234567890 ((id_2 1234567890) id_1)))) (unsent ((sender subject body_html ) (sender subject body_html body_text))))"
+# Persistent_data.save_feed_datas feed_datas |> Format.printf "%a@\n" CCSexp.pp ;;
+((feed_data ((feed_1 1234567890 ((id_2 1234567890) id_1))))
+ (unsent
+  (((sender sender) (subject subject) (body_html body_html) (body_text ))
+   ((sender sender) (subject subject) (body_html body_html)
+    (body_text body_text))
+   ((sender sender) (subject subject) (body_html body_html)
+    (body_text body_text)))))
+- : unit = ()
 ```
