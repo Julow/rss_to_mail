@@ -50,7 +50,8 @@ let parse_scraper =
           | _ -> failwith "Invalid target"
         in
         Entry (List.map (scraper ~target) ts)
-    | _ -> failwith "Invalid target"
+    | `Atom target -> failwith ("Invalid target: " ^ target)
+    | `List _ -> failwith "Expecting target"
   in
   fun ts -> R (List.map (rule ~target) ts)
 

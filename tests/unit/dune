@@ -1,3 +1,16 @@
 (test
  (name run_tests)
  (libraries alcotest rss_to_mail calendar))
+
+(rule
+ (deps
+  (package rss_to_mail))
+ (action
+  (with-stdout-to
+   persistent_data.output
+   (run ocaml-mdx test -o - %{dep:persistent_data.md}))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff persistent_data.md persistent_data.output)))

@@ -24,5 +24,6 @@ depends: [
   "ptime"
   "cstruct-unix"
   "alcotest" { with-test }
+  "mdx" { with-test }
 ]
 build: [[ "dune" "build" "-p" name "-j" jobs ]]
