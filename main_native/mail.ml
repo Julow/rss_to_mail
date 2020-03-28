@@ -85,6 +85,7 @@ let send_mails ~certs ~random_seed conf mails =
       [
         Printf.sprintf "From: %s <%s>" t.sender
           conf.Persistent_data.from_address;
+        Printf.sprintf "To: <%s>" conf.to_address;
         "Subject: " ^ t.subject;
         "Content-Type: multipart/alternative; boundary=" ^ boundary;
         "X-Entity-Ref-ID: " ^ random_seed ^ string_of_int i;
