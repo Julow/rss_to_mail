@@ -53,7 +53,7 @@ let stream_strings_to_lines t =
           nl := true;
           r
 
-let send_mail ~certs (conf : Persistent_data.config) body =
+let send_mail ~certs (conf : Persistent_data.config) ~to_address body =
   let open Colombe in
   let hostname, port = conf.server in
   let hostname = Domain_name.of_string_exn hostname
@@ -64,7 +64,7 @@ let send_mail ~certs (conf : Persistent_data.config) body =
   let recipients =
     [
       fst
-      @@ Forward_path.Parser.of_string (Printf.sprintf "<%s>" conf.to_address);
+      @@ Forward_path.Parser.of_string (Printf.sprintf "<%s>" to_address);
     ]
   in
   let (`Plain (username, password)) = conf.server_auth in
@@ -79,13 +79,18 @@ let send_mail ~certs (conf : Persistent_data.config) body =
 (** Send a list of mail to [to_] Returns the list of unsent emails *)
 let send_mails ~certs ~random_seed conf mails =
   let send (i, (t : Rss_to_mail.mail)) =
+    let to_address =
+      match t.to_ with
+      | Some a -> a
+      | None -> conf.Persistent_data.to_address
+    in
     Logs.debug (fun fmt -> fmt "Sending \"%s\" \"%s\"" t.sender t.subject);
     let boundary = "rss_to_mail-boundary-" ^ random_seed in
     let headers =
       [
         Printf.sprintf "From: %s <%s>" t.sender
           conf.Persistent_data.from_address;
-        Printf.sprintf "To: <%s>" conf.to_address;
+        Printf.sprintf "To: <%s>" to_address;
         "Subject: " ^ t.subject;
         "Content-Type: multipart/alternative; boundary=" ^ boundary;
         "X-Entity-Ref-ID: " ^ random_seed ^ string_of_int i;
@@ -109,7 +114,7 @@ let send_mails ~certs ~random_seed conf mails =
              stream_of_strings [ "--" ^ boundary ^ "--"; "" ];
            ]
     in
-    send_mail ~certs conf body
+    send_mail ~certs conf ~to_address body
   in
   (* At most 2 mails sending in parallel *)
   let send_pooled = Utils.pooled 2 send in

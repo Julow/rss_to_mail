@@ -13,11 +13,12 @@ type options = {
   filter : (Str.regexp * bool) list;
       (** Filter entries by regex The boolean is the expected result of
           [string_match] *)
+  to_ : string option; (** Destination email address *)
 }
 
 let make_options ?(refresh = `Every 6.) ?title ?label ?(no_content = false)
-    ?(filter = []) () =
-  { refresh; title; label; no_content; filter }
+    ?(filter = []) ?to_ () =
+  { refresh; title; label; no_content; filter; to_ }
 
 type desc =
   | Feed of string

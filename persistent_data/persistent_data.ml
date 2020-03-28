@@ -29,6 +29,12 @@ let one_or_more = function [] -> failwith "Expecting a value" | v -> v
 
 let required = function Some v -> v | None -> failwith "Value required"
 
+let opt f = function
+  | `List [] -> None
+  | `List [ t ] -> Some (f t)
+  | `Atom _ as t -> Some (f t)
+  | `List (_ :: _ :: _) -> failwith "Expecting a single value"
+
 let parse_scraper =
   let open Scrap in
   let rec scraper ~target = function
@@ -118,6 +124,7 @@ let load_feeds (sexp : sexp) =
     | "no_content" ->
         { opts with no_content = bool_of_string (atom (one values)) }
     | "filter" -> { opts with filter = List.map parse_filter values }
+    | "to" -> { opts with to_ = Some (atom (one values)) }
     | _ -> failwith "Unknown option"
   in
 
@@ -233,15 +240,16 @@ let load_feed_datas (sexp : sexp) =
   let parse_unsent = function
     (* Compat, can be removed anytime *)
     | `List [ `Atom sender; `Atom subject; `Atom body_html ] ->
-        Rss_to_mail.{ sender; subject; body_html; body_text = "" }
+        Rss_to_mail.{ sender; subject; body_html; body_text = ""; to_ = None }
     | `List [ `Atom sender; `Atom subject; `Atom body_html; `Atom body_text ] ->
-        Rss_to_mail.{ sender; subject; body_html; body_text }
+        Rss_to_mail.{ sender; subject; body_html; body_text; to_ = None }
     | sexp ->
         let sender = atom @@ required @@ record "sender" sexp
+        and to_ = Option.bind (record "to" sexp) (fun t -> opt atom t)
         and subject = atom @@ required @@ record "subject" sexp
         and body_html = atom @@ required @@ record "body_html" sexp
         and body_text = atom @@ required @@ record "body_text" sexp in
-        Rss_to_mail.{ sender; subject; body_html; body_text }
+        Rss_to_mail.{ sender; to_; subject; body_html; body_text }
   in
   let feed_datas =
     match record "feed_data" sexp with
@@ -271,10 +279,12 @@ let save_feed_datas { feed_datas; unsent_mails } : sexp =
         `List (SeenSet.fold gen_id ids []);
       ]
     :: lst
-  and gen_unsent Rss_to_mail.{ sender; subject; body_html; body_text } =
+  and gen_unsent Rss_to_mail.{ sender; to_; subject; body_html; body_text } =
+    let to_ = match to_ with Some to_ -> [ `Atom to_ ] | None -> [] in
     `List
       [
         `List [ `Atom "sender"; `Atom sender ];
+        `List [ `Atom "to"; `List to_ ];
         `List [ `Atom "subject"; `Atom subject ];
         `List [ `Atom "body_html"; `Atom body_html ];
         `List [ `Atom "body_text"; `Atom body_text ];

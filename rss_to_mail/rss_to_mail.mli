@@ -1,5 +1,6 @@
-type mail = Mail_body.t = {
+type mail = {
   sender : string;
+  to_ : string option;
   subject : string;
   body_html : string;
   body_text : string;

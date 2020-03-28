@@ -116,13 +116,6 @@ end
 module HtmlRender = Render (Mail_body_html)
 module TextRender = Render (Mail_body_text)
 
-type t = {
-  sender : string;
-  subject : string;
-  body_html : string;
-  body_text : string;
-}
-
 let gen_summary = function
   | [] -> None
   | [ { summary = Some (Feed.Text sum); _ } ] -> Some sum
@@ -132,16 +125,10 @@ let gen_summary = function
       Some (String.concat ", " titles)
 
 let gen_mail ~sender ?label feed entries =
-  let subject =
-    match entries with
-    | [ { title = Some title; _ } ] -> title
-    | [ { title = None; _ } ] -> "New entry from " ^ sender
-    | entries -> string_of_int (List.length entries) ^ " entries from " ^ sender
-  in
   let hidden_summary = gen_summary entries in
   let body_html =
     HtmlRender.render_body ~sender ?label ?hidden_summary feed entries
   and body_text =
     TextRender.render_body ~sender ?label ?hidden_summary feed entries
   in
-  { sender; subject; body_html; body_text }
+  (body_html, body_text)

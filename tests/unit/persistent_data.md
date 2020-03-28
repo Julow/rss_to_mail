@@ -42,7 +42,7 @@ let config_input = {|
    (feed_3 (refresh 3.)) ; Refresh every 3 hours
    (feed_4 (refresh (at 17:00))) ; Refresh every day at 5PM
    (feed_5 (refresh (at 17:00 wed))) ; Refresh every week on wednesday at 5PM
-   (feed_6 (title "Title") (label "Label") (no_content true))
+   (feed_6 (title "Title") (label "Label") (no_content true) (to other@address))
    (feed_7 (filter "filter1" ("filter2") (not "filter3")))
 
    ((bundle bundle_1))
@@ -79,32 +79,34 @@ let config_input = Result.get_ok (CCSexp.parse_string config_input)
  feeds =
   [(Feed_desc.Feed "feed_1",
     {Feed_desc.refresh = `Every 4.; title = None; label = None;
-     no_content = false; filter = []});
+     no_content = false; filter = []; to_ = None});
    (Feed_desc.Feed "feed_2",
     {Feed_desc.refresh = `Every 4.; title = None; label = None;
-     no_content = false; filter = []});
+     no_content = false; filter = []; to_ = None});
    (Feed_desc.Feed "feed_3",
     {Feed_desc.refresh = `Every 3.; title = None; label = None;
-     no_content = false; filter = []});
+     no_content = false; filter = []; to_ = None});
    (Feed_desc.Feed "feed_4",
     {Feed_desc.refresh = `At (17, 0); title = None; label = None;
-     no_content = false; filter = []});
+     no_content = false; filter = []; to_ = None});
    (Feed_desc.Feed "feed_5",
     {Feed_desc.refresh = `At_weekly (CalendarLib.Date.Wed, 17, 0);
-     title = None; label = None; no_content = false; filter = []});
+     title = None; label = None; no_content = false; filter = []; to_ = None});
    (Feed_desc.Feed "feed_6",
     {Feed_desc.refresh = `Every 4.; title = Some "Title";
-     label = Some "Label"; no_content = true; filter = []});
+     label = Some "Label"; no_content = true; filter = [];
+     to_ = Some "other@address"});
    (Feed_desc.Feed "feed_7",
     {Feed_desc.refresh = `Every 4.; title = None; label = None;
      no_content = false;
-     filter = [(<abstr>, true); (<abstr>, true); (<abstr>, false)]});
+     filter = [(<abstr>, true); (<abstr>, true); (<abstr>, false)];
+     to_ = None});
    (Feed_desc.Bundle "bundle_1",
     {Feed_desc.refresh = `Every 4.; title = None; label = None;
-     no_content = false; filter = []});
+     no_content = false; filter = []; to_ = None});
    (Feed_desc.Bundle "bundle_2",
     {Feed_desc.refresh = `Every 2.; title = None; label = None;
-     no_content = false; filter = []});
+     no_content = false; filter = []; to_ = None});
    (Feed_desc.Scraper ("scraper_1",
      Scrap.R
       [("sel1",
@@ -115,16 +117,16 @@ let config_input = Result.get_ok (CCSexp.parse_string config_input)
               ("sel12", Scrap.T [Scraper.Summary])]]]);
        ("sel2", Scrap.T [Scraper.Feed_title; Scraper.Feed_icon])]),
     {Feed_desc.refresh = `Every 4.; title = None; label = None;
-     no_content = false; filter = []});
+     no_content = false; filter = []; to_ = None});
    (Feed_desc.Feed "with_opts_1",
     {Feed_desc.refresh = `Every 1.; title = None; label = Some "Label";
-     no_content = false; filter = []});
+     no_content = false; filter = []; to_ = None});
    (Feed_desc.Feed "with_opts_2",
     {Feed_desc.refresh = `Every 0.; title = None; label = Some "Label";
-     no_content = false; filter = []});
+     no_content = false; filter = []; to_ = None});
    (Feed_desc.Feed "with_opts_3",
     {Feed_desc.refresh = `Every 1.; title = None; label = Some "Label2";
-     no_content = false; filter = []})]}
+     no_content = false; filter = []; to_ = None})]}
 ```
 
 ## Feed datas
@@ -143,6 +145,7 @@ let feed_datas_input = {|
    (sender subject "body_html" "body_text")
    ((sender sender)
     (subject subject)
+    (to other@address)
     (body_html "body_html")
     (body_text "body_text"))
 
@@ -161,12 +164,12 @@ Parsed:
 {Persistent_data.feed_datas =
   { feed_1: (1234567890L, [ "id_1" ("id_2" 1234567890L) ]) };
  unsent_mails =
-  [{Rss_to_mail.sender = "sender"; subject = "subject";
+  [{Rss_to_mail.sender = "sender"; to_ = None; subject = "subject";
     body_html = "body_html"; body_text = ""};
-   {Rss_to_mail.sender = "sender"; subject = "subject";
+   {Rss_to_mail.sender = "sender"; to_ = None; subject = "subject";
     body_html = "body_html"; body_text = "body_text"};
-   {Rss_to_mail.sender = "sender"; subject = "subject";
-    body_html = "body_html"; body_text = "body_text"}]}
+   {Rss_to_mail.sender = "sender"; to_ = Some "other@address";
+    subject = "subject"; body_html = "body_html"; body_text = "body_text"}]}
 ```
 
 Printed:
@@ -175,10 +178,11 @@ Printed:
 # Persistent_data.save_feed_datas feed_datas |> Format.printf "%a@\n" CCSexp.pp ;;
 ((feed_data ((feed_1 1234567890 ((id_2 1234567890) id_1))))
  (unsent
-  (((sender sender) (subject subject) (body_html body_html) (body_text ))
-   ((sender sender) (subject subject) (body_html body_html)
+  (((sender sender) (to ()) (subject subject) (body_html body_html)
+    (body_text ))
+   ((sender sender) (to ()) (subject subject) (body_html body_html)
     (body_text body_text))
-   ((sender sender) (subject subject) (body_html body_html)
-    (body_text body_text)))))
+   ((sender sender) (to (other@address)) (subject subject)
+    (body_html body_html) (body_text body_text)))))
 - : unit = ()
 ```

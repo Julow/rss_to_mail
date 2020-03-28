@@ -1,5 +1,6 @@
-type mail = Mail_body.t = {
+type mail = {
   sender : string;
+  to_ : string option;
   subject : string;
   body_html : string;
   body_text : string;
@@ -68,11 +69,12 @@ struct
       (feed, seen_ids, entries)
   end
 
-  module Check_feed = struct
-    let prepare_mail ~sender feed options entry =
-      let label = options.Feed_desc.label in
-      Mail_body.gen_mail ~sender ?label feed [ entry ]
+  let prepare_mail ~subject ~sender feed options entries =
+    let label, to_ = Feed_desc.(options.label, options.to_) in
+    let body_html, body_text = Mail_body.gen_mail ~sender ?label feed entries in
+    { sender; to_; subject; body_html; body_text }
 
+  module Check_feed = struct
     let fetch uri =
       let resolve_uri = Uri.resolve "" uri in
       let parse_content contents =
@@ -87,7 +89,15 @@ struct
            | Ok contents -> parse_content contents)
 
     let prepare ~sender feed options entries =
-      List.map (prepare_mail ~sender feed options) entries
+      let prepare entry =
+        let subject =
+          match entry.Feed.title with
+          | Some title -> title
+          | None -> "New entry from " ^ sender
+        in
+        prepare_mail ~subject ~sender feed options [ entry ]
+      in
+      List.map prepare entries
   end
 
   module Check_scraper = struct
@@ -98,19 +108,21 @@ struct
            | Ok contents ->
                let resolve_uri = Uri.resolve "" uri in
                Ok (Scraper.scrap ~resolve_uri scraper contents))
-
-    let prepare ~sender feed options entries =
-      List.map (Check_feed.prepare_mail ~sender feed options) entries
   end
 
   module Check_bundle = struct
     let fetch = Check_feed.fetch
 
-    let prepare ~sender feed options = function
+    let prepare ~sender feed options entries =
+      let prep subject =
+        [ prepare_mail ~subject ~sender feed options entries ]
+      in
+      match entries with
       | [] -> []
-      | entries ->
-          let label = options.Feed_desc.label in
-          [ Mail_body.gen_mail ~sender ?label feed entries ]
+      | [ Feed.{ title = Some title; _ } ] -> prep title
+      | _ ->
+          prep
+            (Format.sprintf "%d entries from %s" (List.length entries) sender)
   end
 
   type nonrec mail = mail
@@ -174,7 +186,7 @@ struct
         check_feed ~now url feed_datas options ~fetch ~prepare
     | Scraper (url, scraper) ->
         let fetch uri = Check_scraper.fetch uri scraper
-        and prepare = Check_scraper.prepare in
+        and prepare = Check_feed.prepare in
         check_feed ~now url feed_datas options ~fetch ~prepare
     | Bundle url ->
         let fetch = Check_bundle.fetch and prepare = Check_bundle.prepare in
