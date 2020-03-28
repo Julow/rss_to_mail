@@ -4,6 +4,25 @@
 (* Prelude *)
 #require "containers.sexp";;
 #require "rss_to_mail.persistent_data";;
+#require "rss_to_mail";;
+
+let pp_seen_set ppf : SeenSet.t -> unit =
+  let pp_elem ppf id removed () =
+    match removed with
+    | Some time -> Format.fprintf ppf "(%S %LdL)@ " id time
+    | None -> Format.fprintf ppf "%S@ " id
+  in
+  let pp ppf set = SeenSet.fold (pp_elem ppf) set () in
+  Format.fprintf ppf "@[<hv 2>[ %a]@]" pp
+
+let pp_string_map pp_a ppf : 'a Persistent_data.StringMap.t -> unit =
+  let pp_binding ppf key a = Format.fprintf ppf "%s: %a@ " key pp_a a in
+  let pp_map ppf m = Persistent_data.StringMap.iter (pp_binding ppf) m in
+  Format.fprintf ppf "@[<hv 2>{ %a}@]" pp_map
+
+;;
+#install_printer pp_seen_set;;
+#install_printer pp_string_map;;
 ```
 
 ## Config
@@ -106,4 +125,48 @@ let config_input = Result.get_ok (CCSexp.parse_string config_input)
    (Feed_desc.Feed "with_opts_3",
     {Feed_desc.refresh = `Every 1.; title = None; label = Some "Label2";
      no_content = false; filter = []})]}
+```
+
+## Feed datas
+
+```ocaml
+let feed_datas_input = {|
+((feed_data
+  ((feed_1 1234567890
+    (id_1
+     (id_2 1234567890)
+
+    )
+  )))
+ (unsent
+  ((sender subject "body_html")
+   (sender subject "body_html" "body_text")
+
+  )))
+|}
+
+let feed_datas_input = Result.get_ok (CCSexp.parse_string feed_datas_input)
+let feed_datas = Persistent_data.load_feed_datas feed_datas_input
+```
+
+Parsed:
+
+```ocaml
+# feed_datas ;;
+- : Persistent_data.feed_datas =
+{Persistent_data.feed_datas =
+  { feed_1: (1234567890L, [ "id_1" ("id_2" 1234567890L) ]) };
+ unsent_mails =
+  [{Rss_to_mail.sender = "sender"; subject = "subject";
+    body_html = "body_html"; body_text = ""};
+   {Rss_to_mail.sender = "sender"; subject = "subject";
+    body_html = "body_html"; body_text = "body_text"}]}
+```
+
+Printed:
+
+```ocaml
+# Persistent_data.save_feed_datas feed_datas |> CCSexp.to_string ;;
+- : string =
+"((feed_data ((feed_1 1234567890 ((id_2 1234567890) id_1)))) (unsent ((sender subject body_html ) (sender subject body_html body_text))))"
 ```
