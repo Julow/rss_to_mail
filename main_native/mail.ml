@@ -53,28 +53,30 @@ let stream_strings_to_lines t =
           nl := true;
           r
 
+let lwt_stream t () = Lwt.return (t ())
+
 let send_mail ~certs (conf : Persistent_data.config) ~to_address body =
   let open Colombe in
   let hostname, port = conf.server in
   let hostname = Domain_name.of_string_exn hostname
   and domain = Domain.of_string_exn hostname in
   let from, _ =
-    Reverse_path.Parser.of_string (Printf.sprintf "<%s>" conf.from_address)
+    Reverse_path.Decoder.of_string (Printf.sprintf "<%s>" conf.from_address)
   in
   let recipients =
     [
       fst
-      @@ Forward_path.Parser.of_string (Printf.sprintf "<%s>" to_address);
+      @@ Forward_path.Decoder.of_string (Printf.sprintf "<%s>" to_address);
     ]
   in
-  let (`Plain (username, password)) = conf.server_auth in
-  let auth = Some (Auth.make ~username password) in
   let authenticator =
     let time () = Some (Ptime_clock.now ()) in
     X509.Authenticator.chain_of_trust ~time certs
   in
-  Sendmail_lwt.run ~hostname ~port ~domain ~authenticator ~from ~recipients auth
-    body
+  let (`Plain (username, password)) = conf.server_auth in
+  let authentication = Sendmail.{ username; password; mechanism = PLAIN } in
+  Sendmail_lwt.sendmail ~hostname ~port ~domain ~authenticator ~authentication from
+    recipients body
 
 (** Send a list of mail to [to_] Returns the list of unsent emails *)
 let send_mails ~certs ~random_seed conf mails =
@@ -114,7 +116,7 @@ let send_mails ~certs ~random_seed conf mails =
              stream_of_strings [ "--" ^ boundary ^ "--"; "" ];
            ]
     in
-    send_mail ~certs conf ~to_address body
+    send_mail ~certs conf ~to_address (lwt_stream body)
   in
   (* At most 2 mails sending in parallel *)
   let send_pooled = Utils.pooled 2 send in
@@ -127,7 +129,7 @@ let send_mails ~certs ~random_seed conf mails =
          | Error e ->
              Logs.err (fun fmt ->
                  fmt "Failed sending mail \"%s\":\n %a" t.subject
-                   Sendmail_lwt.pp_error e);
+                   Sendmail.pp_error e);
              Lwt.return_some t
          | Ok () -> Lwt.return_none)
   |> Lwt.map (List.filter_map Fun.id)

@@ -17,7 +17,7 @@ depends: [
 	"tyxml"
 	"tyxml-ppx"
 	"calendar"
-	"colombe"
+	"colombe" { = "0.2.0" }
 	"sendmail-lwt"
   "logs"
   "x509" { >= "0.10" }
