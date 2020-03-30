@@ -21,7 +21,7 @@ let source_kind src =
 let read_scraper () =
   match CCSexp.parse_chan_list stdin with
   | Ok sexp -> (
-      try Ok (Persistent_data.parse_scraper sexp) with Failure e -> Error e
+      try Ok (Config.parse_scraper sexp) with Failure e -> Error e
     )
   | Error msg -> Error ("Syntax error: " ^ msg)
 

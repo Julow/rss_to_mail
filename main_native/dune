@@ -3,6 +3,6 @@
  (public_name rss_to_mail)
  (libraries lwt cohttp-lwt-unix rss_to_mail scraper cmdliner persistent_data
    colombe sendmail-lwt logs logs.cli logs.fmt containers containers.sexp
-   x509 ptime cstruct-unix)
+   x509 ptime cstruct-unix config)
  (preprocess
   (pps lwt_ppx)))

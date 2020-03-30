@@ -1,6 +1,6 @@
 (executable
  (name test)
- (libraries lwt lwt.unix rss_to_mail persistent_data))
+ (libraries lwt lwt.unix rss_to_mail persistent_data config))
 
 (rule
  (deps

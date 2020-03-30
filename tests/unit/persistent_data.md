@@ -4,6 +4,7 @@
 (* Prelude *)
 #require "containers.sexp";;
 #require "rss_to_mail.persistent_data";;
+#require "rss_to_mail.config";;
 #require "rss_to_mail";;
 
 let pp_seen_set ppf : SeenSet.t -> unit =
@@ -71,11 +72,10 @@ let config_input = Result.get_ok (CCSexp.parse_string config_input)
 ```
 
 ```ocaml
-# Persistent_data.load_feeds config_input ;;
-- : Persistent_data.config =
-{Persistent_data.server = ("server", 465);
- server_auth = `Plain ("id", "password"); from_address = "from@address";
- to_address = "to@address";
+# Config.parse config_input ;;
+- : Config.t =
+{Config.server = ("server", 465); server_auth = `Plain ("id", "password");
+ from_address = "from@address"; to_address = "to@address";
  feeds =
   [(Feed_desc.Feed "feed_1",
     {Feed_desc.refresh = `Every 4.; title = None; label = None;
@@ -153,14 +153,14 @@ let feed_datas_input = {|
 |}
 
 let feed_datas_input = Result.get_ok (CCSexp.parse_string feed_datas_input)
-let feed_datas = Persistent_data.load_feed_datas feed_datas_input
+let feed_datas = Persistent_data.load feed_datas_input
 ```
 
 Parsed:
 
 ```ocaml
 # feed_datas ;;
-- : Persistent_data.feed_datas =
+- : Persistent_data.t =
 {Persistent_data.feed_datas =
   { feed_1: (1234567890L, [ "id_1" ("id_2" 1234567890L) ]) };
  unsent_mails =
@@ -175,7 +175,7 @@ Parsed:
 Printed:
 
 ```ocaml
-# Persistent_data.save_feed_datas feed_datas |> Format.printf "%a@\n" CCSexp.pp ;;
+# Persistent_data.save feed_datas |> Format.printf "%a@\n" CCSexp.pp ;;
 ((feed_data ((feed_1 1234567890 ((id_2 1234567890) id_1))))
  (unsent
   (((sender sender) (to ()) (subject subject) (body_html body_html)

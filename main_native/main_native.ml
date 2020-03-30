@@ -7,18 +7,18 @@ let parse_config_file config_file =
   match CCSexp.parse_file config_file with
   | exception Sys_error msg -> err msg
   | Error msg -> err msg
-  | Ok sexp -> Persistent_data.load_feeds sexp
+  | Ok sexp -> Config.parse sexp
 
 let with_feed_datas config_file f =
   let config = parse_config_file config_file in
   let datas =
     match CCSexp.parse_file feed_datas_file with
-    | exception Sys_error _ -> Persistent_data.empty_datas
-    | Error _ -> Persistent_data.empty_datas
-    | Ok sexp -> Persistent_data.load_feed_datas sexp
+    | exception Sys_error _ -> Persistent_data.empty
+    | Error _ -> Persistent_data.empty
+    | Ok sexp -> Persistent_data.load sexp
   in
   let%lwt datas = f config datas in
-  CCSexp.to_file feed_datas_file (Persistent_data.save_feed_datas datas);
+  CCSexp.to_file feed_datas_file (Persistent_data.save datas);
   Lwt.return_unit
 
 let run_command (`Config, config_file) () (`Certs, certs) =
