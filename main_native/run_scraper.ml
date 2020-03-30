@@ -19,11 +19,12 @@ let source_kind src =
       (resolve_uri, fetch)
 
 let read_scraper () =
-  match CCSexp.parse_chan_list stdin with
-  | Ok sexp -> (
-      try Ok (Persistent_data.parse_scraper sexp) with Failure e -> Error e
+  match Sexplib.Sexp.input_sexps stdin with
+  | exception Sexplib.Sexp.Parse_error { err_msg; _ } ->
+    Error ("Syntax error: " ^ err_msg)
+  | sexp -> (
+      try Ok (Config.parse_scraper sexp) with Failure e -> Error e
     )
-  | Error msg -> Error ("Syntax error: " ^ msg)
 
 let print_feed (feed : Feed.t) =
   let content_to_string = function Feed.Text s -> s | Html _ -> "<html>" in

@@ -3,22 +3,21 @@
 let feed_datas_file = "feed_datas.sexp"
 
 let parse_config_file config_file =
-  let err msg = failwith (Printf.sprintf "Error: %s: %s" config_file msg) in
-  match CCSexp.parse_file config_file with
-  | exception Sys_error msg -> err msg
-  | Error msg -> err msg
-  | Ok sexp -> Persistent_data.load_feeds sexp
+  match Sexplib.Sexp.load_sexp config_file with
+  | exception Sexplib.Sexp.Parse_error { err_msg; _ } -> failwith err_msg
+  | exception (Failure _ as e) -> raise e
+  | sexp -> Config.parse sexp
 
 let with_feed_datas config_file f =
   let config = parse_config_file config_file in
   let datas =
-    match CCSexp.parse_file feed_datas_file with
-    | exception Sys_error _ -> Persistent_data.empty_datas
-    | Error _ -> Persistent_data.empty_datas
-    | Ok sexp -> Persistent_data.load_feed_datas sexp
+    match Sexplib.Sexp.load_sexps feed_datas_file with
+    | exception Sexplib.Sexp.Parse_error { err_msg; _ } -> failwith err_msg
+    | exception (Failure _ as e) -> raise e
+    | sexp -> Persistent_data.load sexp
   in
   let%lwt datas = f config datas in
-  CCSexp.to_file feed_datas_file (Persistent_data.save_feed_datas datas);
+  Sexplib.Sexp.save_sexps_mach feed_datas_file (Persistent_data.save datas);
   Lwt.return_unit
 
 let run_command (`Config, config_file) () (`Certs, certs) =

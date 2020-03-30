@@ -55,7 +55,7 @@ let stream_strings_to_lines t =
 
 let lwt_stream t () = Lwt.return (t ())
 
-let send_mail ~certs (conf : Persistent_data.config) ~to_address body =
+let send_mail ~certs (conf : Config.t) ~to_address body =
   let open Colombe in
   let hostname, port = conf.server in
   let hostname = Domain_name.of_string_exn hostname
@@ -84,14 +84,14 @@ let send_mails ~certs ~random_seed conf mails =
     let to_address =
       match t.to_ with
       | Some a -> a
-      | None -> conf.Persistent_data.to_address
+      | None -> conf.Config.to_address
     in
     Logs.debug (fun fmt -> fmt "Sending \"%s\" \"%s\"" t.sender t.subject);
     let boundary = "rss_to_mail-boundary-" ^ random_seed in
     let headers =
       [
         Printf.sprintf "From: %s <%s>" t.sender
-          conf.Persistent_data.from_address;
+          conf.Config.from_address;
         Printf.sprintf "To: <%s>" to_address;
         "Subject: " ^ t.subject;
         "Content-Type: multipart/alternative; boundary=" ^ boundary;

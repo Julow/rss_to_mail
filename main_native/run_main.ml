@@ -50,8 +50,8 @@ let metrics_mails ~to_retry ~unsent_mails =
       let unsent = List.length unsent_mails in
       if unsent > 0 then fmt "%d emails could not be sent" unsent)
 
-let run ~certs (conf : Persistent_data.config)
-    (datas : Persistent_data.feed_datas) =
+let run ~certs (conf : Config.t)
+    (datas : Persistent_data.t) =
   let certs = parse_certs certs in
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = Unix.time () |> Int64.of_float in

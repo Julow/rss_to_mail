@@ -1,4 +1,5 @@
 (library
  (name persistent_data)
  (public_name rss_to_mail.persistent_data)
- (libraries rss_to_mail scraper containers.sexp calendar))
+ (libraries rss_to_mail scraper sexplib0 calendar)
+ (preprocess (pps ppx_sexp_conv)))
