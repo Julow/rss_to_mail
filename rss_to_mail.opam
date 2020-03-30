@@ -4,7 +4,6 @@ homepage: "https://github.com/Julow/rss_to_mail"
 depends: [
   "ocaml" { build & >= "4.10.0" }
 	"dune" { build & >= "2.0" }
-	"containers"
 	"uri"
 	"xmlm"
 	"markup"

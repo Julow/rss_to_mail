@@ -15,13 +15,20 @@ let source_kind src =
       in
       (resolve_uri, fetch)
   | None ->
-      let resolve_uri u = u and fetch () = Lwt.return (CCIO.File.read src) in
+      let resolve_uri u = u
+      and fetch () =
+        Lwt.catch
+          (fun () ->
+            Lwt_io.lines_of_file src |> Lwt_stream.to_list
+            |> Lwt.map (fun lines -> Ok (String.concat "\n" lines)))
+          (fun _ -> Lwt.return_error "Failed to read file")
+      in
       (resolve_uri, fetch)
 
 let read_scraper () =
   match Sexplib.Sexp.input_sexps stdin with
   | exception Sexplib.Sexp.Parse_error { err_msg; _ } ->
-    Error ("Syntax error: " ^ err_msg)
+      Error ("Syntax error: " ^ err_msg)
   | sexp -> (
       try Ok (Config.parse_scraper sexp) with Failure e -> Error e
     )
