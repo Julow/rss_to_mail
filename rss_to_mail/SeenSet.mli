@@ -30,5 +30,8 @@ val fold : (string -> int64 option -> 'a -> 'a) -> t -> 'a -> 'a
 (** Fold over the IDs the [int64 option] part is [Some date] if the ID is to be
     removed [None] otherwise *)
 
-val of_list_filter : int64 -> (string * int64 option) list -> t
-(** Like [of_list] followed by [filter_removed] *)
+val to_list : t -> (string * int64 option) list
+(** Serialize to list of (id * remove_date). *)
+
+val of_list : (string * int64 option) list -> t
+(** Inverse of [to_list]. *)

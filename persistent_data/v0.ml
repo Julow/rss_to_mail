@@ -68,36 +68,3 @@ let load sexp =
     | Some t -> list (List.map parse_unsent) t
   in
   { feed_datas; unsent_mails }
-
-let save { feed_datas; unsent_mails } =
-  let gen_id id removed lst =
-    match removed with
-    | Some date ->
-        let date = Int64.to_string date in
-        List [ Atom id; Atom date ] :: lst
-    | None -> Atom id :: lst
-  in
-  let gen_data uri (date, ids) lst =
-    List
-      [
-        Atom uri; Atom (Int64.to_string date); List (SeenSet.fold gen_id ids []);
-      ]
-    :: lst
-  and gen_unsent Rss_to_mail.{ sender; to_; subject; body_html; body_text } =
-    let to_ = match to_ with Some to_ -> [ Atom to_ ] | None -> [] in
-    List
-      [
-        List [ Atom "sender"; Atom sender ];
-        List [ Atom "to"; List to_ ];
-        List [ Atom "subject"; Atom subject ];
-        List [ Atom "body_html"; Atom body_html ];
-        List [ Atom "body_text"; Atom body_text ];
-      ]
-  in
-  let feed_datas = StringMap.fold gen_data feed_datas []
-  and unsent_mails = List.map gen_unsent unsent_mails in
-  List
-    [
-      List [ Atom "feed_data"; List feed_datas ];
-      List [ Atom "unsent"; List unsent_mails ];
-    ];

@@ -176,13 +176,14 @@ Printed:
 
 ```ocaml
 # Persistent_data.save feed_datas |> Format.printf "%a@\n" (Format.pp_print_list Sexplib.Sexp.pp_hum) ;;
-((feed_data ((feed_1 1234567890 ((id_2 1234567890) id_1))))
- (unsent
-  (((sender sender) (to ()) (subject subject) (body_html body_html)
+(version 1)
+((feed_datas ((feed_1 1234567890 ((id_1 ()) (id_2 (1234567890))))))
+ (unsent_mails
+  (((sender sender) (to_ ()) (subject subject) (body_html body_html)
     (body_text ""))
-   ((sender sender) (to ()) (subject subject) (body_html body_html)
+   ((sender sender) (to_ ()) (subject subject) (body_html body_html)
     (body_text body_text))
-   ((sender sender) (to (other@address)) (subject subject)
+   ((sender sender) (to_ (other@address)) (subject subject)
     (body_html body_html) (body_text body_text)))))
 - : unit = ()
 ```
