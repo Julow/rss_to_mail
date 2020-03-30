@@ -2,11 +2,6 @@
 
 module StringMap : module type of Map.Make (String)
 
-type sexp =
-  [ `Atom of string
-  | `List of sexp list
-  ]
-
 type t = {
   feed_datas : (int64 * SeenSet.t) StringMap.t;
   unsent_mails : Rss_to_mail.mail list;
@@ -15,6 +10,6 @@ type t = {
 val empty : t
 
 (** Raise [Failure _] on error. *)
-val load : sexp -> t
+val load : Sexplib0.Sexp.t -> t
 
-val save : t -> sexp
+val save : t -> Sexplib0.Sexp.t

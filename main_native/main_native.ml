@@ -12,13 +12,13 @@ let parse_config_file config_file =
 let with_feed_datas config_file f =
   let config = parse_config_file config_file in
   let datas =
-    match CCSexp.parse_file feed_datas_file with
-    | exception Sys_error _ -> Persistent_data.empty
-    | Error _ -> Persistent_data.empty
-    | Ok sexp -> Persistent_data.load sexp
+    match Sexplib.Sexp.load_sexp feed_datas_file with
+    | exception Sexplib.Sexp.Parse_error { err_msg; _ } -> failwith err_msg
+    | exception (Failure _ as e) -> raise e
+    | sexp -> Persistent_data.load sexp
   in
   let%lwt datas = f config datas in
-  CCSexp.to_file feed_datas_file (Persistent_data.save datas);
+  Sexplib.Sexp.save_mach feed_datas_file (Persistent_data.save datas);
   Lwt.return_unit
 
 let run_command (`Config, config_file) () (`Certs, certs) =

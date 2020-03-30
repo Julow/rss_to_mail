@@ -6,6 +6,7 @@
 #require "rss_to_mail.persistent_data";;
 #require "rss_to_mail.config";;
 #require "rss_to_mail";;
+#require "sexplib";;
 
 let pp_seen_set ppf : SeenSet.t -> unit =
   let pp_elem ppf id removed () =
@@ -152,8 +153,7 @@ let feed_datas_input = {|
   )))
 |}
 
-let feed_datas_input = Result.get_ok (CCSexp.parse_string feed_datas_input)
-let feed_datas = Persistent_data.load feed_datas_input
+let feed_datas = Persistent_data.load (Sexplib.Sexp.of_string feed_datas_input)
 ```
 
 Parsed:
@@ -175,11 +175,11 @@ Parsed:
 Printed:
 
 ```ocaml
-# Persistent_data.save feed_datas |> Format.printf "%a@\n" CCSexp.pp ;;
+# Persistent_data.save feed_datas |> Format.printf "%a@\n" Sexplib.Sexp.pp_hum ;;
 ((feed_data ((feed_1 1234567890 ((id_2 1234567890) id_1))))
  (unsent
   (((sender sender) (to ()) (subject subject) (body_html body_html)
-    (body_text ))
+    (body_text ""))
    ((sender sender) (to ()) (subject subject) (body_html body_html)
     (body_text body_text))
    ((sender sender) (to (other@address)) (subject subject)

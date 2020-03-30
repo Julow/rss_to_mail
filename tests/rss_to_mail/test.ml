@@ -67,9 +67,8 @@ let print_log = function
 
 let () =
   let { Persistent_data.feed_datas; _ } =
-    match CCSexp.parse_file "feed_datas.sexp" with
-    | Error _ -> failwith "Error parsing datas"
-    | Ok sexp -> Persistent_data.load sexp
+    let sexp = Sexplib.Sexp.load_sexp "feed_datas.sexp" in
+    Persistent_data.load sexp
   in
   let { Config.feeds; _ } =
     match CCSexp.parse_file "feeds.sexp" with
