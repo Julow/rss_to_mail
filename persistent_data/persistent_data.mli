@@ -10,6 +10,6 @@ type t = {
 val empty : t
 
 (** Raise [Failure _] on error. *)
-val load : Sexplib0.Sexp.t -> t
+val load : Sexplib0.Sexp.t list -> t
 
-val save : t -> Sexplib0.Sexp.t
+val save : t -> Sexplib0.Sexp.t list

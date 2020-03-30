@@ -150,7 +150,10 @@ let feed_datas_input = {|
   )))
 |}
 
-let feed_datas = Persistent_data.load (Sexplib.Sexp.of_string feed_datas_input)
+let feed_datas =
+  let lexbuf = Lexing.from_string feed_datas_input in
+  let sexp = Sexplib.Sexp.scan_sexps lexbuf in
+  Persistent_data.load sexp
 ```
 
 Parsed:
@@ -172,7 +175,7 @@ Parsed:
 Printed:
 
 ```ocaml
-# Persistent_data.save feed_datas |> Format.printf "%a@\n" Sexplib.Sexp.pp_hum ;;
+# Persistent_data.save feed_datas |> Format.printf "%a@\n" (Format.pp_print_list Sexplib.Sexp.pp_hum) ;;
 ((feed_data ((feed_1 1234567890 ((id_2 1234567890) id_1))))
  (unsent
   (((sender sender) (to ()) (subject subject) (body_html body_html)

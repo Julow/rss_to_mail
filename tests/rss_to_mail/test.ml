@@ -67,7 +67,7 @@ let print_log = function
 
 let () =
   let { Persistent_data.feed_datas; _ } =
-    let sexp = Sexplib.Sexp.load_sexp "feed_datas.sexp" in
+    let sexp = Sexplib.Sexp.load_sexps "feed_datas.sexp" in
     Persistent_data.load sexp
   in
   let { Config.feeds; _ } =

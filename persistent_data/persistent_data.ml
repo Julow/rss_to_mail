@@ -1,5 +1,4 @@
 module StringMap = Map.Make (String)
-
 open Sexplib0.Sexp
 
 let record field = function
@@ -59,6 +58,9 @@ let load sexp =
         and body_text = atom @@ required @@ record "body_text" sexp in
         Rss_to_mail.{ sender; to_; subject; body_html; body_text }
   in
+  let sexp =
+    match sexp with [ sexp ] -> sexp | _ -> failwith "Expecting a single sexp"
+  in
   let feed_datas =
     match record "feed_data" sexp with
     | None -> empty.feed_datas
@@ -81,9 +83,7 @@ let save { feed_datas; unsent_mails } =
   let gen_data uri (date, ids) lst =
     List
       [
-        Atom uri;
-        Atom (Int64.to_string date);
-        List (SeenSet.fold gen_id ids []);
+        Atom uri; Atom (Int64.to_string date); List (SeenSet.fold gen_id ids []);
       ]
     :: lst
   and gen_unsent Rss_to_mail.{ sender; to_; subject; body_html; body_text } =
@@ -99,8 +99,10 @@ let save { feed_datas; unsent_mails } =
   in
   let feed_datas = StringMap.fold gen_data feed_datas []
   and unsent_mails = List.map gen_unsent unsent_mails in
-  List
-    [
-      List [ Atom "feed_data"; List feed_datas ];
-      List [ Atom "unsent"; List unsent_mails ];
-    ]
+  [
+    List
+      [
+        List [ Atom "feed_data"; List feed_datas ];
+        List [ Atom "unsent"; List unsent_mails ];
+      ];
+  ]
