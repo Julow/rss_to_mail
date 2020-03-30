@@ -1,4 +1,4 @@
 (library
  (name config)
  (public_name rss_to_mail.config)
- (libraries rss_to_mail scraper containers.sexp calendar))
+ (libraries rss_to_mail scraper sexplib0 calendar))

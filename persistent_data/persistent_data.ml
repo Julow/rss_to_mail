@@ -1,8 +1,6 @@
 module StringMap = Map.Make (String)
 
-type sexp = Sexplib0.Sexp.t =
-  | Atom of string
-  | List of sexp list
+open Sexplib0.Sexp
 
 let record field = function
   | List ts ->
@@ -34,7 +32,7 @@ type t = {
 
 let empty = { feed_datas = StringMap.empty; unsent_mails = [] }
 
-let load (sexp : sexp) =
+let load sexp =
   let parse_ids set = function
     | List [ Atom id; Atom date ] ->
         SeenSet.remove (Int64.of_string date) id set
@@ -72,7 +70,7 @@ let load (sexp : sexp) =
   in
   { feed_datas; unsent_mails }
 
-let save { feed_datas; unsent_mails } : sexp =
+let save { feed_datas; unsent_mails } =
   let gen_id id removed lst =
     match removed with
     | Some date ->

@@ -2,7 +2,6 @@
 
 ```ocaml
 (* Prelude *)
-#require "containers.sexp";;
 #require "rss_to_mail.persistent_data";;
 #require "rss_to_mail.config";;
 #require "rss_to_mail";;
@@ -68,12 +67,10 @@ let config_input = {|
  )
 )
 |}
-
-let config_input = Result.get_ok (CCSexp.parse_string config_input)
 ```
 
 ```ocaml
-# Config.parse config_input ;;
+# Config.parse (Sexplib.Sexp.of_string config_input) ;;
 - : Config.t =
 {Config.server = ("server", 465); server_auth = `Plain ("id", "password");
  from_address = "from@address"; to_address = "to@address";

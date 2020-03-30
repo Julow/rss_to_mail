@@ -1,10 +1,5 @@
 (** Parse Rss_to_mail's configuration *)
 
-type sexp =
-  [ `Atom of string
-  | `List of sexp list
-  ]
-
 type t = {
   server : string * int;
   server_auth : [ `Plain of string * string ];
@@ -14,7 +9,7 @@ type t = {
 }
 
 (** Raise [Failure _] on error. Errors don't have a location. *)
-val parse : sexp -> t
+val parse : Sexplib0.Sexp.t -> t
 
 (** Raise [Failure _] on error. *)
-val parse_scraper : sexp list -> Scraper.t
+val parse_scraper : Sexplib0.Sexp.t list -> Scraper.t

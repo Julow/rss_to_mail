@@ -3,11 +3,10 @@
 let feed_datas_file = "feed_datas.sexp"
 
 let parse_config_file config_file =
-  let err msg = failwith (Printf.sprintf "Error: %s: %s" config_file msg) in
-  match CCSexp.parse_file config_file with
-  | exception Sys_error msg -> err msg
-  | Error msg -> err msg
-  | Ok sexp -> Config.parse sexp
+  match Sexplib.Sexp.load_sexp config_file with
+  | exception Sexplib.Sexp.Parse_error { err_msg; _ } -> failwith err_msg
+  | exception (Failure _ as e) -> raise e
+  | sexp -> Config.parse sexp
 
 let with_feed_datas config_file f =
   let config = parse_config_file config_file in

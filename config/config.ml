@@ -1,22 +1,19 @@
-type sexp =
-  [ `Atom of string
-  | `List of sexp list
-  ]
+open Sexplib0.Sexp
 
 let record field = function
-  | `List ts ->
+  | List ts ->
       List.find_map
         (function
-          | `List (`Atom f :: t) when String.equal f field -> (
-              match t with [ t ] -> Some t | ts -> Some (`List ts)
+          | List (Atom f :: t) when String.equal f field -> (
+              match t with [ t ] -> Some t | ts -> Some (List ts)
             )
           | _ -> None)
         ts
-  | `Atom _ -> failwith "Expecting record"
+  | Atom _ -> failwith "Expecting record"
 
-let atom = function `List _ -> failwith "Expecting string" | `Atom s -> s
+let atom = function List _ -> failwith "Expecting string" | Atom s -> s
 
-let list f = function `List ts -> f ts | `Atom _ as t -> f [ t ]
+let list f = function List ts -> f ts | Atom _ as t -> f [ t ]
 
 let one = function [ v ] -> v | _ -> failwith "Expecting a single value"
 
@@ -25,34 +22,34 @@ let one_or_more = function [] -> failwith "Expecting a value" | v -> v
 let parse_scraper =
   let open Scrap in
   let rec scraper ~target = function
-    | `List (`Atom "R" :: rs) -> R (List.map (rule ~target) rs)
-    | `List (`Atom "T" :: ts) -> T (List.map target ts)
+    | List (Atom "R" :: rs) -> R (List.map (rule ~target) rs)
+    | List (Atom "T" :: ts) -> T (List.map target ts)
     | _ -> failwith "Malformated scraper"
   and rule ~target = function
-    | `List [ `Atom sel; t ] -> (sel, scraper ~target t)
+    | List [ Atom sel; t ] -> (sel, scraper ~target t)
     | _ -> failwith "Malformated scraper rule"
   in
   let open Scraper in
   let target = function
-    | `Atom "feed_title" -> Feed_title
-    | `Atom "feed_icon" -> Feed_icon
-    | `List (`Atom "entry" :: ts) ->
+    | Atom "feed_title" -> Feed_title
+    | Atom "feed_icon" -> Feed_icon
+    | List (Atom "entry" :: ts) ->
         let target = function
-          | `Atom "id" -> Id
-          | `Atom "title" -> Title
-          | `Atom "link" -> Link
-          | `Atom "summary" -> Summary
+          | Atom "id" -> Id
+          | Atom "title" -> Title
+          | Atom "link" -> Link
+          | Atom "summary" -> Summary
           | _ -> failwith "Invalid target"
         in
         Entry (List.map (scraper ~target) ts)
-    | `Atom target -> failwith ("Invalid target: " ^ target)
-    | `List _ -> failwith "Expecting target"
+    | Atom target -> failwith ("Invalid target: " ^ target)
+    | List _ -> failwith "Expecting target"
   in
   fun ts -> R (List.map (rule ~target) ts)
 
 let parse_filter = function
-  | `List [ `Atom r ] | `Atom r -> (Str.regexp r, true)
-  | `List (`Atom "not" :: values) -> (Str.regexp (atom (one values)), false)
+  | List [ Atom r ] | Atom r -> (Str.regexp r, true)
+  | List (Atom "not" :: values) -> (Str.regexp (atom (one values)), false)
   | _ -> failwith "Malformated"
 
 let check_duplicate feeds =
@@ -77,7 +74,7 @@ type t = {
   feeds : Feed_desc.t list;
 }
 
-let parse (sexp : sexp) =
+let parse sexp =
   let parse_option_refresh =
     let parse_time time =
       match Scanf.sscanf time "%d:%d" (fun h m -> (h, m)) with
@@ -95,12 +92,12 @@ let parse (sexp : sexp) =
       | _ -> failwith "Invalid day"
     in
     function
-    | `Atom hours -> `Every (float_of_string hours)
-    | `List [ `Atom "at"; `Atom time ] -> `At (parse_time time)
-    | `List [ `Atom "at"; `Atom time; `Atom day ] ->
+    | Atom hours -> `Every (float_of_string hours)
+    | List [ Atom "at"; Atom time ] -> `At (parse_time time)
+    | List [ Atom "at"; Atom time; Atom day ] ->
         let h, m = parse_time time and d = parse_day day in
         `At_weekly (d, h, m)
-    | `List _ -> failwith "Malformated"
+    | List _ -> failwith "Malformated"
   in
 
   let parse_option name values (opts : Feed_desc.options) =
@@ -116,7 +113,7 @@ let parse (sexp : sexp) =
   in
 
   let rec parse_options opts = function
-    | `List (`Atom name :: values) :: tl -> (
+    | List (Atom name :: values) :: tl -> (
         match parse_option name values opts with
         | exception Failure msg -> failwith ("\"" ^ name ^ "\": " ^ msg)
         | opts -> parse_options opts tl
@@ -133,24 +130,24 @@ let parse (sexp : sexp) =
     in
     let open Feed_desc in
     function
-    | `Atom url -> (Feed url, default_opts)
-    | `List (`List (`Atom "scraper" :: url :: scraper) :: opts) ->
+    | Atom url -> (Feed url, default_opts)
+    | List (List (Atom "scraper" :: url :: scraper) :: opts) ->
         let url = atom url and scraper = one_or_more scraper in
         let scraper =
           try parse_scraper scraper
           with Failure msg -> failwith (url ^ ": " ^ msg)
         in
         (Scraper (url, scraper), parse_options ~url opts)
-    | `List (`List (`Atom "bundle" :: url) :: opts) ->
+    | List (List (Atom "bundle" :: url) :: opts) ->
         let url = atom (one url) in
         (Bundle url, parse_options ~url opts)
-    | `List (`Atom url :: opts) -> (Feed url, parse_options ~url opts)
+    | List (Atom url :: opts) -> (Feed url, parse_options ~url opts)
     | _ -> failwith "feeds: Syntax error"
   in
 
   let parse_feeds ~default_opts t =
     let parse acc = function
-      | `List (`Atom "with-options" :: `List opts :: feeds) ->
+      | List (Atom "with-options" :: List opts :: feeds) ->
           let default_opts = parse_options default_opts opts in
           List.rev_map (parse_feed ~default_opts) feeds @ acc
       | feed -> parse_feed ~default_opts feed :: acc
@@ -161,20 +158,20 @@ let parse (sexp : sexp) =
   let parse_smtp t =
     let server =
       match record "server" t with
-      | Some (`List [ `Atom host ]) | Some (`Atom host) -> (host, 465)
-      | Some (`List [ `Atom host; `Atom port ]) -> (host, int_of_string port)
+      | Some (List [ Atom host ]) | Some (Atom host) -> (host, 465)
+      | Some (List [ Atom host; Atom port ]) -> (host, int_of_string port)
       | Some _ -> failwith "Malformated field `server`"
       | None -> failwith "Missing field `server`"
     in
     let from =
       match record "from" t with
-      | Some (`Atom from) -> from
+      | Some (Atom from) -> from
       | Some _ -> failwith "Malformated field `from`"
       | None -> failwith "Missing field `from`"
     in
     let auth =
       match record "auth" t with
-      | Some (`List [ `Atom user; `Atom pass ]) -> `Plain (user, pass)
+      | Some (List [ Atom user; Atom pass ]) -> `Plain (user, pass)
       | None -> failwith "Missing field `auth`"
       | Some _ -> failwith "Malformated field `auth`"
     in
@@ -197,7 +194,7 @@ let parse (sexp : sexp) =
     | None -> failwith "Missing field `smtp`"
   and to_address =
     match record "to" sexp with
-    | Some (`Atom a) -> a
+    | Some (Atom a) -> a
     | Some _ -> failwith "Malformated field `to`"
     | None -> failwith "Missing field `to`"
   in

@@ -71,9 +71,8 @@ let () =
     Persistent_data.load sexp
   in
   let { Config.feeds; _ } =
-    match CCSexp.parse_file "feeds.sexp" with
-    | Error _ -> failwith "Error parsing feeds"
-    | Ok sexp -> Config.parse sexp
+    let sexp = Sexplib.Sexp.load_sexp "feeds.sexp" in
+    Config.parse sexp
   in
   List.iter print_feed feeds;
   printf "\n# Done parsing\n\n";
