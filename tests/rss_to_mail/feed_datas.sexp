@@ -9,4 +9,5 @@
    (dune_blog.html 0 ())
    (https://some-website/relative.atom 0 ())
    (https://some-website/relative.rss 0 ())
+   (./dune_blog.html 0 ())
   )))

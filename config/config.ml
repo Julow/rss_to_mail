@@ -52,19 +52,20 @@ let parse_filter = function
   | List (Atom "not" :: values) -> (Str.regexp (atom (one values)), false)
   | _ -> failwith "Malformated"
 
+let url_of_feed = function
+  | Feed_desc.Feed url
+  | Scraper (url, _)
+  | Bundle (Feed url)
+  | Bundle (Scraper (url, _)) ->
+      url
+
 let check_duplicate feeds =
   let tbl = Hashtbl.create (List.length feeds) in
   let check_url url =
     if Hashtbl.mem tbl url then failwith ("Feed declared twice: " ^ url);
     Hashtbl.add tbl url ()
   in
-  feeds
-  |> List.iter
-       Feed_desc.(
-         function
-         | Feed url, _ -> check_url url
-         | Scraper (url, _), _ -> check_url url
-         | Bundle url, _ -> check_url url)
+  List.iter (fun (feed, _) -> check_url (url_of_feed feed)) feeds
 
 type t = {
   server : string * int;
@@ -129,20 +130,30 @@ let parse sexp =
       | options -> options
     in
     let open Feed_desc in
+    let rec parse_desc = function
+      | Atom url -> Feed url
+      | List (Atom "scraper" :: url :: scraper) ->
+          let url = atom url and scraper = one_or_more scraper in
+          let scraper =
+            try parse_scraper scraper
+            with Failure msg -> failwith (url ^ ": " ^ msg)
+          in
+          Scraper (url, scraper)
+      | List (Atom "bundle" :: desc) -> (
+          match parse_desc (one desc) with
+          | (Feed _ | Scraper _) as in_bundle -> Bundle in_bundle
+          | Bundle _ -> failwith "Bundle in bundle"
+        )
+      | List (Atom kind :: _) -> failwith (kind ^ ": Unknown feed kind")
+      | List _ -> failwith "feeds: Syntax error"
+    in
     function
     | Atom url -> (Feed url, default_opts)
-    | List (List (Atom "scraper" :: url :: scraper) :: opts) ->
-        let url = atom url and scraper = one_or_more scraper in
-        let scraper =
-          try parse_scraper scraper
-          with Failure msg -> failwith (url ^ ": " ^ msg)
-        in
-        (Scraper (url, scraper), parse_options ~url opts)
-    | List (List (Atom "bundle" :: url) :: opts) ->
-        let url = atom (one url) in
-        (Bundle url, parse_options ~url opts)
-    | List (Atom url :: opts) -> (Feed url, parse_options ~url opts)
-    | _ -> failwith "feeds: Syntax error"
+    | List (desc :: opts) ->
+        let desc = parse_desc desc in
+        let opts = parse_options ~url:(url_of_feed desc) opts in
+        (desc, opts)
+    | List [] -> failwith "feeds: Syntax error"
   in
 
   let parse_feeds ~default_opts t =

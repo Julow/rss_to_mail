@@ -53,7 +53,8 @@ let print_feed (feed, options) =
   ( match feed with
   | Feed_desc.Feed url -> printf "\n# %s\n\n" url
   | Scraper (url, _) -> printf "\n# scraper %s\n\n" url
-  | Bundle url -> printf "\n# bundle %s\n\n" url
+  | Bundle (Feed url) -> printf "\n# bundle %s\n\n" url
+  | Bundle (Scraper (url, _)) -> printf "\n# bundle scraper %s\n\n" url
   );
   print_options options
 

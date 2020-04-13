@@ -111,8 +111,6 @@ struct
   end
 
   module Check_bundle = struct
-    let fetch = Check_feed.fetch
-
     let prepare ~sender feed options entries =
       let prep subject =
         [ prepare_mail ~subject ~sender feed options entries ]
@@ -180,8 +178,12 @@ struct
         let fetch uri = Check_scraper.fetch uri scraper
         and prepare = Check_feed.prepare in
         check_feed ~now url feed_datas options ~fetch ~prepare
-    | Bundle url ->
-        let fetch = Check_bundle.fetch and prepare = Check_bundle.prepare in
+    | Bundle (Feed url) ->
+        let fetch = Check_feed.fetch in
+        let prepare = Check_bundle.prepare in
+        check_feed ~now url feed_datas options ~fetch ~prepare
+    | Bundle (Scraper (url, scraper)) ->
+        let fetch = Fun.flip Check_scraper.fetch scraper and prepare = Check_bundle.prepare in
         check_feed ~now url feed_datas options ~fetch ~prepare
 
   let reduce_updated ~now (acc_datas, acc_mails, logs) = function

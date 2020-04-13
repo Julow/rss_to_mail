@@ -55,6 +55,10 @@ Options: (refresh 2.000000)
 
 Options: (refresh 2.000000)
 
+# bundle scraper ./dune_blog.html
+
+Options: (refresh 2.000000)
+
 # Done parsing
 
 Log: atom.atom: 1 entries
@@ -71,6 +75,7 @@ Log: ./empty.rss: 0 entries
 Log: ././empty.rss: 0 entries
 Log: https://some-website/relative.atom: 2 entries
 Log: https://some-website/relative.rss: 1 entries
+Log: ./dune_blog.html: 1 entries
 FROM: Atom Test
 SUBJECT: title
 BODY html: <!DOCTYPE html>
@@ -2222,5 +2227,125 @@ Attachments:
 Attachment 1: https://some-website/attachment/1 (some type)
 
 <html content>
+
+
+FROM: Blog
+SUBJECT: 5 entries from Blog
+BODY html: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>Blog</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .content img { max-width: 100%; max-height: auto; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+       
+  </style>
+ </head>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >
+   What’s coming in Dune 1.1.0?, Dune 1.2.0, A new general computation
+   model for Dune, Virtual libraries, How configurator reads C constants
+  </span>
+  <div>
+   <h1 class="entry_title">
+    <a href="/blog/dune-1-1-0/">What’s coming in Dune 1.1.0?</a>
+   </h1>
+   <p>From 
+    <img src="/assets/imgs/dune_favicon.png" alt="Blog" width="16"
+     height="16"
+     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
+     />
+    Blog
+   </p>
+  </div>
+  <div>
+   <h1 class="entry_title"><a href="/blog/dune-1-2-0/">Dune 1.2.0</a></h1>
+   <p>From 
+    <img src="/assets/imgs/dune_favicon.png" alt="Blog" width="16"
+     height="16"
+     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
+     />
+    Blog
+   </p>
+  </div>
+  <div>
+   <h1 class="entry_title">
+    <a href="/blog/new-computation-model/">
+     A new general computation model for Dune
+    </a>
+   </h1>
+   <p>From 
+    <img src="/assets/imgs/dune_favicon.png" alt="Blog" width="16"
+     height="16"
+     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
+     />
+    Blog
+   </p>
+  </div>
+  <div>
+   <h1 class="entry_title">
+    <a href="/blog/virtual-libraries/">Virtual libraries</a>
+   </h1>
+   <p>From 
+    <img src="/assets/imgs/dune_favicon.png" alt="Blog" width="16"
+     height="16"
+     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
+     />
+    Blog
+   </p>
+  </div>
+  <div>
+   <h1 class="entry_title">
+    <a href="/blog/configurator-constants/">
+     How configurator reads C constants
+    </a>
+   </h1>
+   <p>From 
+    <img src="/assets/imgs/dune_favicon.png" alt="Blog" width="16"
+     height="16"
+     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
+     />
+    Blog
+   </p>
+  </div>
+        </body>
+</html>
+BODY text: # What’s coming in Dune 1.1.0?
+
+/blog/dune-1-1-0/
+
+From Blog
+
+# Dune 1.2.0
+
+/blog/dune-1-2-0/
+
+From Blog
+
+# A new general computation model for Dune
+
+/blog/new-computation-model/
+
+From Blog
+
+# Virtual libraries
+
+/blog/virtual-libraries/
+
+From Blog
+
+# How configurator reads C constants
+
+/blog/configurator-constants/
+
+From Blog
 
 

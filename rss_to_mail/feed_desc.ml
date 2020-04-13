@@ -20,9 +20,9 @@ let make_options ?(refresh = `Every 6.) ?title ?label ?(no_content = false)
     ?(filter = []) ?to_ () =
   { refresh; title; label; no_content; filter; to_ }
 
-type desc =
-  | Feed of string
-  | Scraper of string * Scraper.t
-  | Bundle of string
+type _ desc =
+  | Feed : string -> [< `In_bundle | `Any ] desc
+  | Scraper : string * Scraper.t -> [< `In_bundle | `Any ] desc
+  | Bundle : [> `In_bundle ] desc -> [< `Any ] desc
 
-type t = desc * options
+type t = [ `Any ] desc * options

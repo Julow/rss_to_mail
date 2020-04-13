@@ -48,6 +48,7 @@ let config_input = {|
 
    ((bundle bundle_1))
    ((bundle bundle_2) (refresh 2.))
+   ((bundle (scraper bundle_3 ("sel1" (T feed_title)))))
 
    ((scraper scraper_1
      ("sel1"
@@ -99,11 +100,16 @@ let config_input = {|
      no_content = false;
      filter = [(<abstr>, true); (<abstr>, true); (<abstr>, false)];
      to_ = None});
-   (Feed_desc.Bundle "bundle_1",
+   (Feed_desc.Bundle (Feed_desc.Feed "bundle_1"),
     {Feed_desc.refresh = `Every 4.; title = None; label = None;
      no_content = false; filter = []; to_ = None});
-   (Feed_desc.Bundle "bundle_2",
+   (Feed_desc.Bundle (Feed_desc.Feed "bundle_2"),
     {Feed_desc.refresh = `Every 2.; title = None; label = None;
+     no_content = false; filter = []; to_ = None});
+   (Feed_desc.Bundle
+     (Feed_desc.Scraper ("bundle_3",
+       Scrap.R [("sel1", Scrap.T [Scraper.Feed_title])])),
+    {Feed_desc.refresh = `Every 4.; title = None; label = None;
      no_content = false; filter = []; to_ = None});
    (Feed_desc.Scraper ("scraper_1",
      Scrap.R

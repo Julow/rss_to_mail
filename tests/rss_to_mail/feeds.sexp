@@ -31,4 +31,9 @@
    ././empty.rss)
   https://some-website/relative.atom
   https://some-website/relative.rss
+
+  ((bundle
+    (scraper ./dune_blog.html
+     (".blog .article-index"
+      (T (entry (T link) (R ("h1" (T title)))))))))
 )))
