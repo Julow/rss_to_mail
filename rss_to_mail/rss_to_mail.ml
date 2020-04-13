@@ -137,19 +137,6 @@ struct
     feed.Feed.feed_title ||| fun () ->
     Uri.host feed_uri ||| fun () -> Uri.to_string feed_uri
 
-  let update_feed ~now uri options seen_ids ~fetch ~prepare =
-    let process = function
-      | Error e -> e
-      | Ok feed ->
-          let feed, seen_ids, entries =
-            Process_feed.process ~now uri options seen_ids feed
-          in
-          let sender = sender_name uri feed options in
-          let mails = prepare ~sender feed options entries in
-          `Ok (seen_ids, mails)
-    in
-    Lwt.map process (fetch uri)
-
   (** [Some (first_update, seen_ids)] if the feed need to be updated. *)
   let should_update ~now data options =
     match data with
@@ -161,21 +148,26 @@ struct
 
   (** Call [update] to update the feed. *)
   let check_feed ~now url feed_datas options ~fetch ~prepare =
-    let update_result ~first_update = function
-      | (`Fetch_error _ | `Parsing_error _) as error -> (url, error)
-      | `Ok (seen_ids, mails) ->
+    let uri = Uri.of_string url in
+    let process ~first_update ~seen_ids = function
+      | Error ((`Fetch_error _ | `Parsing_error _) as error) -> (url, error)
+      | Ok feed ->
+          let feed, seen_ids, entries =
+            Process_feed.process ~now uri options seen_ids feed
+          in
+          let sender = sender_name uri feed options in
+          let mails =
+            (* Don't send anything on first update *)
+            if first_update then [] else prepare ~sender feed options entries
+          in
           let seen_ids = SeenSet.filter_removed now seen_ids in
-          (* Don't send anything on first update *)
-          let mails = if first_update then [] else mails in
           (url, `Updated (mails, seen_ids))
     in
-    let uri = Uri.of_string url and data = Feed_datas.get feed_datas url in
+    let data = Feed_datas.get feed_datas url in
     match should_update ~now data options with
     | None -> Lwt.return (url, `Uptodate)
     | Some (first_update, seen_ids) ->
-        Lwt.map
-          (update_result ~first_update)
-          (update_feed ~now uri options seen_ids ~fetch ~prepare)
+        Lwt.map (process ~first_update ~seen_ids) (fetch uri)
 
   (** * Check a feed for updates * Returns the list of generated mails and
       updated feed datas * Log informations by calling [log] once for each feed *)
