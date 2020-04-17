@@ -14,7 +14,10 @@ type feed =
   | Feed_icon
   | Entry of entry Scrap.t list
 
-let text node = String.concat "" (Soup.texts node)
+let text node =
+  match Soup.trimmed_texts node with
+  | [] -> None
+  | texts -> Some (String.concat " " texts)
 
 let uri ~parse_uri node =
   let attr a = Soup.attribute a node |> Option.map parse_uri in
@@ -23,14 +26,16 @@ let uri ~parse_uri node =
   | "a" -> attr "href"
   | _ -> None
 
+let ( ||| ) a b = match a with Some _ -> a | None -> b
+
 let scrap_entry ~parse_uri node t = function
-  | Id -> Feed.{ t with id = Some (text node) }
-  | Title -> Feed.{ t with title = Some (text node) }
-  | Link -> { t with link = uri ~parse_uri node }
+  | Id -> Feed.{ t with id = text node ||| t.id }
+  | Title -> Feed.{ t with title = text node ||| t.title }
+  | Link -> { t with link = uri ~parse_uri node ||| t.link }
   | Summary ->
       let summary = String.concat "\n" (Soup.trimmed_texts node) in
       { t with summary = Some (Text summary) }
-  | Thumbnail -> { t with thumbnail = uri ~parse_uri node }
+  | Thumbnail -> { t with thumbnail = uri ~parse_uri node ||| t.thumbnail }
   | Attachment { attach_type } ->
       let attachments =
         match uri ~parse_uri node with
@@ -41,10 +46,8 @@ let scrap_entry ~parse_uri node t = function
       { t with attachments }
 
 let scrap_feed ~parse_uri node (title, icon, entries) = function
-  | Feed_title -> (Some (text node), icon, entries)
-  | Feed_icon ->
-      let feed_icon = Soup.attribute "src" node |> Option.map parse_uri in
-      (title, feed_icon, entries)
+  | Feed_title -> (text node ||| title, icon, entries)
+  | Feed_icon -> (title, uri ~parse_uri node ||| icon, entries)
   | Entry s ->
       let scrap_entry = Scrap.scrap node (scrap_entry ~parse_uri) in
       let e = List.fold_left scrap_entry Feed.empty_entry s in

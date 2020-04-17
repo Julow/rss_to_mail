@@ -9,3 +9,4 @@
     ("a[href^=attach/]" (T attachment))
    ))))
 ("body > h1" (T feed_title))
+(".header > img" (T feed_icon))
