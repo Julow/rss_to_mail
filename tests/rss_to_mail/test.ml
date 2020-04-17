@@ -77,8 +77,10 @@ let () =
   in
   List.iter print_feed feeds;
   printf "\n# Done parsing\n\n";
-  let _, mails, logs =
+  let feed_datas, mails, logs =
     Rss_to_mail.check_all ~now feed_datas feeds |> Lwt_main.run
   in
   List.iter print_log logs;
-  List.iter print_mail (List.rev mails)
+  List.iter print_mail (List.rev mails);
+  let sexp = Persistent_data.(save { feed_datas; unsent_mails = [] }) in
+  Sexplib.Sexp.output_hum stdout (List sexp)
