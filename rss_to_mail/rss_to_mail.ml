@@ -183,7 +183,8 @@ struct
         let prepare = Check_bundle.prepare in
         check_feed ~now url feed_datas options ~fetch ~prepare
     | Bundle (Scraper (url, scraper)) ->
-        let fetch = Fun.flip Check_scraper.fetch scraper and prepare = Check_bundle.prepare in
+        let fetch = Fun.flip Check_scraper.fetch scraper
+        and prepare = Check_bundle.prepare in
         check_feed ~now url feed_datas options ~fetch ~prepare
 
   let reduce_updated ~now (acc_datas, acc_mails, logs) = function
@@ -191,8 +192,15 @@ struct
         let data = (now, seen_ids) in
         let logs = (url, `Updated { entries = List.length mails }) :: logs in
         (Feed_datas.set acc_datas url data, mails @ acc_mails, logs)
-    | (_, (`Fetch_error _ | `Parsing_error _ | `Uptodate)) as log ->
+    | (url, (`Fetch_error _ | `Parsing_error _)) as log ->
+        let acc_datas =
+          (* Set the "last_update" of feeds with errors to avoid calling them too often. *)
+          match Feed_datas.get acc_datas url with
+          | Some (_, seen_ids) -> Feed_datas.set acc_datas url (now, seen_ids)
+          | None -> acc_datas
+        in
         (acc_datas, acc_mails, log :: logs)
+    | (_, `Uptodate) as log -> (acc_datas, acc_mails, log :: logs)
 
   (** Update a list of feeds in parallel *)
   let check_all ~now feed_datas feeds =

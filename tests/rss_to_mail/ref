@@ -59,6 +59,10 @@ Options: (refresh 2.000000)
 
 Options: (refresh 2.000000)
 
+# error.rss
+
+Options: (refresh 2.000000)
+
 # Done parsing
 
 Log: atom.atom: 1 entries
@@ -76,6 +80,8 @@ Log: ././empty.rss: 0 entries
 Log: https://some-website/relative.atom: 2 entries
 Log: https://some-website/relative.rss: 1 entries
 Log: ./dune_blog.html: 1 entries
+Log: error.rss: Parsing error (line 1, col 1)
+expected root element
 FROM: Atom Test
 SUBJECT: title
 BODY html: <!DOCTYPE html>
@@ -2364,7 +2370,7 @@ From Blog
      ((/blog/configurator-constants/ ()) (/blog/dune-1-1-0/ ())
       (/blog/dune-1-2-0/ ()) (/blog/new-computation-model/ ())
       (/blog/virtual-libraries/ ())))
-    (empty.rss 12345678 ())
+    (empty.rss 12345678 ()) (error.rss 12345678 ())
     (firefox.html 12345678
      ((../58.0.1/releasenotes/ ()) (../58.0.2/releasenotes/ ())
       (../58.0/releasenotes/ ()) (../59.0.1/releasenotes/ ())
