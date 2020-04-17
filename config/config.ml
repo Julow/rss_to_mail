@@ -39,6 +39,10 @@ let parse_scraper =
           | Atom "title" -> Title
           | Atom "link" -> Link
           | Atom "summary" -> Summary
+          | Atom "thumbnail" -> Thumbnail
+          | Atom "attachment" -> Attachment { attach_type = None }
+          | List [ Atom "attachment"; Atom attach_type ] ->
+              Attachment { attach_type = Some attach_type }
           | _ -> failwith "Invalid target"
         in
         Entry (List.map (scraper ~target) ts)

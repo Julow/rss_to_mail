@@ -5,6 +5,9 @@ type entry =
   | Title
   | Link
   | Summary
+  | Thumbnail  (** Targets an [<img>] or a [<a>] element *)
+  | Attachment of { attach_type : string option }
+      (** Targets an element with a [href] attribute *)
 
 type feed =
   | Feed_title
@@ -13,15 +16,29 @@ type feed =
 
 let text node = String.concat "" (Soup.texts node)
 
+let uri ~parse_uri node =
+  let attr a = Soup.attribute a node |> Option.map parse_uri in
+  match Soup.name node with
+  | "img" -> attr "src"
+  | "a" -> attr "href"
+  | _ -> None
+
 let scrap_entry ~parse_uri node t = function
   | Id -> Feed.{ t with id = Some (text node) }
   | Title -> Feed.{ t with title = Some (text node) }
-  | Link ->
-      let link = Soup.attribute "href" node |> Option.map parse_uri in
-      { t with link }
+  | Link -> { t with link = uri ~parse_uri node }
   | Summary ->
       let summary = String.concat "\n" (Soup.trimmed_texts node) in
       { t with summary = Some (Text summary) }
+  | Thumbnail -> { t with thumbnail = uri ~parse_uri node }
+  | Attachment { attach_type } ->
+      let attachments =
+        match uri ~parse_uri node with
+        | Some attach_url ->
+            { attach_url; attach_size = None; attach_type } :: t.attachments
+        | None -> t.attachments
+      in
+      { t with attachments }
 
 let scrap_feed ~parse_uri node (title, icon, entries) = function
   | Feed_title -> (Some (text node), icon, entries)

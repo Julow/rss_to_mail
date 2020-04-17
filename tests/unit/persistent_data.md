@@ -56,9 +56,10 @@ let config_input = {|
        (entry
         (R
          ("sel11" (T id title link))
-         ("sel12" (T summary))))))
-     ("sel2" (T feed_title feed_icon))
-   ))
+         ("sel12" (T summary thumbnail attachment))
+         ("sel13" (T (attachment audio/mpeg)))
+        ))))
+     ("sel2" (T feed_title feed_icon))))
 
    (with-options ((refresh 1.) (label "Label"))
     with_opts_1
@@ -118,7 +119,13 @@ let config_input = {|
          [Scraper.Entry
            [Scrap.R
              [("sel11", Scrap.T [Scraper.Id; Scraper.Title; Scraper.Link]);
-              ("sel12", Scrap.T [Scraper.Summary])]]]);
+              ("sel12",
+               Scrap.T
+                [Scraper.Summary; Scraper.Thumbnail;
+                 Scraper.Attachment {Scraper.attach_type = None}]);
+              ("sel13",
+               Scrap.T
+                [Scraper.Attachment {Scraper.attach_type = Some "audio/mpeg"}])]]]);
        ("sel2", Scrap.T [Scraper.Feed_title; Scraper.Feed_icon])]),
     {Feed_desc.refresh = `Every 4.; title = None; label = None;
      no_content = false; filter = []; to_ = None});

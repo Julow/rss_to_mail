@@ -5,8 +5,21 @@ Entries (2):
 	id: None
 	title: # Title 2
 	link: l2
-	summary: Content 2
+	summary: Content
+2
+,
+attach2
+,
+attach2 suite
+,
+	thumbnail: thumbnail2
+	attachments: attach/3 (type = None), attach/2 (type = None)
 	id: None
 	title: # Title 1
 	link: l1
-	summary: Content 1
+	summary: Content
+1
+,
+attach1
+	thumbnail: thumbnail1
+	attachments: attach/1 (type = None)

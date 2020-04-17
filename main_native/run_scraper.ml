@@ -34,14 +34,25 @@ let read_scraper () =
     )
 
 let print_feed (feed : Feed.t) =
-  let content_to_string = function Feed.Text s -> s | Html _ -> "<html>" in
   let opt f = function Some s -> f s | None -> "None" in
+  let list f = function
+    | [] -> "None"
+    | lst -> String.concat ", " (List.map f lst)
+  in
+  let content_to_string = function Feed.Text s -> s | Html _ -> "<html>" in
+  let attach_to_string Feed.{ attach_url; attach_type; _ } =
+    Printf.sprintf "%s (type = %s)" (Uri.to_string attach_url)
+      (opt Fun.id attach_type)
+  in
   let p = Printf.printf in
   let print_entry (t : Feed.entry) =
     p "\tid: %s\n" (opt Fun.id t.id);
     p "\ttitle: %s\n" (opt Fun.id t.title);
     p "\tlink: %s\n" (opt Uri.to_string t.link);
-    p "\tsummary: %s\n" (opt content_to_string t.summary)
+    p "\tsummary: %s\n" (opt content_to_string t.summary);
+    p "\tthumbnail: %s\n" (opt Uri.to_string t.thumbnail);
+    p "\tattachments: %s\n" (list attach_to_string t.attachments);
+    ()
   in
   p "Feed title: %s\n" (opt Fun.id feed.feed_title);
   p "Feed link: %s\n" (opt Uri.to_string feed.feed_link);
