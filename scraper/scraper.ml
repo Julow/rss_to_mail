@@ -24,6 +24,7 @@ let uri ~parse_uri node =
   match Soup.name node with
   | "img" -> attr "src"
   | "a" -> attr "href"
+  | "link" -> attr "href"
   | _ -> None
 
 let ( ||| ) a b = match a with Some _ -> a | None -> b
