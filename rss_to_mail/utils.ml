@@ -18,7 +18,7 @@ let is_uptodate now last_update options =
   let due =
     match options.Feed_desc.refresh with
     | `Every h ->
-        let hour = int_of_float h and second = int_of_float (h /. 60.) in
+        let hour = int_of_float h and second = int_of_float (fst (modf h) *. 3600.) in
         C.add last_update (C.Period.lmake ~hour ~second ())
     | `At (h, m) -> next_day_at h m last_update
     | `At_weekly (d, h, m) -> next_week_at d h m last_update

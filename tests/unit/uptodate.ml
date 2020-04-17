@@ -19,6 +19,8 @@ let check_is_uptodate expected now last_update refresh =
 let hourly () =
   check_is_uptodate false 14401L 0L (`Every 4.);
   check_is_uptodate true 14399L 0L (`Every 4.);
+  check_is_uptodate false 16201L 0L (`Every 4.5);
+  check_is_uptodate true 16199L 0L (`Every 4.5);
   ()
 
 let daily () =
