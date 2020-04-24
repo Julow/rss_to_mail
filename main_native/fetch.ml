@@ -26,7 +26,7 @@ type error =
 
 (** Returns the body as a string and handle errors *)
 let fetch url =
-  Logs.info (fun fmt -> fmt "Fetching %a" Uri.pp url);
+  Logs.debug (fun fmt -> fmt "Fetching %a" Uri.pp url);
   match%lwt get url with
   | exception Failure msg -> Lwt.return (Error (`System msg))
   | exception Unix.Unix_error (_, msg, _) -> Lwt.return (Error (`System msg))

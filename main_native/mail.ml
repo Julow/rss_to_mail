@@ -86,7 +86,7 @@ let send_mails ~certs ~random_seed conf mails =
       | Some a -> a
       | None -> conf.Config.to_address
     in
-    Logs.debug (fun fmt -> fmt "Sending \"%s\" \"%s\"" t.sender t.subject);
+    Logs.info (fun fmt -> fmt "Sending \"%s\" \"%s\"" t.sender t.subject);
     let boundary = "rss_to_mail-boundary-" ^ random_seed in
     let headers =
       [
