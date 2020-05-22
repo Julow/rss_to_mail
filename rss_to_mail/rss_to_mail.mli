@@ -7,7 +7,7 @@ type mail = {
 }
 
 type feed_data = int64 * SeenSet.t
-(** [last_update * seen_ids] *)
+(** [next_update * seen_ids] *)
 
 module Make (Fetch : sig
   type error

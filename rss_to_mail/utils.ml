@@ -12,18 +12,18 @@ let next_week_at day h m t =
   in
   loop (next_day_at h m t)
 
-let is_uptodate now last_update options =
-  let last_update = C.from_unixfloat (Int64.to_float last_update)
-  and now = C.from_unixfloat (Int64.to_float now) in
+let next_update now options =
+  let now = C.from_unixfloat (Int64.to_float now) in
   let due =
     match options.Feed_desc.refresh with
     | `Every h ->
-        let hour = int_of_float h and second = int_of_float (fst (modf h) *. 3600.) in
-        C.add last_update (C.Period.lmake ~hour ~second ())
-    | `At (h, m) -> next_day_at h m last_update
-    | `At_weekly (d, h, m) -> next_week_at d h m last_update
+        let hour = int_of_float h
+        and second = int_of_float (fst (modf h) *. 3600.) in
+        C.add now (C.Period.lmake ~hour ~second ())
+    | `At (h, m) -> next_day_at h m now
+    | `At_weekly (d, h, m) -> next_week_at d h m now
   in
-  C.compare due now > 0
+  Int64.of_float (Float.round (C.to_unixfloat due))
 
 let rec size s u =
   let to_s () = Int64.to_string s ^ u in

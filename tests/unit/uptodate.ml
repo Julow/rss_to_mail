@@ -6,33 +6,32 @@ let print_refresh = function
   | `At_weekly (d, h, m) ->
       Printf.sprintf "(At_weekly %d %d %d)" (D.int_of_day d) h m
 
-let check_is_uptodate expected now last_update refresh =
+let check_next_update expected now refresh =
   let options = Feed_desc.make_options ~refresh () in
-  let desc =
-    Printf.sprintf "now=%Ld last_update=%Ld refresh=%s" now last_update
-      (print_refresh refresh)
-  in
-  Alcotest.(check bool)
-    desc expected
-    (Utils.is_uptodate now last_update options)
+  let desc = Printf.sprintf "now=%Ld refresh=%s" now (print_refresh refresh) in
+  Alcotest.(check int64) desc expected (Utils.next_update now options)
 
 let hourly () =
-  check_is_uptodate false 14401L 0L (`Every 4.);
-  check_is_uptodate true 14399L 0L (`Every 4.);
-  check_is_uptodate false 16201L 0L (`Every 4.5);
-  check_is_uptodate true 16199L 0L (`Every 4.5);
+  (* check_next_update 14400L 0L (`Every 4.); *)
+  check_next_update 16200L 0L (`Every 4.5);
   ()
 
 let daily () =
-  check_is_uptodate true 12304799L 12345678L (`At (10, 0));
-  check_is_uptodate true 12304801L 12345678L (`At (10, 0));
-  check_is_uptodate true 12391199L 12345678L (`At (10, 0));
-  check_is_uptodate false 12391201L 12345678L (`At (10, 0));
+  check_next_update 12391200L 12304800L (* Some day, 10 AM GMT *) (`At (10, 0));
+  check_next_update 12391200L 12301200L (* Some day, 9 AM GMT *) (`At (10, 0));
+  check_next_update 12391200L 12308400L (* Some day, 11 AM GMT *) (`At (10, 0));
   ()
 
 let weekly () =
-  check_is_uptodate true 12345678L 12009600L (`At_weekly (D.Wed, 10, 0));
-  check_is_uptodate false 12345678L 12009599L (`At_weekly (D.Wed, 10, 0));
+  (* Next week *)
+  check_next_update 12650400L 12009600L
+    (* Wed, 12 AM GMT *)
+    (`At_weekly (D.Wed, 10, 0));
+  check_next_update 12650400L 12038400L
+    (* Wed, 8 AM GMT *) (`At_weekly (D.Wed, 10, 0));
+  (* This week *)
+  check_next_update 12045600L 11872800L
+    (* Wed - 2, 10 AM GMT *) (`At_weekly (D.Wed, 10, 0));
   ()
 
 let tests =
