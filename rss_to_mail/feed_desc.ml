@@ -13,7 +13,7 @@ type options = {
   filter : (Str.regexp * bool) list;
       (** Filter entries by regex The boolean is the expected result of
           [string_match] *)
-  to_ : string option; (** Destination email address *)
+  to_ : string option;  (** Destination email address *)
 }
 
 let make_options ?(refresh = `Every 6.) ?title ?label ?(no_content = false)
@@ -26,3 +26,8 @@ type _ desc =
   | Bundle : [> `In_bundle ] desc -> [< `Any ] desc
 
 type t = [ `Any ] desc * options
+
+let url_of_feed = function
+  | Feed url | Scraper (url, _) | Bundle (Feed url) | Bundle (Scraper (url, _))
+    ->
+      url

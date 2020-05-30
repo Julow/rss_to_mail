@@ -18,17 +18,7 @@ module Local_fetch = struct
         Ok (really_input_string inp len)
 end
 
-module Feed_datas = struct
-  module StringMap = Map.Make (String)
-
-  type t = Rss_to_mail.feed_data StringMap.t
-
-  let get t url = StringMap.find_opt url t
-
-  let set t url data = StringMap.add url data t
-end
-
-module Rss_to_mail = Rss_to_mail.Make (Local_fetch) (Feed_datas)
+module Rss_to_mail = Rss_to_mail.Make (Local_fetch) (Persistent_data.M)
 
 let now = 12345678L
 
@@ -58,13 +48,15 @@ let print_feed (feed, options) =
   );
   print_options options
 
-let print_log = function
-  | url, `Fetch_error code -> printf "Log: %s: Fetch error %d\n" url code
-  | url, `Parsing_error ((line, col), msg) ->
+let print_log (id, log) =
+  let url = Persistent_data.Feed_id.to_string id in
+  match log with
+  | `Fetch_error code -> printf "Log: %s: Fetch error %d\n" url code
+  | `Parsing_error ((line, col), msg) ->
       printf "Log: %s: Parsing error (line %d, col %d)\n%s\n" url line col msg
-  | url, `Updated { Rss_to_mail.entries } ->
+  | `Updated { Rss_to_mail.entries } ->
       printf "Log: %s: %d entries\n" url entries
-  | url, `Uptodate -> printf "Log: %s: Uptodate\n" url
+  | `Uptodate -> printf "Log: %s: Uptodate\n" url
 
 let () =
   let { Persistent_data.feed_datas; _ } =
@@ -77,6 +69,12 @@ let () =
   in
   List.iter print_feed feeds;
   printf "\n# Done parsing\n\n";
+  let feeds =
+    List.map
+      (fun ((desc, _) as f) ->
+        (Persistent_data.Feed_id.of_url (Feed_desc.url_of_feed desc), f))
+      feeds
+  in
   let feed_datas, mails, logs =
     Rss_to_mail.check_all ~now feed_datas feeds |> Lwt_main.run
   in

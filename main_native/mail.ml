@@ -64,10 +64,7 @@ let send_mail ~certs (conf : Config.t) ~to_address body =
     Reverse_path.Decoder.of_string (Printf.sprintf "<%s>" conf.from_address)
   in
   let recipients =
-    [
-      fst
-      @@ Forward_path.Decoder.of_string (Printf.sprintf "<%s>" to_address);
-    ]
+    [ fst @@ Forward_path.Decoder.of_string (Printf.sprintf "<%s>" to_address) ]
   in
   let authenticator =
     let time () = Some (Ptime_clock.now ()) in
@@ -75,23 +72,20 @@ let send_mail ~certs (conf : Config.t) ~to_address body =
   in
   let (`Plain (username, password)) = conf.server_auth in
   let authentication = Sendmail.{ username; password; mechanism = PLAIN } in
-  Sendmail_lwt.sendmail ~hostname ~port ~domain ~authenticator ~authentication from
-    recipients body
+  Sendmail_lwt.sendmail ~hostname ~port ~domain ~authenticator ~authentication
+    from recipients body
 
 (** Send a list of mail to [to_] Returns the list of unsent emails *)
 let send_mails ~certs ~random_seed conf mails =
   let send (i, (t : Rss_to_mail.mail)) =
     let to_address =
-      match t.to_ with
-      | Some a -> a
-      | None -> conf.Config.to_address
+      match t.to_ with Some a -> a | None -> conf.Config.to_address
     in
     Logs.info (fun fmt -> fmt "Sending \"%s\" \"%s\"" t.sender t.subject);
     let boundary = "rss_to_mail-boundary-" ^ random_seed in
     let headers =
       [
-        Printf.sprintf "From: %s <%s>" t.sender
-          conf.Config.from_address;
+        Printf.sprintf "From: %s <%s>" t.sender conf.Config.from_address;
         Printf.sprintf "To: <%s>" to_address;
         "Subject: " ^ t.subject;
         "Content-Type: multipart/alternative; boundary=" ^ boundary;

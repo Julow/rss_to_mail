@@ -16,9 +16,12 @@ let pp_seen_set ppf : SeenSet.t -> unit =
   let pp ppf set = SeenSet.fold (pp_elem ppf) set () in
   Format.fprintf ppf "@[<hv 2>[ %a]@]" pp
 
-let pp_string_map pp_a ppf : 'a Persistent_data.StringMap.t -> unit =
-  let pp_binding ppf key a = Format.fprintf ppf "%s: %a@ " key pp_a a in
-  let pp_map ppf m = Persistent_data.StringMap.iter (pp_binding ppf) m in
+let pp_string_map pp_a ppf : 'a Persistent_data.Feed_map.t -> unit =
+  let pp_binding ppf key a =
+    let key = Persistent_data.Feed_id.to_string key in
+    Format.fprintf ppf "%s: %a@ " key pp_a a
+  in
+  let pp_map ppf m = Persistent_data.Feed_map.iter (pp_binding ppf) m in
   Format.fprintf ppf "@[<hv 2>{ %a}@]" pp_map
 
 ;;

@@ -56,20 +56,13 @@ let parse_filter = function
   | List (Atom "not" :: values) -> (Str.regexp (atom (one values)), false)
   | _ -> failwith "Malformated"
 
-let url_of_feed = function
-  | Feed_desc.Feed url
-  | Scraper (url, _)
-  | Bundle (Feed url)
-  | Bundle (Scraper (url, _)) ->
-      url
-
 let check_duplicate feeds =
   let tbl = Hashtbl.create (List.length feeds) in
   let check_url url =
     if Hashtbl.mem tbl url then failwith ("Feed declared twice: " ^ url);
     Hashtbl.add tbl url ()
   in
-  List.iter (fun (feed, _) -> check_url (url_of_feed feed)) feeds
+  List.iter (fun (feed, _) -> check_url (Feed_desc.url_of_feed feed)) feeds
 
 type t = {
   server : string * int;
@@ -155,7 +148,7 @@ let parse sexp =
     | Atom url -> (Feed url, default_opts)
     | List (desc :: opts) ->
         let desc = parse_desc desc in
-        let opts = parse_options ~url:(url_of_feed desc) opts in
+        let opts = parse_options ~url:(Feed_desc.url_of_feed desc) opts in
         (desc, opts)
     | List [] -> failwith "feeds: Syntax error"
   in

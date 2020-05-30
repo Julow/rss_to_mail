@@ -16,9 +16,11 @@ module Make (Fetch : sig
 end) (Feed_datas : sig
   type t
 
-  val get : t -> string -> feed_data option
+  type id
 
-  val set : t -> string -> feed_data -> t
+  val get : t -> id -> feed_data option
+
+  val set : t -> id -> feed_data -> t
 end) : sig
   type update = { entries : int }
 
@@ -27,7 +29,7 @@ end) : sig
     | `Fetch_error of Fetch.error
     ]
 
-  type log = string * [ `Updated of update | error | `Uptodate ]
+  type log = Feed_datas.id * [ `Updated of update | error | `Uptodate ]
 
   type nonrec mail = mail
 
@@ -36,7 +38,7 @@ end) : sig
   val check_all :
     now:int64 ->
     Feed_datas.t ->
-    Feed_desc.t list ->
+    (Feed_datas.id * Feed_desc.t) list ->
     (Feed_datas.t * mail list * log list) Lwt.t
   (** Update a list of feeds. Fetches are done asynchronously. *)
 end

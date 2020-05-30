@@ -5,17 +5,7 @@ module PooledFetch = struct
   let fetch = Utils.pooled 5 Fetch.fetch
 end
 
-module Feed_datas = struct
-  module StringMap = Map.Make (String)
-
-  type t = Rss_to_mail.feed_data StringMap.t
-
-  let get t url = StringMap.find_opt url t
-
-  let set t url data = StringMap.add url data t
-end
-
-module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Feed_datas)
+module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Persistent_data.M)
 
 let parse_certs certs_file =
   let mapped = Unix_cstruct.of_fd Unix.(openfile certs_file [ O_RDONLY ] 0o0) in
@@ -25,18 +15,20 @@ let parse_certs certs_file =
 
 let metrics_updates ~mails logs =
   let updated = ref 0 and errors = ref 0 in
-  let log_update = function
-    | url, `Updated { Rss_to_mail.entries } ->
+  let log_update (id, log) =
+    let url = Persistent_data.Feed_id.to_string id in
+    match log with
+    | `Updated { Rss_to_mail.entries } ->
         incr updated;
         Logs.info (fun fmt -> fmt "%s: %d new entries" url entries)
-    | url, `Parsing_error ((line, col), msg) ->
+    | `Parsing_error ((line, col), msg) ->
         incr errors;
         Logs.warn (fun fmt ->
             fmt "%s: Parsing error: %d:%d: %s" url line col msg)
-    | url, `Fetch_error err ->
+    | `Fetch_error err ->
         incr errors;
         Logs.warn (fun fmt -> fmt "%s: %s" url (Fetch.error_to_string err))
-    | _, `Uptodate -> ()
+    | `Uptodate -> ()
   in
   List.iter log_update logs;
   Logs.app (fun fmt ->
@@ -50,13 +42,18 @@ let metrics_mails ~to_retry ~unsent_mails =
       let unsent = List.length unsent_mails in
       if unsent > 0 then fmt "%d emails could not be sent" unsent)
 
-let run ~certs (conf : Config.t)
-    (datas : Persistent_data.t) =
+let run ~certs (conf : Config.t) (datas : Persistent_data.t) =
   let certs = parse_certs certs in
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = Unix.time () |> Int64.of_float in
+  let feeds_with_id =
+    List.map
+      (fun ((desc, _) as f) ->
+        (Persistent_data.Feed_id.of_url (Feed_desc.url_of_feed desc), f))
+      conf.feeds
+  in
   let%lwt feed_datas, mails, logs =
-    Rss_to_mail.check_all ~now datas.feed_datas conf.feeds
+    Rss_to_mail.check_all ~now datas.feed_datas feeds_with_id
   in
   metrics_updates ~mails:(List.length mails) logs;
   let to_retry = datas.unsent_mails in

@@ -8,8 +8,8 @@ type t = {
   feeds : Feed_desc.t list;
 }
 
-(** Raise [Failure _] on error. Errors don't have a location. *)
 val parse : Sexplib0.Sexp.t -> t
+(** Raise [Failure _] on error. Errors don't have a location. *)
 
-(** Raise [Failure _] on error. *)
 val parse_scraper : Sexplib0.Sexp.t list -> Scraper.t
+(** Raise [Failure _] on error. *)
