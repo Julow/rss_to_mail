@@ -5,10 +5,9 @@
 (rule
  (deps
   (package rss_to_mail))
+ (target persistent_data.output)
  (action
-  (with-stdout-to
-   persistent_data.output
-   (run ocaml-mdx test -o - %{dep:persistent_data.md}))))
+  (run ocaml-mdx test -o %{target} %{dep:persistent_data.md})))
 
 (rule
  (alias runtest)
