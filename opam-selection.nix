@@ -226,26 +226,6 @@ in
       };
       version = "0.6.1";
     };
-    calendar = 
-    {
-      opamInputs = 
-      {
-        ocaml = selection.ocaml;
-        ocamlfind = selection.ocamlfind;
-      };
-      opamSrc = repoPath repo 
-      {
-        hash = "sha256:0cgvvj8dkw7sb9d9wvflampswqll7875gdrjc4kd4hxsr3b8sy0b";
-        package = "packages/calendar/calendar.2.04";
-      };
-      pname = "calendar";
-      src = pkgs.fetchurl 
-      {
-        sha256 = "1xyrsh7x47qyhh5nyvj08wkjn3mrkrfb9ff2yfq5873s6fhgm9my";
-        url = "https://download.ocamlcore.org/calendar/calendar/2.04/calendar-2.04.tar.gz";
-      };
-      version = "2.04";
-    };
     cmdliner = 
     {
       opamInputs = {
@@ -1917,7 +1897,6 @@ in
       opamInputs = 
       {
         alcotest = selection.alcotest or null;
-        calendar = selection.calendar;
         cmdliner = selection.cmdliner;
         cohttp-lwt-unix = selection.cohttp-lwt-unix;
         colombe = selection.colombe;
