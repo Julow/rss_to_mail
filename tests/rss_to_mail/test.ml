@@ -32,7 +32,7 @@ let print_options (opts : Feed_desc.options) =
   | `Every h -> printf " (refresh %f)" h
   | `At (h, m) -> printf " (refresh (at %d:%d))" h m
   | `At_weekly (d, h, m) ->
-      printf " (refresh (at %d:%d %d)" h m (CalendarLib.Date.int_of_day d)
+      printf " (refresh (at %d:%d %d)" h m (Utils.weekday_index d)
   );
   Option.iter (printf " (title %s)") opts.title;
   Option.iter (printf " (label %s)") opts.label;

@@ -93,8 +93,8 @@ let config_input = {|
     {Feed_desc.refresh = `At (17, 0); title = None; label = None;
      no_content = false; filter = []; to_ = None});
    (Feed_desc.Feed "feed_5",
-    {Feed_desc.refresh = `At_weekly (CalendarLib.Date.Wed, 17, 0);
-     title = None; label = None; no_content = false; filter = []; to_ = None});
+    {Feed_desc.refresh = `At_weekly (`Wed, 17, 0); title = None;
+     label = None; no_content = false; filter = []; to_ = None});
    (Feed_desc.Feed "feed_6",
     {Feed_desc.refresh = `Every 4.; title = Some "Title";
      label = Some "Label"; no_content = true; filter = [];

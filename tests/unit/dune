@@ -1,6 +1,6 @@
 (test
  (name run_tests)
- (libraries alcotest rss_to_mail calendar))
+ (libraries alcotest rss_to_mail))
 
 (rule
  (deps

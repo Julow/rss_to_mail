@@ -1,8 +1,17 @@
+type weekday =
+  [ `Mon
+  | `Tue
+  | `Wed
+  | `Thu
+  | `Fri
+  | `Sat
+  | `Sun
+  ]
+
 type refresh_options =
   [ `Every of float  (** Every [n] hours *)
   | `At of int * int  (** Every days at [hour, min] *)
-  | `At_weekly of CalendarLib.Date.day * int * int
-    (** Every weeks on [day, hour, minute]*)
+  | `At_weekly of weekday * int * int  (** Every weeks on [day, hour, minute]*)
   ]
 
 type options = {

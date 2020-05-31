@@ -15,7 +15,6 @@ depends: [
 	"cmdliner"
 	"tyxml"
 	"tyxml-ppx"
-	"calendar"
 	"colombe" { = "0.2.0" }
 	"sendmail-lwt"
   "logs"

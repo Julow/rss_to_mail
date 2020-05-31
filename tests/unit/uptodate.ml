@@ -1,10 +1,8 @@
-module D = CalendarLib.Date
-
 let print_refresh = function
   | `Every h -> Printf.sprintf "(Every %f)" h
   | `At (h, m) -> Printf.sprintf "(At %d %d)" h m
   | `At_weekly (d, h, m) ->
-      Printf.sprintf "(At_weekly %d %d %d)" (D.int_of_day d) h m
+      Printf.sprintf "(At_weekly %d %d %d)" (Utils.weekday_index d) h m
 
 let check_next_update expected now refresh =
   let options = Feed_desc.make_options ~refresh () in
@@ -26,12 +24,12 @@ let weekly () =
   (* Next week *)
   check_next_update 12650400L 12009600L
     (* Wed, 12 AM GMT *)
-    (`At_weekly (D.Wed, 10, 0));
+    (`At_weekly (`Wed, 10, 0));
   check_next_update 12650400L 12038400L
-    (* Wed, 8 AM GMT *) (`At_weekly (D.Wed, 10, 0));
+    (* Wed, 8 AM GMT *) (`At_weekly (`Wed, 10, 0));
   (* This week *)
   check_next_update 12045600L 11872800L
-    (* Wed - 2, 10 AM GMT *) (`At_weekly (D.Wed, 10, 0));
+    (* Wed - 2, 10 AM GMT *) (`At_weekly (`Wed, 10, 0));
   ()
 
 let tests =

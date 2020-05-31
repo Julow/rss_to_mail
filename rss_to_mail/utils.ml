@@ -1,29 +1,46 @@
-module C = CalendarLib.Calendar.Precise
+module S = Ptime.Span
 
-let next_day_at h m t =
-  let t = C.next t `Day in
-  C.create (C.to_date t) C.Time.(make h m (Second.from_int 0))
+let make_span ?(hour = 0) ?(min = 0) ?(sec = 0) () =
+  S.of_int_s ((hour * 3600) + (min * 60) + sec)
 
-let day_equal a b = C.Date.int_of_day a = C.Date.int_of_day b
+let span_of_hour_f h =
+  let hf, h = modf h in
+  let hour = int_of_float h and sec = int_of_float (hf *. 3600.) in
+  make_span ~hour ~sec ()
 
-let next_week_at day h m t =
-  let rec loop t =
-    if day_equal (C.day_of_week t) day then t else loop (C.next t `Day)
-  in
-  loop (next_day_at h m t)
+let today_at h m now =
+  let _, ((h', m', s'), _) = Ptime.to_date_time now in
+  S.sub (make_span ~hour:h ~min:m ()) (make_span ~hour:h' ~min:m' ~sec:s' ())
+
+let next_day_at h m now = S.add (today_at h m now) (S.v (1, 0L))
+
+let weekday_index = function
+  | `Mon -> 0
+  | `Tue -> 1
+  | `Wed -> 2
+  | `Thu -> 3
+  | `Fri -> 4
+  | `Sat -> 5
+  | `Sun -> 6
+
+let next_week_at day h m now =
+  let today_wd = Ptime.weekday now in
+  let d = ((weekday_index day - weekday_index today_wd + 6) mod 7) + 1 in
+  S.add (today_at h m now) (S.v (d, 0L))
 
 let next_update now options =
-  let now = C.from_unixfloat (Int64.to_float now) in
-  let due =
-    match options.Feed_desc.refresh with
-    | `Every h ->
-        let hour = int_of_float h
-        and second = int_of_float (fst (modf h) *. 3600.) in
-        C.add now (C.Period.lmake ~hour ~second ())
-    | `At (h, m) -> next_day_at h m now
-    | `At_weekly (d, h, m) -> next_week_at d h m now
+  let now_t =
+    match Ptime.of_float_s (Int64.to_float now) with
+    | Some t -> t
+    | None -> assert false
   in
-  Int64.of_float (Float.round (C.to_unixfloat due))
+  let d =
+    match options.Feed_desc.refresh with
+    | `Every h -> span_of_hour_f h
+    | `At (h, m) -> next_day_at h m now_t
+    | `At_weekly (d, h, m) -> next_week_at d h m now_t
+  in
+  Int64.add now (Int64.of_float (S.to_float_s d))
 
 let rec size s u =
   let to_s () = Int64.to_string s ^ u in

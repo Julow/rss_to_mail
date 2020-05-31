@@ -80,13 +80,13 @@ let parse sexp =
       | h, m when h < 0 || h > 23 || m < 0 || m > 59 -> failwith "Invalid time"
       | t -> t
     and parse_day = function
-      | "mon" -> CalendarLib.Date.Mon
-      | "tue" -> Tue
-      | "wed" -> Wed
-      | "thu" -> Thu
-      | "fri" -> Fri
-      | "sat" -> Sat
-      | "sun" -> Sun
+      | "mon" -> `Mon
+      | "tue" -> `Tue
+      | "wed" -> `Wed
+      | "thu" -> `Thu
+      | "fri" -> `Fri
+      | "sat" -> `Sat
+      | "sun" -> `Sun
       | _ -> failwith "Invalid day"
     in
     function
