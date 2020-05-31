@@ -105,8 +105,8 @@ let send_mails ~certs ~random_seed conf mails =
       @@ stream_concat
            [
              stream_of_strings headers;
-             part "text/plain" t.body_text;
-             part "text/html" t.body_html;
+             part "text/plain; charset=\"UTF-8\"" t.body_text;
+             part "text/html; charset=\"UTF-8\"" t.body_html;
              stream_of_strings [ "--" ^ boundary ^ "--"; "" ];
            ]
     in
