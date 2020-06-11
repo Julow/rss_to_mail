@@ -15,7 +15,7 @@ depends: [
 	"cmdliner"
 	"tyxml"
 	"tyxml-ppx"
-	"colombe" { = "0.2.0" }
+	"colombe" { = "0.3.0" }
 	"sendmail-lwt"
   "logs"
   "x509" { >= "0.10" }
@@ -23,6 +23,9 @@ depends: [
   "cstruct-unix"
   "sexplib0"
   "sexplib"
+  "emile"
+  "mrmime" { > "0.3.0" }
+  "colombe"
   "alcotest" { with-test }
   "mdx" { with-test }
 ]

@@ -33,16 +33,16 @@ in
       };
       opamSrc = repoPath repo 
       {
-        hash = "sha256:192g8jhvw3nvipr5a4iljlgmfzjgh24yd1hm3ls63991vn52zd0y";
-        package = "packages/angstrom/angstrom.0.13.0";
+        hash = "sha256:0kq001m0ch2cqx5ivr6qdk029p6y1x176x8kfpq72lghvqb09imi";
+        package = "packages/angstrom/angstrom.0.14.1";
       };
       pname = "angstrom";
       src = pkgs.fetchurl 
       {
-        sha256 = "08zbjixwkhrkbyhp2raap1b8ah502piwaadzydmb82ivgc6h94k7";
-        url = "https://github.com/inhabitedtype/angstrom/archive/0.13.0.tar.gz";
+        sha256 = "14zb3xn7mq33pmbdy5kwqnsi047sirkl8q2ixqwilfbjpfvk65mx";
+        url = "https://github.com/inhabitedtype/angstrom/archive/0.14.1.tar.gz";
       };
-      version = "0.13.0";
+      version = "0.14.1";
     };
     asn1-combinators = 
     {
@@ -202,6 +202,36 @@ in
       };
       version = "1.0.0";
     };
+    bigarray-overlap = 
+    {
+      opamInputs = 
+      {
+        alcotest = selection.alcotest or null;
+        astring = selection.astring or null;
+        bigarray-compat = selection.bigarray-compat;
+        bos = selection.bos or null;
+        conf-pkg-config = selection.conf-pkg-config or null;
+        dune = selection.dune;
+        fpath = selection.fpath or null;
+        js_of_ocaml-compiler = selection.js_of_ocaml-compiler or null;
+        mirage-xen-posix = selection.mirage-xen-posix or null;
+        ocaml = selection.ocaml;
+        ocaml-freestanding = selection.ocaml-freestanding or null;
+        ocamlfind = selection.ocamlfind or null;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:1jz00nqs5h0sgj2r0s2rp4wk0i7flgxs0j6p2qip044h32dxla91";
+        package = "packages/bigarray-overlap/bigarray-overlap.0.2.0";
+      };
+      pname = "bigarray-overlap";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "1v86avafsbyxjccy0y9gny31s2jzb0kd42v3mhcalklx5f044lcy";
+        url = "https://github.com/dinosaure/overlap/releases/download/v0.2.0/bigarray-overlap-v0.2.0.tbz";
+      };
+      version = "0.2.0";
+    };
     bigstringaf = 
     {
       opamInputs = 
@@ -331,6 +361,29 @@ in
       };
       version = "2.5.1";
     };
+    coin = 
+    {
+      opamInputs = 
+      {
+        dune = selection.dune;
+        menhir = selection.menhir;
+        ocaml = selection.ocaml;
+        ocamlfind = selection.ocamlfind;
+        re = selection.re;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:08spcv6fxqzwhfgrwfhk3snncaxyqzsvlw4iksscvmrdjxzdcxm5";
+        package = "packages/coin/coin.0.1.3";
+      };
+      pname = "coin";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "0gr5kw2npq8wpfj1g86sa8jl4lkk00i5bfj7y1drzfgpchb7hbbv";
+        url = "https://github.com/mirage/coin/releases/download/v0.1.3/coin-v0.1.3.tbz";
+      };
+      version = "0.1.3";
+    };
     colombe = 
     {
       opamInputs = 
@@ -346,16 +399,16 @@ in
       };
       opamSrc = repoPath repo 
       {
-        hash = "sha256:1bhyh2z7dn91sx6vf7xw7s4pkpnkks21gn8v5afvq0vsv6kzpwyr";
-        package = "packages/colombe/colombe.0.2.0";
+        hash = "sha256:1nvq6ckig6lrivpsnnv9hlxnjmm80lzzdgbwn0zcmpdjg95qvrpr";
+        package = "packages/colombe/colombe.0.3.0";
       };
       pname = "colombe";
       src = pkgs.fetchurl 
       {
-        sha256 = "1bbff1a9bc8hrlfk8b4gf4cdnv8zph3rkcz28wd00vhs1rpp7hhj";
-        url = "https://github.com/mirage/colombe/releases/download/v0.2.0/colombe-v0.2.0.tbz";
+        sha256 = "0wrcjr02ry7rvvz5dis3lp2s2kqy92yfp3d7wmiwv16rshyhg4g1";
+        url = "https://github.com/mirage/colombe/releases/download/v0.3.0/colombe-v0.3.0.tbz";
       };
-      version = "0.2.0";
+      version = "0.3.0";
     };
     conduit = 
     {
@@ -720,6 +773,33 @@ in
       };
       version = "0.1.3";
     };
+    emile = 
+    {
+      opamInputs = 
+      {
+        alcotest = selection.alcotest or null;
+        angstrom = selection.angstrom;
+        base64 = selection.base64;
+        cmdliner = selection.cmdliner or null;
+        dune = selection.dune;
+        ipaddr = selection.ipaddr;
+        ocaml = selection.ocaml;
+        pecu = selection.pecu;
+        uutf = selection.uutf;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:0bhz95f298lczynirlkiqzdiybqqxb5ny3vskhkw84j95lbi42iq";
+        package = "packages/emile/emile.0.9";
+      };
+      pname = "emile";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "05g253npjcb0plg9rif4zhavm76dvldnimxa1787rfl3s5d6shd3";
+        url = "https://github.com/dinosaure/emile/releases/download/v0.9/emile-v0.9.tbz";
+      };
+      version = "0.9";
+    };
     eqaf = 
     {
       opamInputs = 
@@ -1019,6 +1099,30 @@ in
       };
       version = "1.0.1";
     };
+    ke = 
+    {
+      opamInputs = 
+      {
+        alcotest = selection.alcotest or null;
+        bigarray-compat = selection.bigarray-compat;
+        bigstringaf = selection.bigstringaf or null;
+        dune = selection.dune;
+        fmt = selection.fmt;
+        ocaml = selection.ocaml;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:0hmmgy91hm1kq8k6aw1g4jx2ny9xx19z2j7gf05wk6zfzzla9vqv";
+        package = "packages/ke/ke.0.4";
+      };
+      pname = "ke";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "13c9xy60vmq29mnwpg3h3zgl6gjbjfwbx1s0crfc6xwvark0zxnx";
+        url = "https://github.com/mirage/ke/releases/download/v0.4/ke-v0.4.tbz";
+      };
+      version = "0.4";
+    };
     lambdasoup = 
     {
       opamInputs = 
@@ -1208,6 +1312,68 @@ in
         url = "https://github.com/aantron/markup.ml/archive/0.8.2.tar.gz";
       };
       version = "0.8.2";
+    };
+    menhir = 
+    {
+      opamInputs = 
+      {
+        dune = selection.dune;
+        menhirLib = selection.menhirLib;
+        menhirSdk = selection.menhirSdk;
+        ocaml = selection.ocaml;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:1r4dzif4hy5v7lvlc3pa99w4idwghlxp476zwh79p0y8vhw8cba4";
+        package = "packages/menhir/menhir.20200211";
+      };
+      pname = "menhir";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "1mls0w2g0mbb1n0yg0f36qbm4xlcri57cdrjy0lhnspmzxmj52f8";
+        url = "https://gitlab.inria.fr/fpottier/menhir/repository/20200211/archive.tar.gz";
+      };
+      version = "20200211";
+    };
+    menhirLib = 
+    {
+      opamInputs = 
+      {
+        dune = selection.dune;
+        ocaml = selection.ocaml;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:1fcg0xcrb8azwr7ypag1pyavmij50dv7x494gfc87d3q33i4jlrj";
+        package = "packages/menhirLib/menhirLib.20200211";
+      };
+      pname = "menhirLib";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "1mls0w2g0mbb1n0yg0f36qbm4xlcri57cdrjy0lhnspmzxmj52f8";
+        url = "https://gitlab.inria.fr/fpottier/menhir/repository/20200211/archive.tar.gz";
+      };
+      version = "20200211";
+    };
+    menhirSdk = 
+    {
+      opamInputs = 
+      {
+        dune = selection.dune;
+        ocaml = selection.ocaml;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:15qkw6rjm5l6vpc7rh7nv3sr7r7hf5ma8xc8jr6wfy1by72aw1rr";
+        package = "packages/menhirSdk/menhirSdk.20200211";
+      };
+      pname = "menhirSdk";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "1mls0w2g0mbb1n0yg0f36qbm4xlcri57cdrjy0lhnspmzxmj52f8";
+        url = "https://gitlab.inria.fr/fpottier/menhir/repository/20200211/archive.tar.gz";
+      };
+      version = "20200211";
     };
     mirage-clock = 
     {
@@ -1418,6 +1584,36 @@ in
         url = "https://github.com/mirage/mmap/releases/download/v1.1.0/mmap-v1.1.0.tbz";
       };
       version = "1.1.0";
+    };
+    mrmime = 
+    {
+      opamInputs = 
+      {
+        alcotest = selection.alcotest or null;
+        angstrom = selection.angstrom;
+        base64 = selection.base64;
+        bigarray-compat = selection.bigarray-compat;
+        bigarray-overlap = selection.bigarray-overlap;
+        bigstringaf = selection.bigstringaf;
+        dune = selection.dune;
+        emile = selection.emile;
+        fmt = selection.fmt;
+        hxd = selection.hxd or null;
+        ipaddr = selection.ipaddr;
+        jsonm = selection.jsonm or null;
+        ke = selection.ke;
+        ocaml = selection.ocaml;
+        pecu = selection.pecu;
+        ptime = selection.ptime;
+        rosetta = selection.rosetta;
+        rresult = selection.rresult;
+        unstrctrd = selection.unstrctrd;
+        uutf = selection.uutf;
+      };
+      opamSrc = "mrmime.opam";
+      pname = "mrmime";
+      src = self.directSrc "mrmime";
+      version = "development";
     };
     mtime = 
     {
@@ -1659,6 +1855,28 @@ in
       };
       version = "v0.13.0";
     };
+    pecu = 
+    {
+      opamInputs = 
+      {
+        alcotest = selection.alcotest or null;
+        dune = selection.dune;
+        fmt = selection.fmt or null;
+        ocaml = selection.ocaml;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:19zvavr4774fz7snjqj7fjghqznzdgisx3wm17a99ma4kynsld2c";
+        package = "packages/pecu/pecu.0.4";
+      };
+      pname = "pecu";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "07mw7k81368hnv3z6j1gc85xfykh8yv5vmv21g7aqmsjg0xwxlvp";
+        url = "https://github.com/mirage/pecu/releases/download/v0.4/pecu-v0.4.tbz";
+      };
+      version = "0.4";
+    };
     ppx_cstruct = 
     {
       opamInputs = 
@@ -1869,6 +2087,29 @@ in
       };
       version = "1.5";
     };
+    rosetta = 
+    {
+      opamInputs = 
+      {
+        coin = selection.coin;
+        dune = selection.dune;
+        ocaml = selection.ocaml;
+        uuuu = selection.uuuu;
+        yuscii = selection.yuscii;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:0jsdsackyzlk0dhag17pff2nbzwvjmnsahkf2nxww9kz2xbd9imv";
+        package = "packages/rosetta/rosetta.0.3.0";
+      };
+      pname = "rosetta";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "0r2553gb8j3jxsrwmgnxxikmymxjid9kfl987gr06sxgg27n7yyz";
+        url = "https://github.com/mirage/rosetta/releases/download/v0.3.0/rosetta-v0.3.0.tbz";
+      };
+      version = "0.3.0";
+    };
     rresult = 
     {
       opamInputs = 
@@ -1902,6 +2143,7 @@ in
         colombe = selection.colombe;
         cstruct-unix = selection.cstruct-unix;
         dune = selection.dune;
+        emile = selection.emile;
         lambdasoup = selection.lambdasoup;
         logs = selection.logs;
         lwt = selection.lwt;
@@ -1909,6 +2151,7 @@ in
         lwt_ssl = selection.lwt_ssl;
         markup = selection.markup;
         mdx = selection.mdx or null;
+        mrmime = selection.mrmime;
         ocaml = selection.ocaml;
         ptime = selection.ptime;
         sendmail-lwt = selection.sendmail-lwt;
@@ -1941,16 +2184,16 @@ in
       };
       opamSrc = repoPath repo 
       {
-        hash = "sha256:0bc1vf1hkxm3z3l0c62av4zwrpy9db8qvh2b7wi8xkl479y3p8rc";
-        package = "packages/sendmail/sendmail.0.2.0";
+        hash = "sha256:0s2va0byqk5h9anraaqnvc4wbb3lvz0vqk4ab481qzf72r1g6amx";
+        package = "packages/sendmail/sendmail.0.3.0";
       };
       pname = "sendmail";
       src = pkgs.fetchurl 
       {
-        sha256 = "1bbff1a9bc8hrlfk8b4gf4cdnv8zph3rkcz28wd00vhs1rpp7hhj";
-        url = "https://github.com/mirage/colombe/releases/download/v0.2.0/colombe-v0.2.0.tbz";
+        sha256 = "0wrcjr02ry7rvvz5dis3lp2s2kqy92yfp3d7wmiwv16rshyhg4g1";
+        url = "https://github.com/mirage/colombe/releases/download/v0.3.0/colombe-v0.3.0.tbz";
       };
-      version = "0.2.0";
+      version = "0.3.0";
     };
     sendmail-lwt = 
     {
@@ -1967,16 +2210,16 @@ in
       };
       opamSrc = repoPath repo 
       {
-        hash = "sha256:1jvfv9mnjy6viq6h7kdrfqzjkn7ng0zywyrmjwc4s5y4wcx73a8q";
-        package = "packages/sendmail-lwt/sendmail-lwt.0.2.0";
+        hash = "sha256:0skkfiqya8dzji9w2bwwj3b8fw9xi3za22kny94l7v9zygxfjz6v";
+        package = "packages/sendmail-lwt/sendmail-lwt.0.3.0";
       };
       pname = "sendmail-lwt";
       src = pkgs.fetchurl 
       {
-        sha256 = "1bbff1a9bc8hrlfk8b4gf4cdnv8zph3rkcz28wd00vhs1rpp7hhj";
-        url = "https://github.com/mirage/colombe/releases/download/v0.2.0/colombe-v0.2.0.tbz";
+        sha256 = "0wrcjr02ry7rvvz5dis3lp2s2kqy92yfp3d7wmiwv16rshyhg4g1";
+        url = "https://github.com/mirage/colombe/releases/download/v0.3.0/colombe-v0.3.0.tbz";
       };
-      version = "0.2.0";
+      version = "0.3.0";
     };
     seq = 
     {
@@ -2276,6 +2519,34 @@ in
       };
       version = "0.0.2";
     };
+    unstrctrd = 
+    {
+      opamInputs = 
+      {
+        alcotest = selection.alcotest or null;
+        angstrom = selection.angstrom;
+        bigstringaf = selection.bigstringaf or null;
+        dune = selection.dune;
+        fmt = selection.fmt or null;
+        hxd = selection.hxd or null;
+        ke = selection.ke or null;
+        ocaml = selection.ocaml;
+        rresult = selection.rresult or null;
+        uutf = selection.uutf;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:0vpsslhj1fzkrg1x79m5xi1z2la4x5v49b3ps67mrjbb91wr9ciq";
+        package = "packages/unstrctrd/unstrctrd.0.2";
+      };
+      pname = "unstrctrd";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "0yb9n7zrdvcsawwjj9dxfwqc9gq12bmaynnfyjm5yd0s876vyh0h";
+        url = "https://github.com/dinosaure/unstrctrd/releases/download/v0.2/unstrctrd-v0.2.tbz";
+      };
+      version = "0.2";
+    };
     uri = 
     {
       opamInputs = 
@@ -2347,6 +2618,30 @@ in
       };
       version = "1.0.2";
     };
+    uuuu = 
+    {
+      opamInputs = 
+      {
+        angstrom = selection.angstrom;
+        dune = selection.dune;
+        menhir = selection.menhir;
+        ocaml = selection.ocaml;
+        ocamlfind = selection.ocamlfind;
+        re = selection.re;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:07bzj3ns09wx4ivbsd62mp8pjj394wp2labnyzspicnv4vl5c3mb";
+        package = "packages/uuuu/uuuu.0.2.0";
+      };
+      pname = "uuuu";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "0czgg2hp8r4r0piki193cl94gyqa28jvk51c2k9x7cjlr16nr327";
+        url = "https://github.com/mirage/uuuu/releases/download/v0.2.0/uuuu-v0.2.0.tbz";
+      };
+      version = "0.2.0";
+    };
     x509 = 
     {
       opamInputs = 
@@ -2402,6 +2697,29 @@ in
         url = "http://erratique.ch/software/xmlm/releases/xmlm-1.3.0.tbz";
       };
       version = "1.3.0";
+    };
+    yuscii = 
+    {
+      opamInputs = 
+      {
+        alcotest = selection.alcotest or null;
+        dune = selection.dune;
+        fmt = selection.fmt or null;
+        ocaml = selection.ocaml;
+        uutf = selection.uutf or null;
+      };
+      opamSrc = repoPath repo 
+      {
+        hash = "sha256:1n43qm6bz51ka7b4g9zhvlkcjmqkz9jf5zm1g02i4sh7gacpi91w";
+        package = "packages/yuscii/yuscii.0.3.0";
+      };
+      pname = "yuscii";
+      src = pkgs.fetchurl 
+      {
+        sha256 = "1cbla1fw8ygcmid9v220bk9ki9n0v3wk0yc84rrm852xaznqg3gg";
+        url = "https://github.com/mirage/yuscii/releases/download/v0.3.0/yuscii-v0.3.0.tbz";
+      };
+      version = "0.3.0";
     };
     zarith = 
     {
