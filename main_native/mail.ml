@@ -37,7 +37,8 @@ let make_address ?name addr =
 
 module C = Content_type
 
-let content_type ?(charset = "UTF-8") ?(parameters = C.Parameters.default) type_ subtype =
+let content_type ?(charset = "UTF-8") ?(parameters = C.Parameters.default) type_
+    subtype =
   let parameters = C.Parameters.add "charset" (`String charset) parameters in
   C.make type_ (C.Subtype.iana_exn type_ subtype) parameters
 
@@ -47,6 +48,18 @@ let make_part content_type body =
     Header.of_list [ Field.(make Field_name.content_type Content content_type) ]
   in
   Mt.part ~header stream
+
+let make_multipart_alternative ~header parts =
+  let multipart_header =
+    let t =
+      C.make `Multipart
+        (C.Subtype.iana_exn `Multipart "alternative")
+        C.Parameters.empty
+    in
+    Header.of_list [ Field.(make Field_name.content_type Content) t ]
+  in
+  let parts = Mt.multipart ~rng:Mt.rng ~header:multipart_header parts in
+  Mt.make header Mt.multi parts
 
 let make_mail (conf : Config.t) mail =
   let { Rss_to_mail.sender; to_ = recipient; subject; body_html; body_text } =
@@ -83,15 +96,14 @@ let make_mail (conf : Config.t) mail =
         ]
   in
   let parts =
-    Mt.multipart ~rng:Mt.rng
-      [
-        make_part (content_type `Text "html") body_html;
-        make_part (content_type `Text "plain") body_text;
-      ]
+    [
+      make_part (content_type `Text "html") body_html;
+      make_part (content_type `Text "plain") body_text;
+    ]
   in
   let* from = Colombe_emile.to_reverse_path sender in
   let* recipient = Colombe_emile.to_forward_path recipient in
-  Ok (Mt.make header Mt.multi parts, from, recipient)
+  Ok (make_multipart_alternative ~header parts, from, recipient)
 
 (** Send a list of mail to [to_] Returns the list of unsent emails *)
 let send_mails ~certs (conf : Config.t) mails =
