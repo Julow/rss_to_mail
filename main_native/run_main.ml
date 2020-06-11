@@ -58,8 +58,7 @@ let run ~certs (conf : Config.t) (datas : Persistent_data.t) =
   metrics_updates ~mails:(List.length mails) logs;
   let to_retry = datas.unsent_mails in
   let%lwt unsent_mails =
-    let random_seed = Int64.to_string now in
-    Mail.send_mails ~certs ~random_seed conf (to_retry @ mails)
+    Mail.send_mails ~certs conf (to_retry @ mails)
   in
   metrics_mails ~to_retry ~unsent_mails;
   Lwt.return Persistent_data.{ feed_datas; unsent_mails }
