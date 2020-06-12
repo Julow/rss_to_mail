@@ -61,7 +61,7 @@ let make_multipart_alternative ~header parts =
   let parts = Mt.multipart ~rng:Mt.rng ~header:multipart_header parts in
   Mt.make header Mt.multi parts
 
-let make_mail (conf : Config.t) mail =
+let make_mail (conf : Feeds_config.t) mail =
   let { Rss_to_mail.sender; to_ = recipient; subject; body_html; body_text } =
     mail
   in
@@ -106,7 +106,7 @@ let make_mail (conf : Config.t) mail =
   Ok (make_multipart_alternative ~header parts, from, recipient)
 
 (** Send a list of mail to [to_] Returns the list of unsent emails *)
-let send_mails ~certs (conf : Config.t) mails =
+let send_mails ~certs (conf : Feeds_config.t) mails =
   let authenticator =
     let time () = Some (Ptime_clock.now ()) in
     X509.Authenticator.chain_of_trust ~time certs

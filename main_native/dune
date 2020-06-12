@@ -4,6 +4,6 @@
  (package rss_to_mail)
  (libraries lwt cohttp-lwt-unix rss_to_mail scraper cmdliner persistent_data
    emile mrmime colombe colombe.emile sendmail-lwt logs logs.cli logs.fmt sexplib x509 ptime
-   cstruct-unix config)
+   cstruct-unix feeds_config)
  (preprocess
   (pps lwt_ppx)))

@@ -63,9 +63,9 @@ let () =
     let sexp = Sexplib.Sexp.load_sexps "feed_datas.sexp" in
     Persistent_data.load sexp
   in
-  let { Config.feeds; _ } =
+  let { Feeds_config.feeds; _ } =
     let sexp = Sexplib.Sexp.load_sexp "feeds.sexp" in
-    Config.parse sexp
+    Feeds_config.parse sexp
   in
   List.iter print_feed feeds;
   printf "\n# Done parsing\n\n";

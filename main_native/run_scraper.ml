@@ -30,7 +30,7 @@ let read_scraper () =
   | exception Sexplib.Sexp.Parse_error { err_msg; _ } ->
       Error ("Syntax error: " ^ err_msg)
   | sexp -> (
-      try Ok (Config.parse_scraper sexp) with Failure e -> Error e
+      try Ok (Feeds_config.parse_scraper sexp) with Failure e -> Error e
     )
 
 let print_feed (feed : Feed.t) =
