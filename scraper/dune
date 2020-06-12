@@ -1,5 +1,4 @@
 (library
  (name scraper)
- (public_name rss_to_mail.scraper)
  (wrapped false)
  (libraries feed markup lambdasoup))

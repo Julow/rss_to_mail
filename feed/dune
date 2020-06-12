@@ -1,5 +1,4 @@
 (library
  (name feed)
- (public_name rss_to_mail.feed)
  (wrapped false)
  (libraries uri tyxml))
