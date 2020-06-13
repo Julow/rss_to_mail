@@ -29,4 +29,7 @@ depends: [
   "alcotest" { with-test }
   "mdx" { with-test }
 ]
+pin-depends: [
+  "git+https://github.com/Julow/mdx#mdx-test-lib" { with-test }
+]
 build: [[ "dune" "build" "-p" name "-j" jobs ]]

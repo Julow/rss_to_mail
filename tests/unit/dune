@@ -1,13 +1,14 @@
 (test
  (name run_tests)
+ (modules run_tests uptodate)
  (libraries alcotest rss_to_mail))
 
+(toplevel (name mdx_test) (libraries mdx.top mdx.test sexplib rss_to_mail feeds_config persistent_data))
+
 (rule
- (deps
-  (package rss_to_mail))
- (target persistent_data.output)
- (action
-  (run ocaml-mdx test -o %{target} %{dep:persistent_data.md})))
+ (with-stdout-to
+  persistent_data.output
+  (run %{exe:mdx_test.exe} %{dep:mdx_test.ml} %{dep:persistent_data.md})))
 
 (rule
  (alias runtest)

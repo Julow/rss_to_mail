@@ -2,11 +2,6 @@
 
 ```ocaml
 (* Prelude *)
-#require "rss_to_mail.persistent_data";;
-#require "rss_to_mail.config";;
-#require "rss_to_mail";;
-#require "sexplib";;
-
 let pp_seen_set ppf : SeenSet.t -> unit =
   let pp_elem ppf id removed () =
     match removed with
@@ -75,7 +70,7 @@ let config_input = {|
 ```
 
 ```ocaml
-# Config.parse (Sexplib.Sexp.of_string config_input) ;;
+# Feeds_config.parse (Sexplib.Sexp.of_string config_input) ;;
 - : Config.t =
 {Config.server = ("server", 465); server_auth = `Plain ("id", "password");
  from_address = "from@address"; to_address = "to@address";
