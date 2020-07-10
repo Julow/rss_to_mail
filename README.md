@@ -5,8 +5,11 @@ Send a mail for new entries on RSS and Atom feeds
 ### Config
 
 ```sexp
-((smtp ("smtp server" ("user name" "password")))
- (address "destination email address")
+((smtp
+   (server "smtp server" port)
+   (from "sender email address")
+   (auth "username" "password"))
+ (to "destination email address")
  (feeds
   ((http://feed_url (option1 value) (option2 value) ...)
    (http://feed_url2 options ...)
@@ -38,6 +41,20 @@ Send a mail for new entries on RSS and Atom feeds
 - `bundle` Concatenate entries into a single mail, sending at most one mail per refresh
 
 	`((bundle http://url) options ...)`
+
+#### Example config
+
+``` sexp
+((smtp
+   (server mymail.org 465)
+   (from alice@mymail.org)
+   (auth alice mypassword))
+ (to alice@mymail.org)
+ (default_refresh 4.)
+ (feeds
+   (https://xkcd.com/atom.xml))
+)
+```
 
 ### Install
 
