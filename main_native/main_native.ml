@@ -34,6 +34,12 @@ let run_scraper_command src () =
   | Ok () -> ()
   | Error e -> Logs.err (fun fmt -> fmt "%s: %s" src e)
 
+let send_test_email (`Config, config_file) () (`Certs, certs) =
+  let conf = parse_config_file config_file in
+  let success = Lwt_main.run (Run_main.send_test_email ~certs conf) in
+  if success then Logs.app (fun fmt -> fmt "Success.")
+  else exit 1
+
 open Cmdliner
 
 let tagged tag arg = Term.app (Term.const (fun v -> (tag, v))) arg
@@ -83,6 +89,11 @@ let run_scraper_term =
   ( Term.(const run_scraper_command $ source_arg $ verbose),
     Term.info "run-scraper" ~doc )
 
+let send_test_email =
+  let doc = "Send a test email and exit." in
+  ( Term.(const send_test_email $ config_file $ verbose $ certs),
+    Term.info "send-test-email" ~doc )
+
 let () =
   Term.exit
-  @@ Term.eval_choice run_term [ run_term; check_config_term; run_scraper_term ]
+  @@ Term.eval_choice run_term [ run_term; check_config_term; run_scraper_term; send_test_email ]
