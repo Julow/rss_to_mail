@@ -2,14 +2,16 @@
  (name run_tests)
  (libraries alcotest rss_to_mail))
 
-(rule
- (deps
-  (package rss_to_mail))
- (target persistent_data.output)
- (action
-  (run ocaml-mdx test -o %{target} %{dep:persistent_data.md})))
+; Disable since internal libraries are no longer exposed
+; This feature will be added in Mdx in the future
+; (rule
+;  (deps
+;   (package rss_to_mail))
+;  (target persistent_data.output)
+;  (action
+;   (run ocaml-mdx test -o %{target} %{dep:persistent_data.md})))
 
-(rule
- (alias runtest)
- (action
-  (diff persistent_data.md persistent_data.output)))
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff persistent_data.md persistent_data.output)))
