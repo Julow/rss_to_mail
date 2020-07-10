@@ -30,3 +30,6 @@ depends: [
   "mdx" { with-test }
 ]
 build: [[ "dune" "build" "-p" name "-j" jobs ]]
+pin-depends: [
+  [ "mrmime.dev" "git+https://github.com/mirage/mrmime.git" ]
+]
