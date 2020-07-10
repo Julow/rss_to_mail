@@ -77,6 +77,9 @@ rss_to_mail run-scraper SRC
    Run a scraper against a web page. Useful for degugging. Read the
    scraper definition from stdin.
    SRC is a path or an url
+
+rss_to_mail send-test-email
+   Send a test email and exit.
 ```
 
 By default, the config file is `./feeds.sexp`.

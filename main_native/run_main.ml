@@ -5,6 +5,7 @@ module PooledFetch = struct
   let fetch = Utils.pooled 5 Fetch.fetch
 end
 
+module Rss_to_mail' = Rss_to_mail
 module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Persistent_data.M)
 
 let parse_certs certs_file =
@@ -62,3 +63,17 @@ let run ~certs (conf : Feeds_config.t) (datas : Persistent_data.t) =
   in
   metrics_mails ~to_retry ~unsent_mails;
   Lwt.return Persistent_data.{ feed_datas; unsent_mails }
+
+let send_test_email ~certs (conf : Feeds_config.t) =
+  let certs = parse_certs certs in
+  let mail = Rss_to_mail'.{
+    sender = "rss_to_email";
+    to_ = Some conf.to_address;
+    subject = "[rss_to_email] Test email";
+    body_html = "This is a test email from rss_to_email.";
+    body_text = "This is a test email from rss_to_email.";
+  } in
+  let%lwt unsent_mail =
+    Mail.send_mails ~certs conf [mail] in
+  let success = (unsent_mail = []) in
+  Lwt.return success
