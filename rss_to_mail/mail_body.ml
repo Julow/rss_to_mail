@@ -13,7 +13,8 @@ module Render (Impl : sig
 
   val list : ?sep:'a t -> 'a t list -> 'a t
 
-  val link : ?text:string -> Uri.t -> inline t
+  (** [mime_type] is not shown. *)
+  val link : ?mime_type:string -> ?text:string -> Uri.t -> inline t
 
   val raw_content_html : [< Html_types.div ] Tyxml_html.elt -> block t
 
@@ -87,7 +88,7 @@ struct
     and attachments =
       let attachment index t =
         let index = string (string_of_int (index + 1)) in
-        let link = link t.attach_url in
+        let link = link ?mime_type:t.attach_type t.attach_url in
         let info =
           let size = Option.map Utils.size t.attach_size in
           match (size, t.attach_type) with

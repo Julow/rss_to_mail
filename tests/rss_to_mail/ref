@@ -108,7 +108,10 @@ BODY html: <!DOCTYPE html>
    </tr>
   </table>
   <table>
-   <tr><td>Attachment 1: <a href="attach%201">attach%201</a> (truc)</td></tr>
+   <tr>
+    <td>Attachment 1: <a href="attach%201" type="truc">attach%201</a> (truc)
+    </td>
+   </tr>
    <tr><td>Attachment 2: <a href="attach%202">attach%202</a> (2b)</td></tr>
   </table><div class="content"><div><p>Some content here</p></div></div>
   
@@ -697,7 +700,8 @@ BODY html: <!DOCTYPE html>
   </table>
   <table>
    <tr>
-    <td>Attachment 1: <a href="https://some-website/attach/1">/attach/1</a>
+    <td>Attachment 1: 
+     <a href="https://some-website/attach/1" type="truc">/attach/1</a>
       (truc)
     </td>
    </tr>
@@ -751,8 +755,9 @@ BODY html: <!DOCTYPE html>
   <table>
    <tr>
     <td>Attachment 1: 
-     <a href="https://some-website/attachment/1">/attachment/1</a>
-      (some type)
+     <a href="https://some-website/attachment/1" type="some type">
+      /attachment/1
+     </a> (some type)
     </td>
    </tr>
   </table>

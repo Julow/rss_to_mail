@@ -21,7 +21,7 @@ let list ?(sep = none) l k =
           e k)
         l
 
-let link ?text url k =
+let link ?mime_type:_ ?text url k =
   let url = Uri.to_string url in
   match text with
   | Some s ->

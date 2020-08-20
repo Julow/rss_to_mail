@@ -16,9 +16,14 @@ let list ?sep l =
   in
   List.concat l
 
-let link ?text url =
+let link ?mime_type ?text url =
   let s = match text with Some s -> s | None -> Uri.path url in
-  Html.[ a ~a:[ a_href (Uri.to_string url) ] [ txt s ] ]
+  let a_type =
+    match mime_type with
+    | Some t -> [ Html.a_mime_type t ]
+    | None -> []
+  in
+  Html.[ a ~a:(a_href (Uri.to_string url) :: a_type) [ txt s ] ]
 
 let raw_content_html cont =
   [ [%html "<div class=\"content\">" [ cont ] "</div>"] ]
