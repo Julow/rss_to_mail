@@ -51,10 +51,17 @@ let parse_scraper =
   in
   fun ts -> R (List.map (rule ~target) ts)
 
-let parse_filter = function
-  | List [ Atom r ] | Atom r -> (Str.regexp r, true)
-  | List (Atom "not" :: values) -> (Str.regexp (atom (one values)), false)
+let parse_filter_expr ~target = function
+  | List [ Atom r ] | Atom r -> { target; Feed_desc.regexp = Str.regexp r; expected = true }
+  | List (Atom "not" :: values) ->
+    { target; regexp = Str.regexp (atom (one values)); expected = false }
   | _ -> failwith "Malformated"
+
+let parse_filter = function
+  | [ List (Atom "content" :: values) ] ->
+    List.map (parse_filter_expr ~target:`Content) values
+  | values ->
+    List.map (parse_filter_expr ~target:`Title) values
 
 let check_duplicate feeds =
   let tbl = Hashtbl.create (List.length feeds) in
@@ -105,7 +112,7 @@ let parse sexp =
     | "label" -> { opts with label = Some (atom (one values)) }
     | "no_content" ->
         { opts with no_content = bool_of_string (atom (one values)) }
-    | "filter" -> { opts with filter = List.map parse_filter values }
+    | "filter" -> { opts with filter = parse_filter values }
     | "to" -> { opts with to_ = Some (atom (one values)) }
     | _ -> failwith "Unknown option"
   in

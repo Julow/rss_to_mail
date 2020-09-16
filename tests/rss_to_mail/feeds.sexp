@@ -21,6 +21,9 @@
   https://some-website/relative.rss
   (./no_title.rss (filter "Title"))
   (././no_title.rss (filter (not "Title")))
+  (././././rss.rss (filter (content "summary")))
+  (./././././rss.rss (filter (content "description")))
+  (././././././rss.rss (filter (content (not "description"))))
 
   error.rss
 )))

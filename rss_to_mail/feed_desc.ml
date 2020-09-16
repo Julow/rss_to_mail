@@ -14,14 +14,23 @@ type refresh_options =
   | `At_weekly of weekday * int * int  (** Every weeks on [day, hour, minute]*)
   ]
 
+type filter_target =
+  [ `Title
+  | `Content  (** Matches both the summary and the full content. *)
+  ]
+
+type filter = {
+  target : filter_target;
+  regexp : Str.regexp;
+  expected : bool;
+}
+
 type options = {
   refresh : refresh_options;  (** Update interval *)
   title : string option;  (** Override the feed's title *)
   label : string option;  (** Appended to the content *)
   no_content : bool;  (** If the content should be removed *)
-  filter : (Str.regexp * bool) list;
-      (** Filter entries by regex The boolean is the expected result of
-          [string_match] *)
+  filter : filter list;  (** Filter entries by regex *)
   to_ : string option;  (** Destination email address *)
 }
 

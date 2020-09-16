@@ -36,21 +36,37 @@ struct
     (* Remove date for IDs that disapeared from the feed: 1 month *)
     let remove_date_from = Int64.add 2678400L
 
+    let match_regexp regexp str =
+      try
+        ignore (Str.search_forward regexp str 0);
+        true
+      with Not_found -> false
+
+    let match_regexp_opt regexp = function
+      | Some str -> match_regexp regexp str
+      | None -> false
+
+    let match_regexp_content regexp = function
+      | Some (Feed.Text str) -> match_regexp regexp str
+      | Some (Html _) -> false
+      | None -> false
+
     (** Empty list of filter match everything *)
     let match_any_filter = function
       | [] -> fun _ -> true
-      | filters -> (
-          function
-          | Feed.{ title = Some title; _ } ->
-              let match_ (regexp, expctd) =
-                try
-                  ignore (Str.search_forward regexp title 0);
-                  expctd
-                with Not_found -> not expctd
+      | filters ->
+          fun (entry : Feed.entry) ->
+            let match_ (filter : Feed_desc.filter) =
+              let r =
+                match filter.target with
+                | `Title -> match_regexp_opt filter.regexp entry.Feed.title
+                | `Content ->
+                    match_regexp_content filter.regexp entry.summary
+                    || match_regexp_content filter.regexp entry.content
               in
-              List.exists match_ filters
-          | { title = None; _ } -> true
-        )
+              r = filter.expected
+            in
+            List.exists match_ filters
 
     let process ~now _feed_uri options seen_ids feed =
       let match_any_filter = match_any_filter options.Feed_desc.filter in
