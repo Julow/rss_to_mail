@@ -19,6 +19,8 @@
    ././empty.rss)
   https://some-website/relative.atom
   https://some-website/relative.rss
+  (./no_title.rss (filter "Title"))
+  (././no_title.rss (filter (not "Title")))
 
   error.rss
 )))

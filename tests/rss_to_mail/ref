@@ -47,6 +47,14 @@ Options: (refresh 2.000000)
 
 Options: (refresh 2.000000)
 
+# ./no_title.rss
+
+Options: (refresh 2.000000)
+
+# ././no_title.rss
+
+Options: (refresh 2.000000)
+
 # error.rss
 
 Options: (refresh 2.000000)
@@ -65,6 +73,8 @@ Log: ./empty.rss: 0 entries
 Log: ././empty.rss: 0 entries
 Log: https://some-website/relative.atom: 2 entries
 Log: https://some-website/relative.rss: 1 entries
+Log: ./no_title.rss: 1 entries
+Log: ././no_title.rss: 1 entries
 Log: error.rss: Parsing error (line 1, col 1)
 expected root element
 FROM: Atom Test
@@ -783,11 +793,71 @@ Attachment 1: https://some-website/attachment/1 (some type)
 <html content>
 
 
+FROM: ./no_title.rss
+SUBJECT: New entry from ./no_title.rss
+BODY html: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>./no_title.rss</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .content img { max-width: 100%; max-height: auto; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+       
+  </style>
+ </head>
+ <body><h1 class="entry_title">New entry</h1><p>From ./no_title.rss</p>
+  <div class="content"><div>no title</div></div>
+                                                </body>
+</html>
+BODY text: # New entry
+
+From ./no_title.rss
+
+<html content>
+
+
+FROM: ././no_title.rss
+SUBJECT: New entry from ././no_title.rss
+BODY html: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>././no_title.rss</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .content img { max-width: 100%; max-height: auto; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+       
+  </style>
+ </head>
+ <body><h1 class="entry_title">New entry</h1><p>From ././no_title.rss</p>
+  <div class="content"><div>no title</div></div>
+                                                </body>
+</html>
+BODY text: # New entry
+
+From ././no_title.rss
+
+<html content>
+
+
 ((version 1)
  ((feed_datas
    ((./././rss.rss 12352878 (("Title 2" ()))) (././empty.rss 12352878 ())
+    (././no_title.rss 12352878 ((id2 ())))
     (././rss.rss 12352878 (("Title 2" ())))
     (./atom.atom 12352878 (("id here" ()))) (./empty.rss 12352878 ())
+    (./no_title.rss 12352878 ((id2 ())))
     (atom.atom 12352878 (("id here" ())))
     (content_type.atom 12352878 ((1 ()) (2 ()) (3 ()) (4 ()) (5 ()) (6 ())))
     (empty.rss 12352878 ()) (error.rss 12352878 ())

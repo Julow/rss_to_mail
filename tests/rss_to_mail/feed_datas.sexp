@@ -4,6 +4,8 @@
    (././rss.rss 0 ())
    (./././rss.rss 0 ())
    (no_title.rss 0 ())
+   (./no_title.rss 0 ())
+   (././no_title.rss 0 ())
    (content_type.atom 0 ())
    (https://some-website/relative.atom 0 ())
    (https://some-website/relative.rss 0 ())
