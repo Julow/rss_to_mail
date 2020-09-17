@@ -25,10 +25,22 @@ let link ?mime_type ?text url =
   in
   Html.[ a ~a:(a_href (Uri.to_string url) :: a_type) [ txt s ] ]
 
-let raw_content_html cont =
-  [ [%html "<div class=\"content\">" [ cont ] "</div>"] ]
+let content_div cont =
+  [ [%html "<div class=\"content\">" cont "</div>"] ]
 
-let raw_content_text txt = raw_content_html (Html.txt txt)
+let raw_content_html =
+  let mk_attr ((_, k), v) = Html.Unsafe.string_attrib k v in
+  let mk_element tagname attrs childs =
+    Html.Unsafe.node tagname ~a:(List.map mk_attr attrs) childs
+  in
+  let rec to_tyxml = function
+    | Feed.Html_E ((_, tagname), attrs, childs) ->
+      mk_element tagname attrs (list_to_tyxml childs)
+    | Html_T text -> Html.txt text
+  and list_to_tyxml nodes = List.map to_tyxml nodes in
+  fun nodes -> content_div (list_to_tyxml nodes)
+
+let raw_content_text txt = content_div [ Html.txt txt ]
 
 let feed_icon url ~alt =
   [

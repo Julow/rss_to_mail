@@ -1,5 +1,3 @@
-open Tyxml
-
 type category = {
   label : string option;
   term : string option;
@@ -16,9 +14,15 @@ type attachment = {
   attach_type : string option;
 }
 
+type html_name = string * string
+
+type html_content =
+  | Html_T of string
+  | Html_E of html_name * (html_name * string) list * html_content list
+
 type content =
-  | Text : string -> content
-  | Html : [< Html_types.div ] Html.elt -> content
+  | Text of string
+  | Html of html_content list
 
 type entry = {
   id : string option;

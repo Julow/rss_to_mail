@@ -1,4 +1,4 @@
 (library
  (name feed)
  (wrapped false)
- (libraries uri tyxml))
+ (libraries uri))

@@ -123,9 +123,8 @@ BODY html: <!DOCTYPE html>
     </td>
    </tr>
    <tr><td>Attachment 2: <a href="attach%202">attach%202</a> (2b)</td></tr>
-  </table><div class="content"><div><p>Some content here</p></div></div>
-  
-  </body>
+  </table><div class="content"><p>Some content here</p></div>
+                                                             </body>
 </html>
 BODY text: # title
 
@@ -167,13 +166,12 @@ BODY html: <!DOCTYPE html>
    <a href="Feed%20link">Title</a> with label Label
   </p>
   <div class="content">
-   <div>
-        				<div>
-                 					<p><a><b></b></a></p>
-                                           				</div>
-                                                     			</div>
-  </div>
-        </body>
+                       				<div>
+                                					<p><a><b></b></a></p>
+                                                          				</div>
+                                                                    			</div>
+  
+  </body>
 </html>
 BODY text: # Title 2
 
@@ -208,13 +206,12 @@ BODY html: <!DOCTYPE html>
    <a href="Feed%20link">RSS Test</a>
   </p>
   <div class="content">
-   <div>
-        				<div>
-                 					<p><a><b></b></a></p>
-                                           				</div>
-                                                     			</div>
-  </div>
-        </body>
+                       				<div>
+                                					<p><a><b></b></a></p>
+                                                          				</div>
+                                                                    			</div>
+  
+  </body>
 </html>
 BODY text: # Title 2
 
@@ -242,8 +239,8 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1><p>From no_title.rss</p>
-  <div class="content"><div>no title</div></div>
-                                                </body>
+  <div class="content">no title</div>
+                                     </body>
 </html>
 BODY text: # New entry
 
@@ -272,8 +269,8 @@ BODY html: <!DOCTYPE html>
  </head>
  <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
-  <div class="content"><div><p>CDATA</p></div></div>
-                                                    </body>
+  <div class="content"><p>CDATA</p></div>
+                                         </body>
 </html>
 BODY text: # New entry
 
@@ -302,11 +299,11 @@ BODY html: <!DOCTYPE html>
  </head>
  <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
-  <div class="content"><div>
-                            			<div>
-                                    				<p>Xhtml</p>
-                                                    			</div>
-                                                             		</div></div>
+  <div class="content">
+                       			<div>
+                               				<p>Xhtml</p>
+                                               			</div>
+                                                        		</div>
   
   </body>
 </html>
@@ -337,8 +334,8 @@ BODY html: <!DOCTYPE html>
  </head>
  <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
-  <div class="content"><div><p>Html!</p></div></div>
-                                                    </body>
+  <div class="content"><p>Html!</p></div>
+                                         </body>
 </html>
 BODY text: # New entry
 
@@ -367,8 +364,8 @@ BODY html: <!DOCTYPE html>
  </head>
  <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
-  <div class="content"><div>Text?</div></div>
-                                             </body>
+  <div class="content">Text?</div>
+                                  </body>
 </html>
 BODY text: # New entry
 
@@ -469,8 +466,8 @@ BODY html: <!DOCTYPE html>
  </head>
  <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
-  <div class="content"><div><p>CDATA</p></div></div>
-                                                    </body>
+  <div class="content"><p>CDATA</p></div>
+                                         </body>
 </html>
 BODY text: # New entry
 
@@ -499,11 +496,11 @@ BODY html: <!DOCTYPE html>
  </head>
  <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
-  <div class="content"><div>
-                            			<div>
-                                    				<p>Xhtml</p>
-                                                    			</div>
-                                                             		</div></div>
+  <div class="content">
+                       			<div>
+                               				<p>Xhtml</p>
+                                               			</div>
+                                                        		</div>
   
   </body>
 </html>
@@ -534,8 +531,8 @@ BODY html: <!DOCTYPE html>
  </head>
  <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
-  <div class="content"><div><p>Html!</p></div></div>
-                                                    </body>
+  <div class="content"><p>Html!</p></div>
+                                         </body>
 </html>
 BODY text: # New entry
 
@@ -564,8 +561,8 @@ BODY html: <!DOCTYPE html>
  </head>
  <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
-  <div class="content"><div>Text?</div></div>
-                                             </body>
+  <div class="content">Text?</div>
+                                  </body>
 </html>
 BODY text: # New entry
 
@@ -658,13 +655,11 @@ BODY html: <!DOCTYPE html>
  </head>
  <body><h1 class="entry_title">2</h1><p>From Test relative links</p>
   <div class="content">
-   <div>
-              
-    <p>Some content <a href="https://some-website/link2">here</a> 
-     <img src="https://some-website/img2"/>
-    </p>
-            
-   </div>
+                             
+   <p>Some content <a href="https://some-website/link2">here</a> 
+    <img src="https://some-website/img2"/>
+   </p>
+           
   </div>
         </body>
 </html>
@@ -722,9 +717,8 @@ BODY html: <!DOCTYPE html>
    </tr>
   </table>
   <div class="content">
-   <div><p>Some content <a href="https://some-website/link1">here</a></p>
-    <img src="https://some-website/img1"/>
-   </div>
+   <p>Some content <a href="https://some-website/link1">here</a></p>
+   <img src="https://some-website/img1"/>
   </div>
         </body>
 </html>
@@ -772,11 +766,9 @@ BODY html: <!DOCTYPE html>
    </tr>
   </table>
   <div class="content">
-   <div>
-    <a href="https://some-website/link1">
-     <img src="https://some-website/img1"/>
-    </a>
-   </div>
+   <a href="https://some-website/link1">
+    <img src="https://some-website/img1"/>
+   </a>
   </div>
         </body>
 </html>
@@ -812,8 +804,8 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1><p>From ./no_title.rss</p>
-  <div class="content"><div>no title</div></div>
-                                                </body>
+  <div class="content">no title</div>
+                                     </body>
 </html>
 BODY text: # New entry
 
@@ -841,8 +833,8 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body><h1 class="entry_title">New entry</h1><p>From ././no_title.rss</p>
-  <div class="content"><div>no title</div></div>
-                                                </body>
+  <div class="content">no title</div>
+                                     </body>
 </html>
 BODY text: # New entry
 

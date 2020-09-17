@@ -16,7 +16,7 @@ module Render (Impl : sig
   (** [mime_type] is not shown. *)
   val link : ?mime_type:string -> ?text:string -> Uri.t -> inline t
 
-  val raw_content_html : [< Html_types.div ] Tyxml_html.elt -> block t
+  val raw_content_html : html_content list -> block t
 
   val raw_content_text : string -> block t
 

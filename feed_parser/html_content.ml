@@ -1,11 +1,4 @@
-(** Parse HTML content as Tyxml div element. Wrapped in a div if the root
-    element is not a itself div or if there is more than one root. From a string
-    or an xmlm node *)
-
 open Xml
-open Tyxml
-
-let make_attribs = List.map (fun ((_, k), v) -> Html.Unsafe.string_attrib k v)
 
 let map_css_styles f styles =
   let buf = Buffer.create (String.length styles) in
@@ -45,27 +38,22 @@ let filter_attrs ~resolve_uri tag attrs =
       | _, _ -> Some attr)
     attrs
 
-(* TODO: filter attrs in [of_xml] ? *)
+let element ~resolve_uri (_, tagname as tag) attrs childs =
+  let attrs = filter_attrs ~resolve_uri tagname attrs in
+  Feed.Html_E (tag, attrs, childs)
 
-let element ~resolve_uri (_, tag) attrs childs =
-  let attrs = filter_attrs ~resolve_uri tag attrs in
-  Html.Unsafe.node tag ~a:(make_attribs attrs) childs
+let rec of_xml ~resolve_uri nodes =
+  List.map (of_xml_node ~resolve_uri) nodes
 
-let of_xml ~resolve_uri =
-  let rec make_node = function
-    | Text txt -> Html.txt txt
-    | Node ((name, attrs), nodes) ->
-        element ~resolve_uri name attrs (make_nodes nodes)
-  and make_nodes nodes = List.map make_node nodes in
-  function
-  | [ Node (((_, "div"), attrs), nodes) ] ->
-      Html.div ~a:(make_attribs attrs) (make_nodes nodes)
-  | nodes -> Html.div (make_nodes nodes)
+and of_xml_node ~resolve_uri = function
+  | Text txt -> Feed.Html_T txt
+  | Node ((name, attrs), nodes) ->
+      element ~resolve_uri name attrs (of_xml ~resolve_uri nodes)
 
 let parse ~resolve_uri contents =
   let open Markup in
   contents |> string |> parse_html |> signals
   |> trees
-       ~text:(fun s -> Html.txt (String.concat "" s))
+       ~text:(fun s -> Feed.Html_T (String.concat "" s))
        ~element:(element ~resolve_uri)
-  |> to_list |> Html.div
+  |> to_list
