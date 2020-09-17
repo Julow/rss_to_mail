@@ -246,7 +246,9 @@ BODY text: # New entry
 
 From no_title.rss
 
-<html content>
+Content:
+
+no title
 
 
 FROM: Atom content type
@@ -362,7 +364,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >Text?
+  </span><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">Text?</div>
                                   </body>
@@ -371,7 +377,9 @@ BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
 
-<html content>
+Content:
+
+Text?
 
 
 FROM: Atom content type
@@ -568,7 +576,9 @@ BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
 
-<html content>
+Content:
+
+Text?
 
 
 FROM: Atom content type
@@ -811,7 +821,9 @@ BODY text: # New entry
 
 From ./no_title.rss
 
-<html content>
+Content:
+
+no title
 
 
 FROM: ././no_title.rss
@@ -840,7 +852,9 @@ BODY text: # New entry
 
 From ././no_title.rss
 
-<html content>
+Content:
+
+no title
 
 
 ((version 1)

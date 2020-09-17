@@ -11,7 +11,7 @@ and content_ns = "http://purl.org/rss/1.0/modules/content/"
 let uri ~resolve_uri s = resolve_uri (Uri.of_string s)
 
 let content_encoded ~resolve_uri content =
-  Some (Html (Html_content.parse ~resolve_uri content))
+  Some (Html_content.parse ~resolve_uri content)
 
 let author author_name = { author_name; author_link = None }
 

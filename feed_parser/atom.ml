@@ -49,9 +49,8 @@ let uri ~resolve_uri s = resolve_uri (Uri.of_string s)
 let content ~resolve_uri node =
   match attr "type" node with
   | None | Some "text" -> Some (Feed.Text (text node))
-  | Some "html" -> Some (Html (Html_content.parse ~resolve_uri (text node)))
-  | Some "xhtml" ->
-      Some (Html (Html_content.of_xml ~resolve_uri (children_all node)))
+  | Some "html" -> Some (Html_content.parse ~resolve_uri (text node))
+  | Some "xhtml" -> Some (Html_content.of_xml ~resolve_uri (children_all node))
   | Some _ -> None
 
 let attachment ~resolve_uri (href, node) =

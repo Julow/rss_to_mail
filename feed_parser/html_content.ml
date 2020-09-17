@@ -42,13 +42,20 @@ let element ~resolve_uri (_, tagname as tag) attrs childs =
   let attrs = filter_attrs ~resolve_uri tagname attrs in
   Feed.Html_E (tag, attrs, childs)
 
-let rec of_xml ~resolve_uri nodes =
+let rec of_xml_nodes ~resolve_uri nodes =
   List.map (of_xml_node ~resolve_uri) nodes
 
 and of_xml_node ~resolve_uri = function
   | Text txt -> Feed.Html_T txt
   | Node ((name, attrs), nodes) ->
-      element ~resolve_uri name attrs (of_xml ~resolve_uri nodes)
+      element ~resolve_uri name attrs (of_xml_nodes ~resolve_uri nodes)
+
+let to_feed_content = function
+  | [ Feed.Html_T txt ] -> Feed.Text txt
+  | html -> Feed.Html html
+
+let of_xml ~resolve_uri nodes =
+  to_feed_content (of_xml_nodes ~resolve_uri nodes)
 
 let parse ~resolve_uri contents =
   let open Markup in
@@ -57,3 +64,4 @@ let parse ~resolve_uri contents =
        ~text:(fun s -> Feed.Html_T (String.concat "" s))
        ~element:(element ~resolve_uri)
   |> to_list
+  |> to_feed_content
