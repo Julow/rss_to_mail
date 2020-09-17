@@ -92,6 +92,32 @@ struct
     let body_html, body_text = Mail_body.gen_mail ~sender ?label feed entries in
     { sender; to_; subject; body_html; body_text }
 
+  let prepare_bundle ~sender feed options entries =
+    let prep subject = [ prepare_mail ~subject ~sender feed options entries ] in
+    match entries with
+    | [] -> []
+    | [ Feed.{ title = Some title; _ } ] -> prep title
+    | _ ->
+        prep (Format.sprintf "%d entries from %s" (List.length entries) sender)
+
+  let prepare_mails ~sender feed options entries =
+    let prepare entry =
+      let subject =
+        match entry.Feed.title with
+        | Some title -> title
+        | None -> "New entry from " ^ sender
+      in
+      prepare_mail ~subject ~sender feed options [ entry ]
+    in
+    let too_many_entries =
+      match options.Feed_desc.max_entries with
+      | Some m when List.length entries > m -> true
+      | Some _ | None -> false
+    in
+    if too_many_entries
+    then prepare_bundle ~sender feed options entries
+    else List.map prepare entries
+
   module Check_feed = struct
     let fetch uri =
       let resolve_uri = Uri.resolve "" uri in
@@ -105,17 +131,6 @@ struct
       |> Lwt.map (function
            | Error e -> Error (`Fetch_error e)
            | Ok contents -> parse_content contents)
-
-    let prepare ~sender feed options entries =
-      let prepare entry =
-        let subject =
-          match entry.Feed.title with
-          | Some title -> title
-          | None -> "New entry from " ^ sender
-        in
-        prepare_mail ~subject ~sender feed options [ entry ]
-      in
-      List.map prepare entries
   end
 
   module Check_scraper = struct
@@ -126,19 +141,6 @@ struct
            | Ok contents ->
                let resolve_uri = Uri.resolve "" uri in
                Ok (Scraper.scrap ~resolve_uri scraper contents))
-  end
-
-  module Check_bundle = struct
-    let prepare ~sender feed options entries =
-      let prep subject =
-        [ prepare_mail ~subject ~sender feed options entries ]
-      in
-      match entries with
-      | [] -> []
-      | [ Feed.{ title = Some title; _ } ] -> prep title
-      | _ ->
-          prep
-            (Format.sprintf "%d entries from %s" (List.length entries) sender)
   end
 
   type nonrec mail = mail
@@ -190,24 +192,23 @@ struct
     | Some (first_update, seen_ids) ->
         Lwt.map (process ~first_update ~seen_ids) (fetch uri)
 
-  (** * Check a feed for updates * Returns the list of generated mails and
-      updated feed datas * Log informations by calling [log] once for each feed *)
+  (** * Check a feed for updates * Returns the list of generated mails and updated
+      feed datas * Log informations by calling [log] once for each feed *)
   let check_feed_desc ~now feed_datas (feed_id, (feed, options)) =
     match feed with
     | Feed_desc.Feed url ->
-        let fetch = Check_feed.fetch and prepare = Check_feed.prepare in
+        let fetch = Check_feed.fetch and prepare = prepare_mails in
         check_feed ~now ~feed_id url feed_datas options ~fetch ~prepare
     | Scraper (url, scraper) ->
         let fetch uri = Check_scraper.fetch uri scraper
-        and prepare = Check_feed.prepare in
+        and prepare = prepare_mails in
         check_feed ~now ~feed_id url feed_datas options ~fetch ~prepare
     | Bundle (Feed url) ->
-        let fetch = Check_feed.fetch in
-        let prepare = Check_bundle.prepare in
+        let fetch = Check_feed.fetch and prepare = prepare_bundle in
         check_feed ~now ~feed_id url feed_datas options ~fetch ~prepare
     | Bundle (Scraper (url, scraper)) ->
         let fetch = Fun.flip Check_scraper.fetch scraper
-        and prepare = Check_bundle.prepare in
+        and prepare = prepare_bundle in
         check_feed ~now ~feed_id url feed_datas options ~fetch ~prepare
 
   let reduce_updated (acc_datas, acc_mails, logs) (url, update_data, log) =

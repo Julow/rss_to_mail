@@ -67,6 +67,10 @@ Options: (refresh 2.000000)
 
 Options: (refresh 2.000000)
 
+# ./././././././rss.rss
+
+Options: (refresh 2.000000)
+
 # error.rss
 
 Options: (refresh 2.000000)
@@ -90,6 +94,7 @@ Log: ././no_title.rss: 1 entries
 Log: ././././rss.rss: 1 entries
 Log: ./././././rss.rss: 1 entries
 Log: ././././././rss.rss: 3 entries
+Log: ./././././././rss.rss: 1 entries
 Log: error.rss: Parsing error (line 1, col 1)
 expected root element
 FROM: Atom Test
@@ -872,7 +877,8 @@ BODY html: <!DOCTYPE html>
   </p>
   <table>
    <tr>
-    <td>Attachment 1: <a href="some%20uri">some%20uri</a> (8Kb, some type)
+    <td>Attachment 1: <a href="some%20uri" type="some type">some%20uri</a>
+      (8Kb, some type)
     </td>
    </tr>
   </table><div class="content"><p>content</p></div>
@@ -1036,7 +1042,8 @@ BODY html: <!DOCTYPE html>
   </p>
   <table>
    <tr>
-    <td>Attachment 1: <a href="some%20uri">some%20uri</a> (8Kb, some type)
+    <td>Attachment 1: <a href="some%20uri" type="some type">some%20uri</a>
+      (8Kb, some type)
     </td>
    </tr>
   </table><div class="content"><p>content</p></div>
@@ -1055,9 +1062,115 @@ Attachment 1: some%20uri (8Kb, some type)
 <html content>
 
 
+FROM: RSS Test
+SUBJECT: 4 entries from RSS Test
+BODY html: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>RSS Test</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .content img { max-width: 100%; max-height: auto; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+       
+  </style>
+ </head>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >Title, Title 2, Title 3, Title 4
+  </span>
+  <div><h1 class="entry_title"><a href="url">Title</a></h1>
+   <p>From 
+    <img src="Feed%20icon" alt="RSS Test" width="16" height="16"
+     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
+     />
+    <a href="Feed%20link">RSS Test</a> (A, B) on pub date by Author, 
+    Author 2
+   </p>
+   <table>
+    <tr>
+     <td>Attachment 1: <a href="some%20uri" type="some type">some%20uri</a>
+       (8Kb, some type)
+     </td>
+    </tr>
+   </table><div class="content"><p>content</p></div>
+  </div>
+  <div><h1 class="entry_title">Title 2</h1>
+   <p>From 
+    <img src="Feed%20icon" alt="RSS Test" width="16" height="16"
+     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
+     />
+    <a href="Feed%20link">RSS Test</a>
+   </p>
+   <div class="content">
+                        				<div>
+                                 					<p><a><b></b></a></p>
+                                                           				</div>
+                                                                    			
+   </div>
+  </div>
+  <div><h1 class="entry_title">Title 3</h1>
+   <p>From 
+    <img src="Feed%20icon" alt="RSS Test" width="16" height="16"
+     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
+     />
+    <a href="Feed%20link">RSS Test</a>
+   </p><div class="content">text description</div>
+  </div>
+  <div><h1 class="entry_title">Title 4</h1>
+   <p>From 
+    <img src="Feed%20icon" alt="RSS Test" width="16" height="16"
+     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
+     />
+    <a href="Feed%20link">RSS Test</a>
+   </p><div class="content"><div>html description</div></div>
+  </div>
+        </body>
+</html>
+BODY text: # Title
+
+url
+
+From [RSS Test](Feed%20link) (A, B) on pub date by Author, Author 2
+
+Attachments:
+
+Attachment 1: some%20uri (8Kb, some type)
+
+<html content>
+
+# Title 2
+
+From [RSS Test](Feed%20link)
+
+<html content>
+
+# Title 3
+
+From [RSS Test](Feed%20link)
+
+Content:
+
+text description
+
+# Title 4
+
+From [RSS Test](Feed%20link)
+
+<html content>
+
+
 ((version 1)
  ((feed_datas
-   ((././././././rss.rss 12352878 (("Title 2" ()) ("Title 4" ()) (id ())))
+   ((./././././././rss.rss 12352878
+     (("Title 2" ()) ("Title 3" ()) ("Title 4" ()) (id ())))
+    (././././././rss.rss 12352878 (("Title 2" ()) ("Title 4" ()) (id ())))
     (./././././rss.rss 12352878 (("Title 3" ())))
     (././././rss.rss 12352878 ((id ())))
     (./././rss.rss 12352878 (("Title 2" ()))) (././empty.rss 12352878 ())

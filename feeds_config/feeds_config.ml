@@ -114,6 +114,8 @@ let parse sexp =
         { opts with no_content = bool_of_string (atom (one values)) }
     | "filter" -> { opts with filter = parse_filter values }
     | "to" -> { opts with to_ = Some (atom (one values)) }
+    | "max_entries" ->
+        { opts with max_entries = Some (int_of_string (atom (one values))) }
     | _ -> failwith "Unknown option"
   in
 

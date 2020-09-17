@@ -24,6 +24,7 @@
   (././././rss.rss (filter (content "summary")))
   (./././././rss.rss (filter (content "description")))
   (././././././rss.rss (filter (content (not "description"))))
+  (./././././././rss.rss (max_entries 2))
 
   error.rss
 )))

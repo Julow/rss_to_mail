@@ -32,11 +32,12 @@ type options = {
   no_content : bool;  (** If the content should be removed *)
   filter : filter list;  (** Filter entries by regex *)
   to_ : string option;  (** Destination email address *)
+  max_entries : int option;  (** Max number of entries at the same time *)
 }
 
 let make_options ?(refresh = `Every 6.) ?title ?label ?(no_content = false)
-    ?(filter = []) ?to_ () =
-  { refresh; title; label; no_content; filter; to_ }
+    ?(filter = []) ?to_ ?max_entries () =
+  { refresh; title; label; no_content; filter; to_; max_entries }
 
 type _ desc =
   | Feed : string -> [< `In_bundle | `Any ] desc
