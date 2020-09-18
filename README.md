@@ -27,10 +27,8 @@ Send a mail for new entries on RSS and Atom feeds
 - `(refresh (at 10:00))` Refresh every day at 10AM (24 hours format)
 - `(refresh (at 14:00 wed))` Refresh every week on Wednesday at 2PM
 - `(no_content true)` True or false. If true, remove the summary part of the entry.
-- `(filter "...")` Filter entries by matching their title.
-	Only entries with "..." in their title kept. Accepts a regular expression.
-- `(filter (not "..."))` Negative filter. Keep entries that do not have "..." in their title.
-- `(filter "..." (not "..."))` Keep entries that match at least one of the filter
+- `(filter expr)` Filter entries using regexp. `expr` can be:
+  `(and expr...)`, `(or expr...)`, `(not expr)`, `(title "regex")`, `(content "regex")`
 
 #### Other kind of feed
 

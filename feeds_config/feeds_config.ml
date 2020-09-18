@@ -51,17 +51,15 @@ let parse_scraper =
   in
   fun ts -> R (List.map (rule ~target) ts)
 
-let parse_filter_expr ~target = function
-  | List [ Atom r ] | Atom r -> { target; Feed_desc.regexp = Str.regexp r; expected = true }
-  | List (Atom "not" :: values) ->
-    { target; regexp = Str.regexp (atom (one values)); expected = false }
-  | _ -> failwith "Malformated"
-
-let parse_filter = function
-  | [ List (Atom "content" :: values) ] ->
-    List.map (parse_filter_expr ~target:`Content) values
-  | values ->
-    List.map (parse_filter_expr ~target:`Title) values
+let rec parse_filter_expr =
+  let open Feed_desc in
+  function
+  | List (Atom "and" :: fs) -> And (List.map parse_filter_expr fs)
+  | List (Atom "or" :: fs) -> Or (List.map parse_filter_expr fs)
+  | List (Atom "not" :: ts) -> Not (parse_filter_expr (one ts))
+  | List (Atom "title" :: ts) -> Match_title (Str.regexp (atom (one ts)))
+  | List (Atom "content" :: ts) -> Match_content (Str.regexp (atom (one ts)))
+  | List _ | Atom _ -> failwith "Invalid filter expression"
 
 let check_duplicate feeds =
   let tbl = Hashtbl.create (List.length feeds) in
@@ -114,7 +112,7 @@ let parse sexp =
     | "label" -> { opts with label = Some (atom (one values)) }
     | "no_content" ->
         { opts with no_content = bool_of_string (atom (one values)) }
-    | "filter" -> { opts with filter = parse_filter values }
+    | "filter" -> { opts with filter = Some (parse_filter_expr (one values)) }
     | "to" -> { opts with to_ = Some (atom (one values)) }
     | "max_entries" ->
         { opts with max_entries = Some (parse_option_max_entries (one values)) }

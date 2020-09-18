@@ -51,25 +51,19 @@ struct
       | Some (Html _) -> false
       | None -> false
 
-    (** Empty list of filter match everything *)
-    let match_any_filter = function
-      | [] -> fun _ -> true
-      | filters ->
-          fun (entry : Feed.entry) ->
-            let match_ (filter : Feed_desc.filter) =
-              let r =
-                match filter.target with
-                | `Title -> match_regexp_opt filter.regexp entry.Feed.title
-                | `Content ->
-                    match_regexp_content filter.regexp entry.summary
-                    || match_regexp_content filter.regexp entry.content
-              in
-              r = filter.expected
-            in
-            List.exists match_ filters
+    let rec exec_filter entry = function
+      | Feed_desc.And fs -> List.for_all (exec_filter entry) fs
+      | Or fs -> List.exists (exec_filter entry) fs
+      | Not f -> not (exec_filter entry f)
+      | Match_title r -> match_regexp_opt r entry.Feed.title
+      | Match_content r -> match_regexp_content r entry.summary || match_regexp_content r entry.content
 
     let process ~now _feed_uri options seen_ids feed =
-      let match_any_filter = match_any_filter options.Feed_desc.filter in
+      let match_any_filter entry =
+        match options.Feed_desc.filter with
+        | Some f -> exec_filter entry f
+        | None -> true
+      in
       let new_ids, entries =
         Array.fold_right
           (fun entry (ids, news) ->
