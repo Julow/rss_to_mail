@@ -103,6 +103,8 @@ let parse sexp =
         let h, m = parse_time time and d = parse_day day in
         `At_weekly (d, h, m)
     | List _ -> failwith "Malformated"
+  and parse_option_max_entries t =
+    int_of_string (atom t)
   in
 
   let parse_option name values (opts : Feed_desc.options) =
@@ -115,7 +117,7 @@ let parse sexp =
     | "filter" -> { opts with filter = parse_filter values }
     | "to" -> { opts with to_ = Some (atom (one values)) }
     | "max_entries" ->
-        { opts with max_entries = Some (int_of_string (atom (one values))) }
+        { opts with max_entries = Some (parse_option_max_entries (one values)) }
     | _ -> failwith "Unknown option"
   in
 
@@ -172,6 +174,12 @@ let parse sexp =
     list (List.fold_left parse []) t |> List.rev
   in
 
+  let parse_default_opts t =
+    let refresh = Option.map parse_option_refresh (record "default_refresh" t) in
+    let max_entries = Option.map parse_option_max_entries (record "max_entries" t) in
+    Feed_desc.make_options ?refresh ?max_entries ()
+  in
+
   let parse_smtp t =
     let server =
       match record "server" t with
@@ -195,11 +203,8 @@ let parse sexp =
     (server, auth, from)
   in
   let default_opts =
-    let refresh =
-      try Option.map parse_option_refresh (record "default_refresh" sexp)
-      with Failure msg -> failwith ("default_refresh: " ^ msg)
-    in
-    Feed_desc.make_options ?refresh ()
+    try parse_default_opts sexp
+    with Failure msg -> failwith ("Default options: " ^ msg)
   in
   let feeds =
     match record "feeds" sexp with
