@@ -43,10 +43,21 @@ let metrics_mails ~to_retry ~unsent_mails =
       let unsent = List.length unsent_mails in
       if unsent > 0 then fmt "%d emails could not be sent" unsent)
 
+(** Like unix timestamps but shifted by the local timezone offset *)
+let local_timestamp () =
+  let now = Ptime_clock.now () and tz = Ptime_clock.current_tz_offset_s () in
+  let offset =
+    match tz with Some tz -> Ptime.Span.of_int_s tz | None -> Ptime.Span.zero
+  in
+  let local_now =
+    match Ptime.add_span now offset with Some t -> t | None -> assert false
+  in
+  Ptime.to_float_s local_now |> Int64.of_float
+
 let run ~certs (conf : Feeds_config.t) (datas : Persistent_data.t) =
   let certs = parse_certs certs in
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
-  let now = Unix.time () |> Int64.of_float in
+  let now = local_timestamp () in
   let feeds_with_id =
     List.map
       (fun ((desc, _) as f) ->
