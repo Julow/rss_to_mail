@@ -97,8 +97,8 @@ let make_mail (conf : Feeds_config.t) mail =
   in
   let parts =
     [
-      make_part (content_type `Text "html") body_html;
       make_part (content_type `Text "plain") body_text;
+      make_part (content_type `Text "html") body_html;
     ]
   in
   let* from = Colombe_emile.to_reverse_path sender in
