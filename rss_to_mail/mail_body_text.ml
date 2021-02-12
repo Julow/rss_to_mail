@@ -36,7 +36,9 @@ let feed_icon _ ~alt:_ _ = ()
 
 (* block *)
 
-let raw_content_html _ k = k "<html content>\n\n"
+let raw_content_html content k =
+  k (Html_to_text.convert content);
+  k "\n\n"
 
 let raw_content_text txt k =
   k "Content:\n\n";

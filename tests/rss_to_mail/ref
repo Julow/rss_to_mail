@@ -157,7 +157,7 @@ Attachments:
 Attachment 1: attach%201 (truc)
 Attachment 2: attach%202 (2b)
 
-<html content>
+Some content here
 
 
 FROM: Title
@@ -197,7 +197,7 @@ BODY text: # Title 2
 
 From [Title](Feed%20link) with label Label
 
-<html content>
+
 
 
 FROM: RSS Test
@@ -237,7 +237,7 @@ BODY text: # Title 2
 
 From [RSS Test](Feed%20link)
 
-<html content>
+
 
 
 FROM: no_title.rss
@@ -298,7 +298,7 @@ BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
 
-<html content>
+CDATA
 
 
 FROM: Atom content type
@@ -333,7 +333,7 @@ BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
 
-<html content>
+Xhtml
 
 
 FROM: Atom content type
@@ -363,7 +363,7 @@ BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
 
-<html content>
+Html!
 
 
 FROM: Atom content type
@@ -501,7 +501,7 @@ BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
 
-<html content>
+CDATA
 
 
 FROM: Atom content type
@@ -536,7 +536,7 @@ BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
 
-<html content>
+Xhtml
 
 
 FROM: Atom content type
@@ -566,7 +566,7 @@ BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
 
-<html content>
+Html!
 
 
 FROM: Atom content type
@@ -697,7 +697,7 @@ BODY text: # 2
 
 From Test relative links
 
-<html content>
+Some content here <https://some-website/link2>
 
 
 FROM: Test relative links
@@ -763,7 +763,7 @@ Attachments:
 Attachment 1: https://some-website/attach/1 (truc)
 Attachment 2: https://some-website/attach/2 (2b)
 
-<html content>
+Some content here <https://some-website/link1>
 
 
 FROM: Relative links
@@ -812,7 +812,7 @@ Attachments:
 
 Attachment 1: https://some-website/attachment/1 (some type)
 
-<html content>
+https://some-website/link1
 
 
 FROM: ././no_title.rss
@@ -894,7 +894,7 @@ Attachments:
 
 Attachment 1: some%20uri (8Kb, some type)
 
-<html content>
+content
 
 
 FROM: RSS Test
@@ -968,7 +968,7 @@ BODY text: # Title 4
 
 From [RSS Test](Feed%20link)
 
-<html content>
+html description
 
 
 FROM: RSS Test
@@ -1008,7 +1008,7 @@ BODY text: # Title 2
 
 From [RSS Test](Feed%20link)
 
-<html content>
+
 
 
 FROM: RSS Test
@@ -1059,7 +1059,7 @@ Attachments:
 
 Attachment 1: some%20uri (8Kb, some type)
 
-<html content>
+content
 
 
 FROM: RSS Test
@@ -1143,13 +1143,13 @@ Attachments:
 
 Attachment 1: some%20uri (8Kb, some type)
 
-<html content>
+content
 
 # Title 2
 
 From [RSS Test](Feed%20link)
 
-<html content>
+
 
 # Title 3
 
@@ -1163,7 +1163,7 @@ text description
 
 From [RSS Test](Feed%20link)
 
-<html content>
+html description
 
 
 ((version 1)
