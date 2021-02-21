@@ -1,4 +1,4 @@
 (library
  (name feed_parser)
  (wrapped false)
- (libraries uri xmlm markup feed))
+ (libraries uri xmlm markup feed astring))

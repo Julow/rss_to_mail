@@ -92,8 +92,8 @@ Log: https://some-website/relative.rss: 1 entries
 Log: ./no_title.rss: 0 entries
 Log: ././no_title.rss: 1 entries
 Log: ././././rss.rss: 1 entries
-Log: ./././././rss.rss: 1 entries
-Log: ././././././rss.rss: 3 entries
+Log: ./././././rss.rss: 2 entries
+Log: ././././././rss.rss: 2 entries
 Log: ./././././././rss.rss: 1 entries
 Log: error.rss: Parsing error (line 1, col 1)
 expected root element
@@ -178,7 +178,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">Title 2</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >Title 2
+  </span><h1 class="entry_title">Title 2</h1>
   <p>From 
    <img src="Feed%20icon" alt="Title" width="16" height="16"
     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
@@ -218,7 +222,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">Title 2</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >Title 2
+  </span><h1 class="entry_title">Title 2</h1>
   <p>From 
    <img src="Feed%20icon" alt="RSS Test" width="16" height="16"
     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
@@ -258,15 +266,17 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1><p>From no_title.rss</p>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >
+  </span><h1 class="entry_title">New entry</h1><p>From no_title.rss</p>
   <div class="content">no title</div>
                                      </body>
 </html>
 BODY text: # New entry
 
 From no_title.rss
-
-Content:
 
 no title
 
@@ -289,7 +299,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >CDATA
+  </span><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><p>CDATA</p></div>
                                          </body>
@@ -319,7 +333,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >Xhtml
+  </span><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">
                        			<div>
@@ -354,7 +372,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >Html!
+  </span><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><p>Html!</p></div>
                                          </body>
@@ -397,8 +419,6 @@ BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
 
-Content:
-
 Text?
 
 
@@ -432,8 +452,6 @@ BODY html: <!DOCTYPE html>
 BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
-
-Content:
 
 Text!
 
@@ -469,8 +487,6 @@ BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
 
-Content:
-
 Text
 
 
@@ -492,7 +508,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >
+  </span><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><p>CDATA</p></div>
                                          </body>
@@ -522,7 +542,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >
+  </span><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">
                        			<div>
@@ -557,7 +581,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >
+  </span><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><p>Html!</p></div>
                                          </body>
@@ -587,7 +615,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >
+  </span><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">Text?</div>
                                   </body>
@@ -595,8 +627,6 @@ BODY html: <!DOCTYPE html>
 BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
-
-Content:
 
 Text?
 
@@ -619,7 +649,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >
+  </span><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">Text!</div>
                                   </body>
@@ -627,8 +661,6 @@ BODY html: <!DOCTYPE html>
 BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
-
-Content:
 
 Text!
 
@@ -651,7 +683,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >
+  </span><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">Text</div>
                                  </body>
@@ -659,8 +695,6 @@ BODY html: <!DOCTYPE html>
 BODY text: # New entry
 
 From [Atom content type](feed%20link%20url)
-
-Content:
 
 Text
 
@@ -683,7 +717,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">2</h1><p>From Test relative links</p>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >2
+  </span><h1 class="entry_title">2</h1><p>From Test relative links</p>
   <div class="content">
                              
    <p>Some content <a href="https://some-website/link2">here</a> 
@@ -719,6 +757,10 @@ BODY html: <!DOCTYPE html>
   </style>
  </head>
  <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >1
+  </span>
   <table>
    <tr>
     <td>
@@ -784,7 +826,12 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title"><a href="https://some-website/url1">1</a></h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >1
+  </span>
+  <h1 class="entry_title"><a href="https://some-website/url1">1</a></h1>
   <p>From Relative links</p>
   <table>
    <tr>
@@ -833,15 +880,17 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">New entry</h1><p>From ././no_title.rss</p>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >
+  </span><h1 class="entry_title">New entry</h1><p>From ././no_title.rss</p>
   <div class="content">no title</div>
                                      </body>
 </html>
 BODY text: # New entry
 
 From ././no_title.rss
-
-Content:
 
 no title
 
@@ -898,6 +947,44 @@ content
 
 
 FROM: RSS Test
+SUBJECT: Title 4
+BODY html: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>RSS Test</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .content img { max-width: 100%; max-height: auto; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+       
+  </style>
+ </head>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >html description
+  </span><h1 class="entry_title">Title 4</h1>
+  <p>From 
+   <img src="Feed%20icon" alt="RSS Test" width="16" height="16"
+    style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
+    />
+   <a href="Feed%20link">RSS Test</a>
+  </p><div class="content"><div>html description</div></div>
+                                                            </body>
+</html>
+BODY text: # Title 4
+
+From [RSS Test](Feed%20link)
+
+html description
+
+
+FROM: RSS Test
 SUBJECT: Title 3
 BODY html: <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
@@ -932,43 +1019,7 @@ BODY text: # Title 3
 
 From [RSS Test](Feed%20link)
 
-Content:
-
 text description
-
-
-FROM: RSS Test
-SUBJECT: Title 4
-BODY html: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
- <head><title>RSS Test</title>
-  <style>
-   
-   a { text-decoration: none; }
-   .entry_title { margin: 0; }
-   .entry_title a { border-bottom: 1px dashed black; }
-   .entry_header { margin-top: 0; }
-   .content { margin: 20px 0 25px 10px; max-width: 600px; }
-   .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
-       
-  </style>
- </head>
- <body><h1 class="entry_title">Title 4</h1>
-  <p>From 
-   <img src="Feed%20icon" alt="RSS Test" width="16" height="16"
-    style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
-    />
-   <a href="Feed%20link">RSS Test</a>
-  </p><div class="content"><div>html description</div></div>
-                                                            </body>
-</html>
-BODY text: # Title 4
-
-From [RSS Test](Feed%20link)
-
-html description
 
 
 FROM: RSS Test
@@ -989,7 +1040,11 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body><h1 class="entry_title">Title 2</h1>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >Title 2
+  </span><h1 class="entry_title">Title 2</h1>
   <p>From 
    <img src="Feed%20icon" alt="RSS Test" width="16" height="16"
     style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
@@ -1155,8 +1210,6 @@ From [RSS Test](Feed%20link)
 
 From [RSS Test](Feed%20link)
 
-Content:
-
 text description
 
 # Title 4
@@ -1170,8 +1223,8 @@ html description
  ((feed_datas
    ((./././././././rss.rss 12352878
      (("Title 2" ()) ("Title 3" ()) ("Title 4" ()) (id ())))
-    (././././././rss.rss 12352878 (("Title 2" ()) ("Title 4" ()) (id ())))
-    (./././././rss.rss 12352878 (("Title 3" ())))
+    (././././././rss.rss 12352878 (("Title 2" ()) (id ())))
+    (./././././rss.rss 12352878 (("Title 3" ()) ("Title 4" ())))
     (././././rss.rss 12352878 ((id ())))
     (./././rss.rss 12352878 (("Title 2" ()))) (././empty.rss 12352878 ())
     (././no_title.rss 12352878 ((id2 ())))

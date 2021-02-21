@@ -47,8 +47,7 @@ struct
       | None -> false
 
     let match_regexp_content regexp = function
-      | Some (Feed.Text str) -> match_regexp regexp str
-      | Some (Html _) -> false
+      | Some c -> match_regexp regexp c.Feed.content_text
       | None -> false
 
     let rec exec_filter entry = function

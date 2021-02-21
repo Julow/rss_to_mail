@@ -20,9 +20,10 @@ type html_content =
   | Html_T of string
   | Html_E of html_name * (html_name * string) list * html_content list
 
-type content =
-  | Text of string
-  | Html of html_content list
+type content = {
+  content_text : string;
+  content_html : html_content list;
+}
 
 type entry = {
   id : string option;
@@ -69,3 +70,6 @@ let entry_id e =
       | None, (Some _ as title) -> title
       | None, None -> e.date
     )
+
+let make_text_content content_text =
+  { content_text; content_html = [ Html_T content_text ] }

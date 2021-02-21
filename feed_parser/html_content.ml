@@ -50,9 +50,9 @@ and of_xml_node ~resolve_uri = function
   | Node ((name, attrs), nodes) ->
       element ~resolve_uri name attrs (of_xml_nodes ~resolve_uri nodes)
 
-let to_feed_content = function
-  | [ Feed.Html_T txt ] -> Feed.Text txt
-  | html -> Feed.Html html
+let to_feed_content content_html =
+  let content_text = Html_to_text.convert content_html in
+  { Feed.content_text; content_html }
 
 let of_xml ~resolve_uri nodes =
   to_feed_content (of_xml_nodes ~resolve_uri nodes)

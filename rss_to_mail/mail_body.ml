@@ -16,9 +16,7 @@ module Render (Impl : sig
   (** [mime_type] is not shown. *)
   val link : ?mime_type:string -> ?text:string -> Uri.t -> inline t
 
-  val raw_content_html : html_content list -> block t
-
-  val raw_content_text : string -> block t
+  val content : content -> block t
 
   val feed_icon : Uri.t -> alt:string -> inline t
 
@@ -101,13 +99,12 @@ struct
       match entry.attachments with
       | [] -> none
       | ts -> attachment_table (List.mapi attachment ts)
-    and content =
+    and content_ =
       match List.find_map Fun.id [ entry.content; entry.summary ] with
-      | Some (Html html) -> raw_content_html html
-      | Some (Text txt) -> raw_content_text txt
+      | Some c -> content c
       | None -> none
     in
-    list [ full_header; attachments; content ]
+    list [ full_header; attachments; content_ ]
 
   let render_body ~sender ?label ?hidden_summary feed entries =
     List.map (render_entry ~sender ?label feed) entries
@@ -119,8 +116,7 @@ module TextRender = Render (Mail_body_text)
 
 let gen_summary = function
   | [] -> None
-  | [ { summary = Some (Feed.Text sum); _ } ] -> Some sum
-  | [ { summary = Some (Feed.Html _) | None; _ } ] -> None
+  | [ { summary = Some s; _ } ] -> Some s.content_text
   | entries ->
       let titles = List.filter_map (fun e -> e.Feed.title) entries in
       Some (String.concat ", " titles)

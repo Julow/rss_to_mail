@@ -48,7 +48,7 @@ let uri ~resolve_uri s = resolve_uri (Uri.of_string s)
 
 let content ~resolve_uri node =
   match attr "type" node with
-  | None | Some "text" -> Some (Feed.Text (text node))
+  | None | Some "text" -> Some (Feed.make_text_content (text node))
   | Some "html" -> Some (Html_content.parse ~resolve_uri (text node))
   | Some "xhtml" -> Some (Html_content.of_xml ~resolve_uri (children_all node))
   | Some _ -> None

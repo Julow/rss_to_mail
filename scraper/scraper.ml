@@ -35,7 +35,7 @@ let scrap_entry ~parse_uri node t = function
   | Link -> { t with link = uri ~parse_uri node ||| t.link }
   | Summary ->
       let summary = String.concat "\n" (Soup.trimmed_texts node) in
-      { t with summary = Some (Text summary) }
+      { t with summary = Some (Feed.make_text_content summary) }
   | Thumbnail -> { t with thumbnail = uri ~parse_uri node ||| t.thumbnail }
   | Attachment { attach_type } ->
       let attachments =

@@ -36,13 +36,8 @@ let feed_icon _ ~alt:_ _ = ()
 
 (* block *)
 
-let raw_content_html content k =
-  k (Html_to_text.convert content);
-  k "\n\n"
-
-let raw_content_text txt k =
-  k "Content:\n\n";
-  k txt;
+let content content k =
+  k content.Feed.content_text;
   k "\n\n"
 
 let entry_title title title_link k =
