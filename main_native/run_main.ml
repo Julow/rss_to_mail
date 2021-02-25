@@ -1,3 +1,5 @@
+open Lwt.Syntax
+
 module PooledFetch = struct
   type error = Fetch.error
 
@@ -64,16 +66,16 @@ let run ~certs (conf : Feeds_config.t) (datas : Persistent_data.t) =
         (Persistent_data.Feed_id.of_url (Feed_desc.url_of_feed desc), f))
       conf.feeds
   in
-  let%lwt feed_datas, mails, logs =
+  let* feed_datas, mails, logs =
     Rss_to_mail.check_all ~now datas.feed_datas feeds_with_id
   in
   metrics_updates ~mails:(List.length mails) logs;
   let to_retry = datas.unsent_mails in
-  let%lwt unsent_mails =
+  let+ unsent_mails =
     Mail.send_mails ~certs conf (to_retry @ mails)
   in
   metrics_mails ~to_retry ~unsent_mails;
-  Lwt.return Persistent_data.{ feed_datas; unsent_mails }
+  { Persistent_data.feed_datas; unsent_mails }
 
 let send_test_email ~certs (conf : Feeds_config.t) =
   let certs = parse_certs certs in
@@ -84,7 +86,5 @@ let send_test_email ~certs (conf : Feeds_config.t) =
     body_html = "This is a test email from rss_to_email.";
     body_text = "This is a test email from rss_to_email.";
   } in
-  let%lwt unsent_mail =
-    Mail.send_mails ~certs conf [mail] in
-  let success = (unsent_mail = []) in
-  Lwt.return success
+  let+ unsent_mail = Mail.send_mails ~certs conf [mail] in
+  (unsent_mail = [])

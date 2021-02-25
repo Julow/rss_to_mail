@@ -1,3 +1,5 @@
+open Lwt.Syntax
+
 let () = Conduit_lwt_unix.(tls_library := OpenSSL)
 
 (** Wrapper around cohttp's [get] that support following redirections If there
@@ -5,7 +7,7 @@ let () = Conduit_lwt_unix.(tls_library := OpenSSL)
     response (with status 30x). Same if there is no "Location" header *)
 let rec get ?(max_redirect = 5) url =
   let open Cohttp in
-  let%lwt resp, body = Cohttp_lwt_unix.Client.get url in
+  let* resp, body = Cohttp_lwt_unix.Client.get url in
   match resp.status with
   | `Multiple_choices | `Moved_permanently | `Found | `See_other
   | `Temporary_redirect
@@ -27,16 +29,20 @@ type error =
 (** Returns the body as a string and handle errors *)
 let fetch url =
   Logs.debug (fun fmt -> fmt "Fetching %a" Uri.pp url);
-  match%lwt get url with
-  | exception Failure msg -> Lwt.return (Error (`System msg))
-  | exception Unix.Unix_error (_, msg, _) -> Lwt.return (Error (`System msg))
-  | exception _ -> Lwt.return (Error `Unknown)
-  | { status = `OK; _ }, body ->
-      let%lwt body = Cohttp_lwt.Body.to_string body in
-      Lwt.return (Ok body)
-  | { status; _ }, _ ->
-      let code = Cohttp.Code.code_of_status status in
-      Lwt.return (Error (`Http code))
+  let fetch' () =
+    let* resp, body = get url in
+    match resp.status with
+    | `OK ->
+        let* body = Cohttp_lwt.Body.to_string body in
+        Lwt.return (Ok body)
+    | status ->
+        let code = Cohttp.Code.code_of_status status in
+        Lwt.return (Error (`Http code))
+  and handle_exn = function
+    | Failure msg | Unix.Unix_error (_, msg, _) -> Error (`System msg)
+    | _ -> Error `Unknown
+  in
+  Lwt.catch fetch' (Lwt.wrap1 handle_exn)
 
 let error_to_string = function
   | `Http code -> Printf.sprintf "Http error: %d" code

@@ -10,7 +10,6 @@ depends: [
 	"lambdasoup"
   "lwt_ssl"
 	"lwt"
-	"lwt_ppx"
 	"cohttp-lwt-unix"
 	"cmdliner"
 	"tyxml"

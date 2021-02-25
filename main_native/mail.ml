@@ -118,37 +118,34 @@ let send_mails ~certs (conf : Feeds_config.t) mails =
   let authentication = Sendmail.{ username; password; mechanism = PLAIN } in
   let send t =
     match make_mail conf t with
-    | Ok (mail, from, recipient) -> (
+    | Ok (mail, from, recipient) ->
         let stream = lwt_stream (Mt.to_stream mail) in
-        match%lwt
-          Sendmail_lwt.sendmail ~hostname ~port ~domain ~authenticator
-            ~authentication from [ recipient ] stream
-          |> Utils.lwt_timeout 15.
-        with
-        | exception Utils.Timeout -> Lwt.return `Timeout
-        | Error e -> Lwt.return (`Sendmail_error e)
-        | Ok () -> Lwt.return `Ok
-      )
+        Sendmail_lwt.sendmail ~hostname ~port ~domain ~authenticator
+          ~authentication from [ recipient ] stream
+        |> Lwt.map (function Error e -> `Sendmail_error e | Ok () -> `Ok)
+        |> Utils.lwt_timeout (fun () -> Lwt.return `Timeout) 15.
     | Error e -> Lwt.return (`Make_mail_error e)
   in
   (* At most 2 mails sending in parallel *)
   let send_pooled = Utils.pooled 2 send in
   mails
   |> Lwt_list.map_p (fun t ->
-         match%lwt send_pooled t with
-         | `Timeout ->
-             Logs.err (fun fmt -> fmt "Timed out sending mail \"%s\"" t.subject);
-             Lwt.return_some t
-         | `Sendmail_error e ->
-             Logs.err (fun fmt ->
-                 fmt "Failed sending mail \"%s\":\n %a" t.subject
-                   Sendmail.pp_error e);
-             Lwt.return_some t
-         | `Make_mail_error _ ->
-             Logs.err (fun fmt ->
-                 fmt "Failed sending mail \"%s\": Internal error" t.subject);
-             Lwt.return_some t
-         | `Ok ->
-             Logs.debug (fun fmt -> fmt "Sent \"%s\"" t.subject);
-             Lwt.return_none)
+         send_pooled t
+         |> Lwt.map (function
+              | `Timeout ->
+                  Logs.err (fun fmt ->
+                      fmt "Timed out sending mail \"%s\"" t.subject);
+                  Some t
+              | `Sendmail_error e ->
+                  Logs.err (fun fmt ->
+                      fmt "Failed sending mail \"%s\":\n %a" t.subject
+                        Sendmail.pp_error e);
+                  Some t
+              | `Make_mail_error _ ->
+                  Logs.err (fun fmt ->
+                      fmt "Failed sending mail \"%s\": Internal error" t.subject);
+                  Some t
+              | `Ok ->
+                  Logs.debug (fun fmt -> fmt "Sent \"%s\"" t.subject);
+                  None))
   |> Lwt.map (List.filter_map Fun.id)
