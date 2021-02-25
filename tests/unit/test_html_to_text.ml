@@ -15,9 +15,16 @@ let text () =
   check_convert H.[ txt "Foo bar" ] "Foo bar";
   check_convert H.[ txt "Foo"; txt "bar" ] "Foo bar";
   check_convert H.[ e "p" [ txt "Foo"; e "span" [ txt "bar" ] ] ] "Foo bar";
+  check_convert H.[ txt "Foo"; e "br" []; txt "bar" ] "Foo\nbar";
+  ()
+
+let links () =
   check_convert
     H.[ txt "Foo"; e "a" ~attrs:[ attr "href" "url" ] [ txt "bar" ] ]
     "Foo bar <url>";
+  check_convert
+    H.[ e "a" ~attrs:[ attr "href" "url" ] [ txt " "; e "img" []; e "i" [] ] ]
+    "<url>";
   ()
 
 let lists () =
@@ -35,11 +42,15 @@ let paragraphs () =
   check_convert
     H.[ e "p" []; e "p" [ txt "Foo"; e "p" [ e "p" []; txt "Bar" ] ]; e "p" [] ]
     "Foo\n\nBar";
+  check_convert
+    H.[ e "h2" [ txt "Foo" ]; e "p" [ txt "bar" ]; e "h2" [ txt "Baz" ] ]
+    "## Foo\n\nbar\n\n## Baz";
   ()
 
 let tests =
   [
     ("Text", `Quick, text);
+    ("Links", `Quick, links);
     ("Lists", `Quick, lists);
     ("Paragraphs", `Quick, paragraphs);
   ]

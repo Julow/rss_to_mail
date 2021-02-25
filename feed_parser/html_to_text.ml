@@ -8,16 +8,29 @@ let get_attr attrs name =
     attrs
 
 let decode_tag (_, tag) attrs (content, contains_block) =
+  let paragraph content = (`P :: (content @ [ `P ]), true)
+  and inline content = (content, contains_block) in
   match tag with
-  | "a" -> (
-      match get_attr attrs "href" with
-      | Some href when contains_block -> (`P :: `Txt href :: `S :: content, true)
-      | Some href -> (content @ [ `S; `Txt "<"; `Txt href; `Txt ">" ], false)
-      | None -> (content, contains_block)
-    )
+  | "a" ->
+      let content =
+        match get_attr attrs "href" with
+        | Some href when contains_block -> `P :: `Txt href :: `S :: content
+        | Some href -> content @ [ `S; `Txt "<"; `Txt href; `Txt ">" ]
+        | None -> content
+      in
+      (content, contains_block)
   | "li" -> (`NL :: `Txt "-" :: `S :: content, true)
-  | "span" | "b" | "i" -> (content, contains_block)
-  | "ul" | _ -> (`P :: (content @ [ `P ]), true)
+  | "br" -> inline (`NL :: content)
+  | "img" | "svg" -> inline content
+  | "h1" -> paragraph (`Txt "#" :: `S :: content)
+  | "h2" -> paragraph (`Txt "##" :: `S :: content)
+  | "h3" -> paragraph (`Txt "###" :: `S :: content)
+  | "h4" -> paragraph (`Txt "####" :: `S :: content)
+  | "h5" -> paragraph (`Txt "#####" :: `S :: content)
+  | "span" | "b" | "i" | "code" | "relative-time" | "small" | "strong" ->
+      (* inline elements *)
+      inline content
+  | "ul" | _ -> paragraph content
 
 let rec decode_html' acc contains_block = function
   | [] -> (List.rev acc, contains_block)

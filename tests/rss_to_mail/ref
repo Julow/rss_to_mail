@@ -859,7 +859,7 @@ Attachments:
 
 Attachment 1: https://some-website/attachment/1 (some type)
 
-https://some-website/link1
+<https://some-website/link1>
 
 
 FROM: ././no_title.rss
