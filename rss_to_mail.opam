@@ -14,8 +14,8 @@ depends: [
 	"cohttp-lwt-unix"
 	"cmdliner"
 	"tyxml"
-	"tyxml-ppx"
-	"colombe" { = "0.3.0" }
+	"tyxml-ppx" { >= "4.4.0" }
+	"colombe" { = "0.4.0" }
 	"sendmail-lwt"
   "logs"
   "x509" { >= "0.10" }
@@ -24,12 +24,8 @@ depends: [
   "sexplib0"
   "sexplib"
   "emile"
-  "mrmime" { > "0.3.0" }
-  "colombe"
+  "mrmime" { >= "0.3.2" }
   "alcotest" { with-test }
   "mdx" { with-test }
 ]
 build: [[ "dune" "build" "-p" name "-j" jobs ]]
-pin-depends: [
-  [ "mrmime.dev" "git+https://github.com/mirage/mrmime.git" ]
-]
