@@ -25,7 +25,9 @@ let lwt_stream t () = Lwt.return (t ())
 open Mrmime
 
 let ( >>* ) x f = match x with Ok x -> f x | Error _ as e -> e
-let ( let* ) = (>>*)
+
+let ( let* ) = ( >>* )
+
 let map_error ~f x = match x with Ok _ as ok -> ok | Error e -> Error (f e)
 
 let ( let^ ) = Lwt.bind
@@ -134,18 +136,23 @@ let send_mails ~certs (conf : Feeds_config.t) mails =
          |> Lwt.map (function
               | `Timeout ->
                   Logs.err (fun fmt ->
-                      fmt "Timed out sending mail \"%s\"" t.subject);
+                      fmt "Timed out sending mail \"%s\"" t.subject
+                  );
                   Some t
               | `Sendmail_error e ->
                   Logs.err (fun fmt ->
                       fmt "Failed sending mail \"%s\":\n %a" t.subject
-                        Sendmail.pp_error e);
+                        Sendmail.pp_error e
+                  );
                   Some t
               | `Make_mail_error _ ->
                   Logs.err (fun fmt ->
-                      fmt "Failed sending mail \"%s\": Internal error" t.subject);
+                      fmt "Failed sending mail \"%s\": Internal error" t.subject
+                  );
                   Some t
               | `Ok ->
                   Logs.debug (fun fmt -> fmt "Sent \"%s\"" t.subject);
-                  None))
+                  None
+              )
+     )
   |> Lwt.map (List.filter_map Fun.id)

@@ -27,7 +27,8 @@ let metrics_updates ~mails logs =
     | `Parsing_error ((line, col), msg) ->
         incr errors;
         Logs.warn (fun fmt ->
-            fmt "%s: Parsing error: %d:%d: %s" url line col msg)
+            fmt "%s: Parsing error: %d:%d: %s" url line col msg
+        )
     | `Fetch_error err ->
         incr errors;
         Logs.warn (fun fmt -> fmt "%s: %s" url (Fetch.error_to_string err))
@@ -35,15 +36,18 @@ let metrics_updates ~mails logs =
   in
   List.iter log_update logs;
   Logs.app (fun fmt ->
-      fmt "%d feeds updated, %d errors, %d new entries" !updated !errors mails)
+      fmt "%d feeds updated, %d errors, %d new entries" !updated !errors mails
+  )
 
 let metrics_mails ~to_retry ~unsent_mails =
   Logs.app (fun fmt ->
       let retried = List.length to_retry in
-      if retried > 0 then fmt "%d unsent emails to retry" retried);
+      if retried > 0 then fmt "%d unsent emails to retry" retried
+  );
   Logs.warn (fun fmt ->
       let unsent = List.length unsent_mails in
-      if unsent > 0 then fmt "%d emails could not be sent" unsent)
+      if unsent > 0 then fmt "%d emails could not be sent" unsent
+  )
 
 (** Like unix timestamps but shifted by the local timezone offset *)
 let local_timestamp () =
@@ -63,7 +67,8 @@ let run ~certs (conf : Feeds_config.t) (datas : Persistent_data.t) =
   let feeds_with_id =
     List.map
       (fun ((desc, _) as f) ->
-        (Persistent_data.Feed_id.of_url (Feed_desc.url_of_feed desc), f))
+        (Persistent_data.Feed_id.of_url (Feed_desc.url_of_feed desc), f)
+        )
       conf.feeds
   in
   let* feed_datas, mails, logs =
@@ -71,20 +76,21 @@ let run ~certs (conf : Feeds_config.t) (datas : Persistent_data.t) =
   in
   metrics_updates ~mails:(List.length mails) logs;
   let to_retry = datas.unsent_mails in
-  let+ unsent_mails =
-    Mail.send_mails ~certs conf (to_retry @ mails)
-  in
+  let+ unsent_mails = Mail.send_mails ~certs conf (to_retry @ mails) in
   metrics_mails ~to_retry ~unsent_mails;
   { Persistent_data.feed_datas; unsent_mails }
 
 let send_test_email ~certs (conf : Feeds_config.t) =
   let certs = parse_certs certs in
-  let mail = Rss_to_mail'.{
-    sender = "rss_to_email";
-    to_ = Some conf.to_address;
-    subject = "[rss_to_email] Test email";
-    body_html = "This is a test email from rss_to_email.";
-    body_text = "This is a test email from rss_to_email.";
-  } in
-  let+ unsent_mail = Mail.send_mails ~certs conf [mail] in
-  (unsent_mail = [])
+  let mail =
+    Rss_to_mail'.
+      {
+        sender = "rss_to_email";
+        to_ = Some conf.to_address;
+        subject = "[rss_to_email] Test email";
+        body_html = "This is a test email from rss_to_email.";
+        body_text = "This is a test email from rss_to_email.";
+      }
+  in
+  let+ unsent_mail = Mail.send_mails ~certs conf [ mail ] in
+  unsent_mail = []

@@ -8,7 +8,8 @@ let record field = function
           | List (Atom f :: t) when String.equal f field -> (
               match t with [ t ] -> Some t | ts -> Some (List ts)
             )
-          | _ -> None)
+          | _ -> None
+          )
         ts
   | Atom _ -> failwith "Expecting record"
 

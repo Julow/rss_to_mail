@@ -39,8 +39,7 @@ let run_scraper_command src () =
 let send_test_email (`Config, config_file) () (`Certs, certs) =
   let conf = parse_config_file config_file in
   let success = Lwt_main.run (Run_main.send_test_email ~certs conf) in
-  if success then Logs.app (fun fmt -> fmt "Success.")
-  else exit 1
+  if success then Logs.app (fun fmt -> fmt "Success.") else exit 1
 
 open Cmdliner
 
@@ -60,24 +59,28 @@ let certs =
     tagged `Certs
     & required
     & opt (some file) None
-    & info [ "certs" ] ~env ~docs:"FILE" ~doc)
+    & info [ "certs" ] ~env ~docs:"FILE" ~doc
+  )
 
 let config_file =
   let doc = "Configuration file" in
   Arg.(
     tagged `Config
     & value & pos 0 string "feeds.sexp"
-    & info [] ~docv:"CONFIG" ~doc)
+    & info [] ~docv:"CONFIG" ~doc
+  )
 
 let run_term =
   let doc = "Fetch a list of feeds and send a mail for new entries" in
   ( Term.(const run_command $ config_file $ verbose $ certs),
-    Term.info "run" ~doc )
+    Term.info "run" ~doc
+  )
 
 let check_config_term =
   let doc = "Check the configuration file for errors and exit" in
   ( Term.(const check_config_command $ config_file $ verbose),
-    Term.info "check-config" ~doc )
+    Term.info "check-config" ~doc
+  )
 
 let run_scraper_term =
   let source_arg =
@@ -89,13 +92,16 @@ let run_scraper_term =
      definition from stdin."
   in
   ( Term.(const run_scraper_command $ source_arg $ verbose),
-    Term.info "run-scraper" ~doc )
+    Term.info "run-scraper" ~doc
+  )
 
 let send_test_email =
   let doc = "Send a test email and exit." in
   ( Term.(const send_test_email $ config_file $ verbose $ certs),
-    Term.info "send-test-email" ~doc )
+    Term.info "send-test-email" ~doc
+  )
 
 let () =
   Term.exit
-  @@ Term.eval_choice run_term [ run_term; check_config_term; run_scraper_term; send_test_email ]
+  @@ Term.eval_choice run_term
+       [ run_term; check_config_term; run_scraper_term; send_test_email ]

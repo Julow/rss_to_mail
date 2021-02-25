@@ -18,7 +18,8 @@ let list ?(sep = none) l k =
       List.iter
         (fun e ->
           sep k;
-          e k)
+          e k
+          )
         l
 
 let link ?mime_type:_ ?text url k =
@@ -64,7 +65,8 @@ let attachment_table ts k =
       List.iter
         (fun t ->
           t k;
-          k "\n")
+          k "\n"
+          )
         ts;
       k "\n"
 

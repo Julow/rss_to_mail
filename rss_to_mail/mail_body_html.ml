@@ -19,14 +19,11 @@ let list ?sep l =
 let link ?mime_type ?text url =
   let s = match text with Some s -> s | None -> Uri.path url in
   let a_type =
-    match mime_type with
-    | Some t -> [ Html.a_mime_type t ]
-    | None -> []
+    match mime_type with Some t -> [ Html.a_mime_type t ] | None -> []
   in
   Html.[ a ~a:(a_href (Uri.to_string url) :: a_type) [ txt s ] ]
 
-let content_div cont =
-  [ [%html "<div class=\"content\">" cont "</div>"] ]
+let content_div cont = [ [%html "<div class=\"content\">" cont "</div>"] ]
 
 let content_of_html =
   let mk_attr ((_, k), v) = Html.Unsafe.string_attrib k v in

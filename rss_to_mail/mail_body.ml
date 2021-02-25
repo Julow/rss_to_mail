@@ -13,8 +13,8 @@ module Render (Impl : sig
 
   val list : ?sep:'a t -> 'a t list -> 'a t
 
-  (** [mime_type] is not shown. *)
   val link : ?mime_type:string -> ?text:string -> Uri.t -> inline t
+  (** [mime_type] is not shown. *)
 
   val content : content -> block t
 
@@ -47,8 +47,7 @@ struct
           | Some url -> feed_icon url ~alt:sender
           | None -> none
         in
-        Some
-          (list [ string "From "; feed_icon; opt_link feed.feed_link sender ])
+        Some (list [ string "From "; feed_icon; opt_link feed.feed_link sender ])
       and categories =
         let category = function
           | { label = Some _ as c; term = None }

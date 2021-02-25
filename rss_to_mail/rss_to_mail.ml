@@ -55,7 +55,9 @@ struct
       | Or fs -> List.exists (exec_filter entry) fs
       | Not f -> not (exec_filter entry f)
       | Match_title r -> match_regexp_opt r entry.Feed.title
-      | Match_content r -> match_regexp_content r entry.summary || match_regexp_content r entry.content
+      | Match_content r ->
+          match_regexp_content r entry.summary
+          || match_regexp_content r entry.content
 
     let process ~now _feed_uri options seen_ids feed =
       let match_any_filter entry =
@@ -73,7 +75,8 @@ struct
                 in
                 (id :: ids, news)
             | Some _ | None -> (ids, news)
-            (* Ignore entries without an ID *))
+            (* Ignore entries without an ID *)
+            )
           feed.Feed.entries ([], [])
       in
       let seen_ids = SeenSet.new_ids (remove_date_from now) new_ids seen_ids in
@@ -123,7 +126,8 @@ struct
       Fetch.fetch uri
       |> Lwt.map (function
            | Error e -> Error (`Fetch_error e)
-           | Ok contents -> parse_content contents)
+           | Ok contents -> parse_content contents
+           )
   end
 
   module Check_scraper = struct
@@ -133,7 +137,8 @@ struct
            | Error e -> Error (`Fetch_error e)
            | Ok contents ->
                let resolve_uri = Uri.resolve "" uri in
-               Ok (Scraper.scrap ~resolve_uri scraper contents))
+               Ok (Scraper.scrap ~resolve_uri scraper contents)
+           )
   end
 
   type nonrec mail = mail
@@ -185,8 +190,8 @@ struct
     | Some (first_update, seen_ids) ->
         Lwt.map (process ~first_update ~seen_ids) (fetch uri)
 
-  (** * Check a feed for updates * Returns the list of generated mails and updated
-      feed datas * Log informations by calling [log] once for each feed *)
+  (** Check a feed for updates. Returns the list of generated mails and updated
+      feed datas. Log informations by calling [log] once for each feed. *)
   let check_feed_desc ~now feed_datas (feed_id, (feed, options)) =
     match feed with
     | Feed_desc.Feed url ->
@@ -221,5 +226,6 @@ struct
            let feed_datas, mails, logs =
              List.fold_left reduce_updated (feed_datas, [], []) results
            in
-           (feed_datas, mails, List.rev logs))
+           (feed_datas, mails, List.rev logs)
+       )
 end
