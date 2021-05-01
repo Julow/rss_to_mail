@@ -26,15 +26,16 @@ type options = {
   refresh : refresh_options;  (** Update interval *)
   title : string option;  (** Override the feed's title *)
   label : string option;  (** Appended to the content *)
-  no_content : bool;  (** If the content should be removed *)
+  content : [ `Keep | `Remove ];
+      (** Whether to keep or remove the content and summary *)
   filter : filter_expr option;  (** Filter entries *)
   to_ : string option;  (** Destination email address *)
   max_entries : int option;  (** Max number of entries at the same time *)
 }
 
-let make_options ?(refresh = `Every 6.) ?title ?label ?(no_content = false)
-    ?filter ?to_ ?max_entries () =
-  { refresh; title; label; no_content; filter; to_; max_entries }
+let make_options ?(refresh = `Every 6.) ?title ?label ?(content = `Keep) ?filter
+    ?to_ ?max_entries () =
+  { refresh; title; label; content; filter; to_; max_entries }
 
 type _ desc =
   | Feed : string -> [< `In_bundle | `Any ] desc

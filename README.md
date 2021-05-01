@@ -26,7 +26,7 @@ Send a mail for new entries on RSS and Atom feeds
 	The default can be controled with the `default_refresh` global option, by default 6 hours
 - `(refresh (at 10:00))` Refresh every day at 10AM (24 hours format)
 - `(refresh (at 14:00 wed))` Refresh every week on Wednesday at 2PM
-- `(no_content true)` True or false. If true, remove the summary part of the entry.
+- `(content remove)` Whether to remove the content and summary fields of feeds from the output. Can be `keep` (default) or `remove`.
 - `(filter expr)` Filter entries using regexp. `expr` can be:
   `(and expr...)`, `(or expr...)`, `(not expr)`, `(title "regex")`, `(content "regex")`
 

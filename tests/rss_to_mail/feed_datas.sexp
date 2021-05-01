@@ -14,5 +14,6 @@
    (https://some-website/relative.atom 0 ())
    (https://some-website/relative.rss 0 ())
    (./././././././rss.rss 0 ())
+   (././././././././rss.rss 0 ())
    (error.rss 0 ())
   )))

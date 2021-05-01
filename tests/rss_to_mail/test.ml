@@ -36,7 +36,7 @@ let print_options (opts : Feed_desc.options) =
   );
   Option.iter (printf " (title %s)") opts.title;
   Option.iter (printf " (label %s)") opts.label;
-  if opts.no_content then printf " (no_content true)";
+  (match opts.content with `Keep -> () | `Remove -> printf " (content remove)");
   printf "\n"
 
 let print_feed (feed, options) =

@@ -103,6 +103,11 @@ let parse sexp =
     | List _ -> failwith "Malformated"
   and parse_option_max_entries t =
     int_of_string (atom t)
+  and parse_content_option t =
+    match atom (one t) with
+    | "keep" -> `Keep
+    | "remove" -> `Remove
+    | _ -> failwith "Invalid option value"
   in
 
   let parse_option name values (opts : Feed_desc.options) =
@@ -110,8 +115,8 @@ let parse sexp =
     | "refresh" -> { opts with refresh = parse_option_refresh (one values) }
     | "title" -> { opts with title = Some (atom (one values)) }
     | "label" -> { opts with label = Some (atom (one values)) }
-    | "no_content" ->
-        { opts with no_content = bool_of_string (atom (one values)) }
+    | "content" ->
+        { opts with content = parse_content_option values }
     | "filter" -> { opts with filter = Some (parse_filter_expr (one values)) }
     | "to" -> { opts with to_ = Some (atom (one values)) }
     | "max_entries" ->

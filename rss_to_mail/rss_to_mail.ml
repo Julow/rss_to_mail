@@ -59,6 +59,11 @@ struct
           match_regexp_content r entry.summary
           || match_regexp_content r entry.content
 
+    let process_content options entry =
+      match options.Feed_desc.content with
+      | `Keep -> entry
+      | `Remove -> { entry with Feed.summary = None; content = None }
+
     let process ~now _feed_uri options seen_ids feed =
       let match_any_filter entry =
         match options.Feed_desc.filter with
@@ -70,6 +75,7 @@ struct
           (fun entry (ids, news) ->
             match Feed.entry_id entry with
             | Some id when match_any_filter entry ->
+                let entry = process_content options entry in
                 let news =
                   if SeenSet.is_seen id seen_ids then news else entry :: news
                 in
