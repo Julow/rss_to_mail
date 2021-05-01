@@ -1,2 +1,3 @@
-(lang dune 2.0)
+(lang dune 2.8)
 (name rss_to_mail)
+(cram enable)
