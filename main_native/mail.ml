@@ -136,7 +136,7 @@ let send_mails ~certs (conf : Feeds_config.t) mails =
          |> Lwt.map (function
               | `Timeout ->
                   Logs.err (fun fmt ->
-                      fmt "Timed out sending mail \"%s\"" t.subject
+                      fmt "Timed out sending mail \"%s\"" t.Rss_to_mail.subject
                   );
                   Some t
               | `Sendmail_error e ->
