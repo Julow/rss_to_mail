@@ -7,21 +7,26 @@ type mail = {
   timestamp : int64;
 }
 
-type feed_data = int64 * SeenSet.t
-(** [next_update * seen_ids] *)
+type 'a state_key =
+  | Next_update : int64 state_key
+  | Previous_entries : SeenSet.t state_key
 
-module Make (Fetch : sig
+module type FETCH = sig
   type error
 
   val fetch : Uri.t -> (string, error) result Lwt.t
-end) (Feed_datas : sig
+end
+
+module type STATE = sig
   type t
   type id
 
-  val get : t -> id -> feed_data option
-  val set : t -> id -> feed_data -> t
-end) =
-struct
+  val get : t -> id -> 'a state_key -> 'a option
+  val set : t -> id -> 'a state_key -> 'a -> t
+end
+
+module Make (Fetch : FETCH) (State : STATE) = struct
+  type feed = State.id * Feed_desc.t
   type update = { entries : int }
 
   type error =
@@ -29,7 +34,7 @@ struct
     | `Fetch_error of Fetch.error
     ]
 
-  type log = Feed_datas.id * [ `Updated of update | error | `Uptodate ]
+  type log = State.id * [ `Updated of update | error | `Uptodate ]
 
   module Process_feed = struct
     (* Remove date for IDs that disapeared from the feed: 1 month *)
@@ -147,7 +152,7 @@ struct
   end
 
   type nonrec mail = mail
-  type nonrec feed_data = feed_data
+  type nonrec 'a state_key = 'a state_key
 
   let sender_name feed_uri feed options =
     let ( ||| ) opt def =
@@ -157,25 +162,12 @@ struct
     feed.Feed.feed_title ||| fun () ->
     Uri.host feed_uri ||| fun () -> Uri.to_string feed_uri
 
-  (** [Some (first_update, seen_ids)] if the feed need to be updated. *)
-  let should_update ~now data =
-    match data with
-    | Some (next_update, _) when next_update >= now -> None
-    | Some (_, seen_ids) -> Some (false, seen_ids)
-    | None -> Some (true, SeenSet.empty)
-
-  (** Call [update] to update the feed. *)
-  let check_feed ~now ~feed_id url feed_datas options ~fetch ~prepare =
-    let uri = Uri.of_string url in
-    let process ~first_update ~seen_ids =
-      let next_update = Utils.next_update now options in
-      let update_data ~seen_ids feed_datas =
-        Feed_datas.set feed_datas feed_id (next_update, seen_ids)
-      in
-      function
+  let update_feed' ~now ~feed_id uri state options ~fetch ~prepare =
+    let uri = Uri.of_string uri in
+    let process ~first_update seen_ids = function
       | Error ((`Fetch_error _ | `Parsing_error _) as error) ->
           (* Set "next_update" even on error to avoid repeatedly calling them *)
-          (feed_id, update_data ~seen_ids, error)
+          (Fun.id, error)
       | Ok feed ->
           let feed, seen_ids, entries =
             Process_feed.process ~now uri options seen_ids feed
@@ -186,32 +178,53 @@ struct
             if first_update then [] else prepare ~now ~sender feed options entries
           in
           let seen_ids = SeenSet.filter_removed now seen_ids in
-          (feed_id, update_data ~seen_ids, `Updated mails)
+          let update_state state =
+            State.set state feed_id Previous_entries seen_ids
+          in
+          (update_state, `Updated mails)
     in
-    let data = Feed_datas.get feed_datas feed_id in
-    match should_update ~now data with
-    | None -> Lwt.return (feed_id, Fun.id, `Uptodate)
-    | Some (first_update, seen_ids) ->
-        Lwt.map (process ~first_update ~seen_ids) (fetch uri)
+    let first_update, seen_ids =
+      match State.get state feed_id Previous_entries with
+      | None -> (true, SeenSet.empty)
+      | Some seen_ids -> (false, seen_ids)
+    in
+    fetch uri |> Lwt.map (process ~first_update seen_ids)
 
   (** Check a feed for updates. Returns the list of generated mails and updated
-      feed datas. Log informations by calling [log] once for each feed. *)
-  let check_feed_desc ~now feed_datas (feed_id, (feed, options)) =
+      feed datas. Log informations by calling [log] once for each feed. [now] is
+      used for forgetting entries some time after they have been removed from
+      the feed. *)
+  let update_feed ~now state (feed_id, (feed, options)) =
     match feed with
     | Feed_desc.Feed url ->
         let fetch = Check_feed.fetch and prepare = prepare_mails in
-        check_feed ~now ~feed_id url feed_datas options ~fetch ~prepare
+        update_feed' ~now ~feed_id url state options ~fetch ~prepare
     | Scraper (url, scraper) ->
         let fetch uri = Check_scraper.fetch uri scraper
         and prepare = prepare_mails in
-        check_feed ~now ~feed_id url feed_datas options ~fetch ~prepare
+        update_feed' ~now ~feed_id url state options ~fetch ~prepare
     | Bundle (Feed url) ->
         let fetch = Check_feed.fetch and prepare = prepare_bundle in
-        check_feed ~now ~feed_id url feed_datas options ~fetch ~prepare
+        update_feed' ~now ~feed_id url state options ~fetch ~prepare
     | Bundle (Scraper (url, scraper)) ->
         let fetch = Fun.flip Check_scraper.fetch scraper
         and prepare = prepare_bundle in
-        check_feed ~now ~feed_id url feed_datas options ~fetch ~prepare
+        update_feed' ~now ~feed_id url state options ~fetch ~prepare
+
+  let check_feed ~now state ((feed_id, (_, options)) as feed) =
+    match State.get state feed_id Next_update with
+    | Some next_update when next_update >= now ->
+        Lwt.return (feed_id, Fun.id, `Uptodate)
+    | _ ->
+        update_feed ~now state feed
+        |> Lwt.map (fun (updt, log) ->
+               let updt state =
+                 let state = updt state in
+                 State.set state feed_id Next_update
+                   (Utils.next_update now options)
+               in
+               (feed_id, updt, log)
+           )
 
   let reduce_updated (acc_datas, acc_mails, logs) (url, update_data, log) =
     let acc_mails, log =
@@ -224,12 +237,12 @@ struct
     (update_data acc_datas, acc_mails, (url, log) :: logs)
 
   (** Update a list of feeds in parallel *)
-  let check_all ~now feed_datas feeds =
-    Lwt_list.map_p (check_feed_desc ~now feed_datas) feeds
+  let check_all ~now state feeds =
+    Lwt_list.map_p (check_feed ~now state) feeds
     |> Lwt.map (fun results ->
-           let feed_datas, mails, logs =
-             List.fold_left reduce_updated (feed_datas, [], []) results
+           let state, mails, logs =
+             List.fold_left reduce_updated (state, [], []) results
            in
-           (feed_datas, mails, List.rev logs)
+           (state, mails, List.rev logs)
        )
 end

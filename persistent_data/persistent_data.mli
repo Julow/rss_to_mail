@@ -7,20 +7,10 @@ module Feed_id : sig
   val to_string : t -> string
 end
 
-module Feed_map : Map.S with type key = Feed_id.t
-
-type feed_data = int64 * SeenSet.t
-
-module M : sig
-  type t = feed_data Feed_map.t
-  type id = Feed_id.t
-
-  val get : t -> id -> feed_data option
-  val set : t -> id -> feed_data -> t
-end
+module M : Rss_to_mail.STATE with type id = Feed_id.t
 
 type t = {
-  feed_datas : M.t;
+  data : M.t;
   unsent_mails : Rss_to_mail.mail list;
 }
 

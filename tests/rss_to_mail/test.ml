@@ -59,7 +59,7 @@ let print_log (id, log) =
   | `Uptodate -> printf "Log: %s: Uptodate\n" url
 
 let () =
-  let { Persistent_data.feed_datas; _ } =
+  let { Persistent_data.data; _ } =
     let sexp = Sexplib.Sexp.load_sexps "feed_datas.sexp" in
     Persistent_data.load sexp
   in
@@ -76,10 +76,10 @@ let () =
       )
       feeds
   in
-  let feed_datas, mails, logs =
-    Rss_to_mail.check_all ~now feed_datas feeds |> Lwt_main.run
+  let data, mails, logs =
+    Rss_to_mail.check_all ~now data feeds |> Lwt_main.run
   in
   List.iter print_log logs;
   List.iter print_mail (List.rev mails);
-  let sexp = Persistent_data.(save { feed_datas; unsent_mails = [] }) in
+  let sexp = Persistent_data.(save { data; unsent_mails = [] }) in
   Sexplib.Sexp.output_hum stdout (List sexp)

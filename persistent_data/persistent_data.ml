@@ -18,61 +18,83 @@ module Load_chain = struct
     (version, save, (version, of_prev, load) :: prev)
 end
 
-module Feed_id = struct
-  type t = Feed_id of string
+module Feed_id : sig
+  type t
 
-  let of_url url = Feed_id url
-  let to_string (Feed_id url) = url
-  let compare (Feed_id a) (Feed_id b) = String.compare a b
+  val of_url : string -> t
+  val to_string : t -> string
+  val compare : t -> t -> int
+end = struct
+  type t = string
+
+  let of_url url = url
+  let to_string url = url
+  let compare = String.compare
 end
 
 module Feed_map = Map.Make (Feed_id)
 
-type feed_data = int64 * SeenSet.t
-
 module M = struct
-  type t = feed_data Feed_map.t
+  type t = {
+    next_update : int64 Feed_map.t;
+    previous_entries : SeenSet.t Feed_map.t;
+  }
+
   type id = Feed_id.t
 
-  let get t id = Feed_map.find_opt id t
-  let set t id v = Feed_map.add id v t
+  let empty =
+    { next_update = Feed_map.empty; previous_entries = Feed_map.empty }
+
+  let get (type a) t id (key : a Rss_to_mail.state_key) : a option =
+    match key with
+    | Rss_to_mail.Next_update -> Feed_map.find_opt id t.next_update
+    | Previous_entries -> Feed_map.find_opt id t.previous_entries
+
+  let set (type a) t id (key : a Rss_to_mail.state_key) (v : a) =
+    match key with
+    | Next_update -> { t with next_update = Feed_map.add id v t.next_update }
+    | Previous_entries ->
+        { t with previous_entries = Feed_map.add id v t.previous_entries }
 end
 
 type t = {
-  feed_datas : M.t;
+  data : M.t;
   unsent_mails : Rss_to_mail.mail list;
 }
 
-let empty = { feed_datas = Feed_map.empty; unsent_mails = [] }
+let empty = { data = M.empty; unsent_mails = [] }
 
 let last_version, save, versions =
   Load_chain.(V1.(lastest 1 of_v0 ~load ~save) V0.(V0 (0, load)))
 
-let of_v1 V1.{ feed_datas; unsent_mails } =
-  let mail_of_v1 V1.{ sender; to_; subject; body_html; body_text; timestamp } =
+let of_v1 { V1.feed_datas; unsent_mails } =
+  let mail_of_v1 { V1.sender; to_; subject; body_html; body_text; timestamp } =
     Rss_to_mail.{ sender; to_; subject; body_html; body_text; timestamp }
   in
-  let add_data acc (key, date, seen_set) =
-    let id = Feed_id.Feed_id key in
-    M.set acc id (date, SeenSet.of_list seen_set)
+  let add_data acc (key, next_update, seen_ids) =
+    let id = Feed_id.of_url key and seen_ids = SeenSet.of_list seen_ids in
+    {
+      M.next_update = Feed_map.add id next_update acc.M.next_update;
+      previous_entries = Feed_map.add id seen_ids acc.previous_entries;
+    }
   in
   {
-    feed_datas = List.fold_left add_data Feed_map.empty feed_datas;
+    data = List.fold_left add_data M.empty feed_datas;
     unsent_mails = List.map mail_of_v1 unsent_mails;
   }
 
-let to_v1 { feed_datas; unsent_mails } =
-  let data_of_v1 (Feed_id.Feed_id key, (date, seen_set)) =
-    (key, date, SeenSet.to_list seen_set)
+let to_v1 { data; unsent_mails } =
+  let data_to_v1 id next_update acc =
+    let previous_entries = Feed_map.find id data.previous_entries in
+    (Feed_id.to_string id, next_update, SeenSet.to_list previous_entries) :: acc
   in
-  let mail_of_v1
-      Rss_to_mail.{ sender; to_; subject; body_html; body_text; timestamp } =
-    V1.{ sender; to_; subject; body_html; body_text; timestamp }
+  let mail_to_v1 { Rss_to_mail.sender; to_; subject; body_html; body_text; timestamp } =
+    { V1.sender; to_; subject; body_html; body_text; timestamp }
   in
   V1.
     {
-      feed_datas = List.map data_of_v1 (Feed_map.bindings feed_datas);
-      unsent_mails = List.map mail_of_v1 unsent_mails;
+      feed_datas = Feed_map.fold data_to_v1 data.next_update [] |> List.rev;
+      unsent_mails = List.map mail_to_v1 unsent_mails;
     }
   
 

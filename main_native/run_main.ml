@@ -60,7 +60,8 @@ let local_timestamp () =
   in
   Ptime.to_float_s local_now |> Int64.of_float
 
-let run ~certs (conf : Feeds_config.t) (datas : Persistent_data.t) =
+let run ~certs (conf : Feeds_config.t)
+    ({ data; unsent_mails } : Persistent_data.t) =
   let certs = parse_certs certs in
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = local_timestamp () in
@@ -71,14 +72,12 @@ let run ~certs (conf : Feeds_config.t) (datas : Persistent_data.t) =
       )
       conf.feeds
   in
-  let* feed_datas, mails, logs =
-    Rss_to_mail.check_all ~now datas.feed_datas feeds_with_id
-  in
+  let* data, mails, logs = Rss_to_mail.check_all ~now data feeds_with_id in
   metrics_updates ~mails:(List.length mails) logs;
-  let to_retry = datas.unsent_mails in
+  let to_retry = unsent_mails in
   let+ unsent_mails = Mail.send_mails ~certs conf (to_retry @ mails) in
   metrics_mails ~to_retry ~unsent_mails;
-  { Persistent_data.feed_datas; unsent_mails }
+  { Persistent_data.data; unsent_mails }
 
 let send_test_email ~certs (conf : Feeds_config.t) =
   let certs = parse_certs certs in
