@@ -2,6 +2,23 @@
  (name main_native)
  (public_name rss_to_mail)
  (package rss_to_mail)
- (libraries lwt cohttp-lwt-unix rss_to_mail scraper cmdliner persistent_data
-   emile mrmime colombe colombe.emile sendmail-lwt logs logs.cli logs.fmt
-   sexplib x509 ptime cstruct-unix feeds_config))
+ (libraries
+  lwt
+  cohttp-lwt-unix
+  rss_to_mail
+  scraper
+  cmdliner
+  persistent_data
+  emile
+  mrmime
+  colombe
+  colombe.emile
+  sendmail-lwt
+  logs
+  logs.cli
+  logs.fmt
+  sexplib
+  x509
+  ptime
+  cstruct-unix
+  feeds_config))

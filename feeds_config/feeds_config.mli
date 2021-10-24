@@ -14,5 +14,6 @@ val parse : Sexplib0.Sexp.t -> t
 val parse_scraper : Sexplib0.Sexp.t list -> Scraper.t
 (** Raise [Failure _] on error. *)
 
-val parse_feed : default_opts:Feed_desc.options -> Sexplib0.Sexp.t -> Feed_desc.t
+val parse_feed :
+  default_opts:Feed_desc.options -> Sexplib0.Sexp.t -> Feed_desc.t
 (** For testing purposes. *)

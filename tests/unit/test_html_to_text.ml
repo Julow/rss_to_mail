@@ -2,9 +2,7 @@ module H = struct
   (** Some functions to construct [html_content] values. *)
 
   let txt s = Feed.Html_T s
-
   let attr name value = (("", name), value)
-
   let e tag ?(attrs = []) childs = Feed.Html_E (("", tag), attrs, childs)
 end
 
@@ -35,6 +33,7 @@ let lists () =
         e "ul" [ e "li" [ txt "Foo" ]; e "li" [ txt "Bar" ] ];
         txt ".";
       ]
+    
     "List:\n\n- Foo\n- Bar\n\n.";
   ()
 

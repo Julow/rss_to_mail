@@ -73,7 +73,7 @@ let () =
     List.map
       (fun ((desc, _) as f) ->
         (Persistent_data.Feed_id.of_url (Feed_desc.url_of_feed desc), f)
-        )
+      )
       feeds
   in
   let feed_datas, mails, logs =

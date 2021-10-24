@@ -15,11 +15,9 @@ module Make (Fetch : sig
   val fetch : Uri.t -> (string, error) result Lwt.t
 end) (Feed_datas : sig
   type t
-
   type id
 
   val get : t -> id -> feed_data option
-
   val set : t -> id -> feed_data -> t
 end) : sig
   type update = { entries : int }
@@ -30,9 +28,7 @@ end) : sig
     ]
 
   type log = Feed_datas.id * [ `Updated of update | error | `Uptodate ]
-
   type nonrec mail = mail
-
   type nonrec feed_data = feed_data
 
   val check_all :

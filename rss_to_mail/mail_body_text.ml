@@ -1,7 +1,5 @@
 type inline
-
 type block
-
 type _ t = (string -> unit) -> unit
 
 let none _ = ()
@@ -19,7 +17,7 @@ let list ?(sep = none) l k =
         (fun e ->
           sep k;
           e k
-          )
+        )
         l
 
 let link ?mime_type:_ ?text url k =
@@ -66,7 +64,7 @@ let attachment_table ts k =
         (fun t ->
           t k;
           k "\n"
-          )
+        )
         ts;
       k "\n"
 

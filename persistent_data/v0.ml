@@ -14,9 +14,7 @@ let record field = function
   | Atom _ -> failwith "Expecting record"
 
 let atom = function List _ -> failwith "Expecting string" | Atom s -> s
-
 let list f = function List ts -> f ts | Atom _ as t -> f [ t ]
-
 let required = function Some v -> v | None -> failwith "Value required"
 
 let opt f = function

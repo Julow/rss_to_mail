@@ -15,11 +15,9 @@ module Make (Fetch : sig
   val fetch : Uri.t -> (string, error) result Lwt.t
 end) (Feed_datas : sig
   type t
-
   type id
 
   val get : t -> id -> feed_data option
-
   val set : t -> id -> feed_data -> t
 end) =
 struct
@@ -82,7 +80,7 @@ struct
                 (id :: ids, news)
             | Some _ | None -> (ids, news)
             (* Ignore entries without an ID *)
-            )
+          )
           feed.Feed.entries ([], [])
       in
       let seen_ids = SeenSet.new_ids (remove_date_from now) new_ids seen_ids in
@@ -148,7 +146,6 @@ struct
   end
 
   type nonrec mail = mail
-
   type nonrec feed_data = feed_data
 
   let sender_name feed_uri feed options =

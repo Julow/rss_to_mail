@@ -4,7 +4,6 @@ module Feed_id : sig
   type t
 
   val of_url : string -> t
-
   val to_string : t -> string
 end
 
@@ -14,11 +13,9 @@ type feed_data = int64 * SeenSet.t
 
 module M : sig
   type t = feed_data Feed_map.t
-
   type id = Feed_id.t
 
   val get : t -> id -> feed_data option
-
   val set : t -> id -> feed_data -> t
 end
 

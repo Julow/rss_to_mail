@@ -25,11 +25,8 @@ let lwt_stream t () = Lwt.return (t ())
 open Mrmime
 
 let ( >>* ) x f = match x with Ok x -> f x | Error _ as e -> e
-
 let ( let* ) = ( >>* )
-
 let map_error ~f x = match x with Ok _ as ok -> ok | Error e -> Error (f e)
-
 let ( let^ ) = Lwt.bind
 
 let make_address ?name addr =
@@ -96,7 +93,9 @@ let make_mail (conf : Feeds_config.t) mail =
           make Field_name.subject Unstructured (subject :> Unstructured.elt list);
           make (Field_name.v "To") Addresses [ Address.mailbox recipient ];
         ]
+      
   in
+
   let parts =
     [
       make_part (content_type `Text "plain") body_text;

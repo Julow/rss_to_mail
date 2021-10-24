@@ -29,5 +29,4 @@ let of_v0 V0.{ feed_datas; unsent_mails } =
   }
 
 let load = t_of_sexp
-
 let save = sexp_of_t

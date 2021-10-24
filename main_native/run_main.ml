@@ -68,7 +68,7 @@ let run ~certs (conf : Feeds_config.t) (datas : Persistent_data.t) =
     List.map
       (fun ((desc, _) as f) ->
         (Persistent_data.Feed_id.of_url (Feed_desc.url_of_feed desc), f)
-        )
+      )
       conf.feeds
   in
   let* feed_datas, mails, logs =
@@ -91,6 +91,8 @@ let send_test_email ~certs (conf : Feeds_config.t) =
         body_html = "This is a test email from rss_to_email.";
         body_text = "This is a test email from rss_to_email.";
       }
+    
   in
+
   let+ unsent_mail = Mail.send_mails ~certs conf [ mail ] in
   unsent_mail = []

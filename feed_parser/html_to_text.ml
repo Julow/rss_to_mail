@@ -47,7 +47,6 @@ let rec decode_html' acc contains_block = function
       decode_html' (List.rev_append content acc) (contains_block || is_block) tl
 
 let decode_html content = decode_html' [] false content
-
 let fpf = Format.fprintf
 
 let sp_gt =

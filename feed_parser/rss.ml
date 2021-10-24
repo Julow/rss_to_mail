@@ -5,7 +5,6 @@ open Operators
 (** RSS 2.0 parser https://validator.w3.org/feed/docs/rss2.html *)
 
 let dc_ns = "http://purl.org/dc/elements/1.1/"
-
 and content_ns = "http://purl.org/rss/1.0/modules/content/"
 
 let uri ~resolve_uri s = resolve_uri (Uri.of_string s)
@@ -14,7 +13,6 @@ let content_encoded ~resolve_uri content =
   Some (Html_content.parse ~resolve_uri content)
 
 let author author_name = { author_name; author_link = None }
-
 let category label = { term = None; label = Some label }
 
 let attachment ~resolve_uri node =

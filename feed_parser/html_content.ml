@@ -13,7 +13,8 @@ let map_css_styles f styles =
              Buffer.add_string buf key;
              Buffer.add_char buf ':';
              Buffer.add_string buf value;
-             Buffer.add_char buf ';');
+             Buffer.add_char buf ';'
+     );
   Buffer.contents buf
 
 let filter_attrs ~resolve_uri tag attrs =
@@ -35,10 +36,11 @@ let filter_attrs ~resolve_uri tag attrs =
       | "a", "href" | "img", "src" ->
           let value = Uri.to_string (resolve_uri (Uri.of_string value)) in
           Some (name, value)
-      | _, _ -> Some attr)
+      | _, _ -> Some attr
+    )
     attrs
 
-let element ~resolve_uri (_, tagname as tag) attrs childs =
+let element ~resolve_uri ((_, tagname) as tag) attrs childs =
   let attrs = filter_attrs ~resolve_uri tagname attrs in
   Feed.Html_E (tag, attrs, childs)
 
@@ -54,12 +56,14 @@ let to_feed_content content_html =
   let content_text = Html_to_text.convert content_html in
   { Feed.content_text; content_html }
 
-let of_xml ~resolve_uri nodes =
-  to_feed_content (of_xml_nodes ~resolve_uri nodes)
+let of_xml ~resolve_uri nodes = to_feed_content (of_xml_nodes ~resolve_uri nodes)
 
 let parse ~resolve_uri contents =
   let open Markup in
-  contents |> string |> parse_html |> signals
+  contents
+  |> string
+  |> parse_html
+  |> signals
   |> trees
        ~text:(fun s -> Feed.Html_T (String.concat "" s))
        ~element:(element ~resolve_uri)

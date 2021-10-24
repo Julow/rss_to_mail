@@ -66,7 +66,8 @@ let config_file =
   let doc = "Configuration file" in
   Arg.(
     tagged `Config
-    & value & pos 0 string "feeds.sexp"
+    & value
+    & pos 0 string "feeds.sexp"
     & info [] ~docv:"CONFIG" ~doc
   )
 

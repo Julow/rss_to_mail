@@ -2,32 +2,22 @@ open Feed
 
 module Render (Impl : sig
   type inline
-
   type block
-
   type 'a t
 
   val none : 'a t
-
   val string : string -> inline t
-
   val list : ?sep:'a t -> 'a t list -> 'a t
 
   val link : ?mime_type:string -> ?text:string -> Uri.t -> inline t
   (** [mime_type] is not shown. *)
 
   val content : content -> block t
-
   val feed_icon : Uri.t -> alt:string -> inline t
-
   val entry_title : string -> Uri.t option -> block t
-
   val entry_header : inline t -> block t
-
   val thumbnail_table : Uri.t -> block t -> block t
-
   val attachment_table : inline t list -> block t
-
   val body : sender:string -> ?hidden_summary:string -> block t list -> string
 end) =
 struct

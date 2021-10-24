@@ -5,11 +5,9 @@ open Operators
 (** Atom parser * https://validator.w3.org/feed/docs/atom.html *)
 
 let ns = "http://www.w3.org/2005/Atom"
-
 and media_ns = "http://search.yahoo.com/mrss/"
 
 let ( < ) ?(ns = ns) = ( < ) ~ns
-
 let ( << ) ?(ns = ns) = ( << ) ~ns
 
 module Links = struct

@@ -22,9 +22,7 @@ module Feed_id = struct
   type t = Feed_id of string
 
   let of_url url = Feed_id url
-
   let to_string (Feed_id url) = url
-
   let compare (Feed_id a) (Feed_id b) = String.compare a b
 end
 
@@ -34,11 +32,9 @@ type feed_data = int64 * SeenSet.t
 
 module M = struct
   type t = feed_data Feed_map.t
-
   type id = Feed_id.t
 
   let get t id = Feed_map.find_opt id t
-
   let set t id v = Feed_map.add id v t
 end
 
@@ -77,6 +73,7 @@ let to_v1 { feed_datas; unsent_mails } =
       feed_datas = List.map data_of_v1 (Feed_map.bindings feed_datas);
       unsent_mails = List.map mail_of_v1 unsent_mails;
     }
+  
 
 let load =
   let load_v version sexp = of_v1 (Load_chain.load ~version sexp versions) in
@@ -92,3 +89,4 @@ let save t =
     [
       List [ Atom "version"; Atom (string_of_int last_version) ]; save (to_v1 t);
     ]
+  

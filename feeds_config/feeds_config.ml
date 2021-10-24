@@ -10,16 +10,14 @@ let record field = function
           | List (Atom f :: t) when String.equal f field -> (
               match t with [ t ] -> Some t | ts -> Some (List ts)
             )
-          | _ -> None)
+          | _ -> None
+          )
         ts
   | Atom _ -> raise_error "Expected list"
 
 let atom = function List _ -> raise_error "Expected string" | Atom s -> s
-
 let list = function List ts -> ts | Atom _ as t -> [ t ]
-
 let one = function [ v ] -> v | _ -> raise_error "Expected a single value"
-
 let one_or_more = function [] -> raise_error "Expected a value" | v -> v
 
 let parse_scraper =
@@ -85,7 +83,8 @@ let parse_option_refresh =
   let parse_time time =
     match Scanf.sscanf time "%d:%d" (fun h m -> (h, m)) with
     | exception _ -> raise_error "Invalid time value"
-    | h, m when h < 0 || h > 23 || m < 0 || m > 59 -> raise_error "Invalid time value"
+    | h, m when h < 0 || h > 23 || m < 0 || m > 59 ->
+        raise_error "Invalid time value"
     | t -> t
   and parse_day = function
     | "mon" -> `Mon
@@ -101,14 +100,13 @@ let parse_option_refresh =
   | Atom hours -> `Every (float_of_string hours)
   | List [ Atom "at"; Atom time ] -> `At (parse_time time)
   | List [ Atom "at"; Atom time; Atom day ] ->
-    let h, m = parse_time time and d = parse_day day in
-    `At_weekly (d, h, m)
+      let h, m = parse_time time and d = parse_day day in
+      `At_weekly (d, h, m)
   | List _ -> raise_error "Invalid value"
 
 and parse_option_max_entries t =
   let s = atom t in
-  try int_of_string s
-  with _ -> raise_error (spf "Expected integer, got %S" s)
+  try int_of_string s with _ -> raise_error (spf "Expected integer, got %S" s)
 
 let parse_options =
   let parse_content_option t =
@@ -123,31 +121,30 @@ let parse_options =
     | "refresh" -> { opts with refresh = parse_option_refresh (one values) }
     | "title" -> { opts with title = Some (atom (one values)) }
     | "label" -> { opts with label = Some (atom (one values)) }
-    | "content" ->
-      { opts with content = parse_content_option values }
+    | "content" -> { opts with content = parse_content_option values }
     | "filter" -> { opts with filter = Some (parse_filter_expr (one values)) }
     | "to" -> { opts with to_ = Some (atom (one values)) }
     | "max_entries" ->
-      { opts with max_entries = Some (parse_option_max_entries (one values)) }
+        { opts with max_entries = Some (parse_option_max_entries (one values)) }
     | _ -> raise_error (spf "Unknown option %S" name)
   in
 
   List.fold_left (fun opts t ->
       match list t with
       | Atom name :: values ->
-        let@ () = with_context (fun () -> spf "option %S" name) in
-        parse_option name values opts
+          let@ () = with_context (fun () -> spf "option %S" name) in
+          parse_option name values opts
       | _ -> raise_error "Expected option"
-    )
+  )
 
 let parse_feed ~default_opts =
   let open Feed_desc in
   let rec parse_desc = function
     | Atom url -> Feed url
     | List (Atom "scraper" :: url :: scraper) ->
-      let url = atom url and scraper = one_or_more scraper in
-      let@ () = with_context (fun () -> spf "Scraper %S" url) in
-      Scraper (url, parse_scraper scraper)
+        let url = atom url and scraper = one_or_more scraper in
+        let@ () = with_context (fun () -> spf "Scraper %S" url) in
+        Scraper (url, parse_scraper scraper)
     | List (Atom "bundle" :: desc) -> (
         match parse_desc (one desc) with
         | (Feed _ | Scraper _) as in_bundle -> Bundle in_bundle
@@ -159,25 +156,31 @@ let parse_feed ~default_opts =
   function
   | Atom url -> (Feed url, default_opts)
   | List (desc :: opts) ->
-    let desc = parse_desc desc in
-    let@ () = with_context (fun () -> spf "Feed %S" (Feed_desc.url_of_feed desc)) in
-    (desc, parse_options default_opts opts)
+      let desc = parse_desc desc in
+      let@ () =
+        with_context (fun () -> spf "Feed %S" (Feed_desc.url_of_feed desc))
+      in
+      (desc, parse_options default_opts opts)
   | List [] -> raise_error "feeds: Syntax error"
 
 let parse sexp =
   let parse_feeds ~default_opts t =
     let parse acc = function
       | List (Atom "with-options" :: List opts :: feeds) ->
-        let default_opts = parse_options default_opts opts in
-        List.rev_map (parse_feed ~default_opts) feeds @ acc
+          let default_opts = parse_options default_opts opts in
+          List.rev_map (parse_feed ~default_opts) feeds @ acc
       | feed -> parse_feed ~default_opts feed :: acc
     in
     List.fold_left parse [] (list t) |> List.rev
   in
 
   let parse_default_opts t =
-    let refresh = Option.map parse_option_refresh (record "default_refresh" t) in
-    let max_entries = Option.map parse_option_max_entries (record "max_entries" t) in
+    let refresh =
+      Option.map parse_option_refresh (record "default_refresh" t)
+    in
+    let max_entries =
+      Option.map parse_option_max_entries (record "max_entries" t)
+    in
     Feed_desc.make_options ?refresh ?max_entries ()
   in
 

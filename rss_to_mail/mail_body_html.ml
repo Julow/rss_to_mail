@@ -1,13 +1,10 @@
 open Tyxml
 
 type inline = Html_types.p_content_fun
-
 type block = Html_types.div_content
-
 type 'a t = 'a Tyxml_html.elt list
 
 let none = []
-
 let string s = [ Html.txt s ]
 
 let list ?sep l =
