@@ -1,0 +1,3 @@
+(executables
+ (names parse_config)
+ (libraries feeds_config sexplib))

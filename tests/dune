@@ -1,0 +1,7 @@
+(env
+ (_
+  (binaries
+   (tools/parse_config.exe as parse_config))))
+
+(cram
+ (deps %{bin:parse_config}))
