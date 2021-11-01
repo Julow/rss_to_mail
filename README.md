@@ -5,6 +5,7 @@ Many [options](https://github.com/Julow/rss_to_mail/blob/master/rss_to_mail/feed
 including refresh interval, regex filters or different destination adresses.
 
 The program updates feeds that need to be updated and then exits. It must be called regularly to become useful, for example, with a systemd timer.
+Here is an example [nixos module](etc/nixos/rss_to_mail.nix).
 
 ### Usage
 
