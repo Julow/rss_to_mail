@@ -1381,23 +1381,32 @@ Attachments:
 Attachment 1: some%20uri (8Kb, some type)
 
 
-((version 1)
- ((feed_datas
-   ((././././././././rss.rss 12352878
+((version 2)
+ ((previous_entries
+   ((rss.rss ((id ()))) (no_title.rss ((id2 ())))
+    (https://some-website/relative.rss ((1 ())))
+    (https://some-website/relative.atom ((1 ()) (2 ()))) (error.rss ())
+    (empty.rss ())
+    (content_type.atom ((1 ()) (2 ()) (3 ()) (4 ()) (5 ()) (6 ())))
+    (atom.atom (("id here" ()))) (./no_title.rss ()) (./empty.rss ())
+    (./atom.atom (("id here" ()))) (././rss.rss (("Title 2" ())))
+    (././no_title.rss ((id2 ()))) (././empty.rss ())
+    (./././rss.rss (("Title 2" ()))) (././././rss.rss ((id ())))
+    (./././././rss.rss (("Title 3" ()) ("Title 4" ())))
+    (././././././rss.rss (("Title 2" ()) (id ())))
+    (./././././././rss.rss
      (("Title 2" ()) ("Title 3" ()) ("Title 4" ()) (id ())))
-    (./././././././rss.rss 12352878
-     (("Title 2" ()) ("Title 3" ()) ("Title 4" ()) (id ())))
-    (././././././rss.rss 12352878 (("Title 2" ()) (id ())))
-    (./././././rss.rss 12352878 (("Title 3" ()) ("Title 4" ())))
-    (././././rss.rss 12352878 ((id ())))
-    (./././rss.rss 12352878 (("Title 2" ()))) (././empty.rss 12352878 ())
-    (././no_title.rss 12352878 ((id2 ())))
-    (././rss.rss 12352878 (("Title 2" ())))
-    (./atom.atom 12352878 (("id here" ()))) (./empty.rss 12352878 ())
-    (./no_title.rss 12352878 ()) (atom.atom 12352878 (("id here" ())))
-    (content_type.atom 12352878 ((1 ()) (2 ()) (3 ()) (4 ()) (5 ()) (6 ())))
-    (empty.rss 12352878 ()) (error.rss 12352878 ())
-    (https://some-website/relative.atom 12352878 ((1 ()) (2 ())))
-    (https://some-website/relative.rss 12352878 ((1 ())))
-    (no_title.rss 12352878 ((id2 ()))) (rss.rss 12345678 ((id ())))))
+    (././././././././rss.rss
+     (("Title 2" ()) ("Title 3" ()) ("Title 4" ()) (id ())))))
+  (next_update
+   ((rss.rss 12345678) (no_title.rss 12352878)
+    (https://some-website/relative.rss 12352878)
+    (https://some-website/relative.atom 12352878) (error.rss 12352878)
+    (empty.rss 12352878) (content_type.atom 12352878) (atom.atom 12352878)
+    (./no_title.rss 12352878) (./empty.rss 12352878) (./atom.atom 12352878)
+    (././rss.rss 12352878) (././no_title.rss 12352878)
+    (././empty.rss 12352878) (./././rss.rss 12352878)
+    (././././rss.rss 12352878) (./././././rss.rss 12352878)
+    (././././././rss.rss 12352878) (./././././././rss.rss 12352878)
+    (././././././././rss.rss 12352878)))
   (unsent_mails ())))

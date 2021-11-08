@@ -14,8 +14,7 @@ module Load_chain = struct
     | V0 (v', load) when v' = version -> load inp
     | V0 _ -> raise Not_found
 
-  let lastest version of_prev ~load ~save prev =
-    (version, save, (version, of_prev, load) :: prev)
+  let lastest_version (V0 (v, _) | (v, _, _) :: _) = v
 end
 
 module Feed_id : sig
@@ -64,42 +63,42 @@ type t = {
 
 let empty = { data = M.empty; unsent_mails = [] }
 
-let last_version, save, versions =
-  Load_chain.(V1.(lastest 1 of_v0 ~load ~save) V0.(V0 (0, load)))
+let versions =
+  let open Load_chain in
+  V2.(2, of_v1, load) :: V1.(1, of_v0, load) :: V0.(V0 (0, load))
 
-let of_v1 { V1.feed_datas; unsent_mails } =
-  let mail_of_v1 { V1.sender; to_; subject; body_html; body_text; timestamp } =
-    Rss_to_mail.{ sender; to_; subject; body_html; body_text; timestamp }
+let of_v2 { V2.previous_entries; next_update; unsent_mails } =
+  let previous_entries_of_v2 acc (id, s) =
+    Feed_map.add (Feed_id.of_url id) (SeenSet.of_list s) acc
+  and next_update_of_v2 acc (id, t) = Feed_map.add (Feed_id.of_url id) t acc
+  and mail_of_v2 { V1.sender; to_; subject; body_html; body_text; timestamp } =
+    { Rss_to_mail.sender; to_; subject; body_html; body_text; timestamp }
   in
-  let add_data acc (key, next_update, seen_ids) =
-    let id = Feed_id.of_url key and seen_ids = SeenSet.of_list seen_ids in
+  let data =
     {
-      M.next_update = Feed_map.add id next_update acc.M.next_update;
-      previous_entries = Feed_map.add id seen_ids acc.previous_entries;
+      M.previous_entries =
+        List.fold_left previous_entries_of_v2 Feed_map.empty previous_entries;
+      next_update = List.fold_left next_update_of_v2 Feed_map.empty next_update;
     }
   in
-  {
-    data = List.fold_left add_data M.empty feed_datas;
-    unsent_mails = List.map mail_of_v1 unsent_mails;
-  }
+  { data; unsent_mails = List.map mail_of_v2 unsent_mails }
 
-let to_v1 { data; unsent_mails } =
-  let data_to_v1 id next_update acc =
-    let previous_entries = Feed_map.find id data.previous_entries in
-    (Feed_id.to_string id, next_update, SeenSet.to_list previous_entries) :: acc
-  in
-  let mail_to_v1 { Rss_to_mail.sender; to_; subject; body_html; body_text; timestamp } =
+let to_v2 { data; unsent_mails } =
+  let previous_entries_to_v2 id s acc =
+    (Feed_id.to_string id, SeenSet.to_list s) :: acc
+  and next_update_to_v2 id t acc = (Feed_id.to_string id, t) :: acc
+  and mail_to_v1 { Rss_to_mail.sender; to_; subject; body_html; body_text; timestamp } =
     { V1.sender; to_; subject; body_html; body_text; timestamp }
   in
-  V1.
-    {
-      feed_datas = Feed_map.fold data_to_v1 data.next_update [] |> List.rev;
-      unsent_mails = List.map mail_to_v1 unsent_mails;
-    }
-  
+  {
+    V2.previous_entries =
+      Feed_map.fold previous_entries_to_v2 data.M.previous_entries [];
+    next_update = Feed_map.fold next_update_to_v2 data.next_update [];
+    unsent_mails = List.map mail_to_v1 unsent_mails;
+  }
 
 let load =
-  let load_v version sexp = of_v1 (Load_chain.load ~version sexp versions) in
+  let load_v version sexp = of_v2 (Load_chain.load ~version sexp versions) in
   function
   | [] -> empty
   | [ sexp ] -> load_v 0 sexp
@@ -110,6 +109,11 @@ let load =
 let save t =
   Sexplib0.Sexp.
     [
-      List [ Atom "version"; Atom (string_of_int last_version) ]; save (to_v1 t);
+      List
+        [
+          Atom "version";
+          Atom (string_of_int (Load_chain.lastest_version versions));
+        ];
+      V2.save (to_v2 t);
     ]
   
