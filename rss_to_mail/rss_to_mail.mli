@@ -10,6 +10,7 @@ type mail = {
 type 'a state_key =
   | Next_update : int64 state_key
   | Previous_entries : SeenSet.t state_key
+  | Page_contents : string state_key
 
 module type FETCH = sig
   type error
