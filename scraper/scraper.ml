@@ -78,7 +78,8 @@ let scrap ~resolve_uri node s =
   let feed_title, feed_icon, entries =
     Scrap.scrap node (scrap_feed ~parse_uri) (feed_title, feed_icon, []) s
   in
-  Feed.{ feed_title; feed_icon; feed_link; entries = Array.of_list entries }
+  let metadata = { Feed.feed_title; feed_icon; feed_link } in
+  { Feed.metadata; entries = Array.of_list entries }
 
 type t = feed Scrap.t
 

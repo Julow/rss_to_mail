@@ -39,11 +39,13 @@ let entry ~resolve_uri node =
   }
 
 let feed ~resolve_uri node =
-  {
-    feed_title = node < "title" > text;
-    feed_link = node < "link" > uri ~resolve_uri % text;
-    feed_icon = node < "image" >$ child "url" > uri ~resolve_uri % text;
-    entries = node << "item" >> entry ~resolve_uri |> Array.of_list;
-  }
+  let metadata =
+    {
+      feed_title = node < "title" > text;
+      feed_link = node < "link" > uri ~resolve_uri % text;
+      feed_icon = node < "image" >$ child "url" > uri ~resolve_uri % text;
+    }
+  in
+  { metadata; entries = node << "item" >> entry ~resolve_uri |> Array.of_list }
 
 let parse ~resolve_uri node = feed ~resolve_uri @@ child_exn "channel" node

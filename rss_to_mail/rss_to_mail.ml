@@ -96,23 +96,25 @@ module Make (Fetch : FETCH) (State : STATE) = struct
       in
       (seen_ids, entries)
 
-    let sender_name feed_uri feed options =
+    let sender_name feed_uri feed_metadata options =
       let ( ||| ) opt def =
         match opt with Some "" | None -> def () | Some v -> v
       in
       options.Feed_desc.title ||| fun () ->
-      feed.Feed.feed_title ||| fun () ->
+      feed_metadata.Feed.feed_title ||| fun () ->
       Uri.host feed_uri ||| fun () -> Uri.to_string feed_uri
   end
 
-  let prepare_mail ~now ~subject ~sender feed options entries =
+  let prepare_mail ~now ~subject ~sender feed_metadata options entries =
     let label, to_ = Feed_desc.(options.label, options.to_) in
-    let body_html, body_text = Mail_body.gen_mail ~sender ?label feed entries in
+    let body_html, body_text =
+      Mail_body.gen_mail ~sender ?label feed_metadata entries
+    in
     { sender; to_; subject; body_html; body_text; timestamp = now }
 
-  let prepare_bundle ~now ~sender feed options entries =
+  let prepare_bundle ~now ~sender feed_metadata options entries =
     let prep subject =
-      [ prepare_mail ~now ~subject ~sender feed options entries ]
+      [ prepare_mail ~now ~subject ~sender feed_metadata options entries ]
     in
     match entries with
     | [] -> []
@@ -120,15 +122,15 @@ module Make (Fetch : FETCH) (State : STATE) = struct
     | _ ->
         prep (Format.sprintf "%d entries from %s" (List.length entries) sender)
 
-  let prepare_mails ~now ~uri feed options entries =
-    let sender = Process_feed.sender_name uri feed options in
+  let prepare_mails ~now ~uri feed_metadata options entries =
+    let sender = Process_feed.sender_name uri feed_metadata options in
     let prepare entry =
       let subject =
         match entry.Feed.title with
         | Some title -> title
         | None -> "New entry from " ^ sender
       in
-      prepare_mail ~now ~subject ~sender feed options [ entry ]
+      prepare_mail ~now ~subject ~sender feed_metadata options [ entry ]
     in
     let too_many_entries =
       match options.Feed_desc.max_entries with
@@ -136,7 +138,7 @@ module Make (Fetch : FETCH) (State : STATE) = struct
       | Some _ | None -> false
     in
     if too_many_entries
-    then prepare_bundle ~now ~sender feed options entries
+    then prepare_bundle ~now ~sender feed_metadata options entries
     else List.map prepare entries
 
   let prepare_bundle ~uri feed options entries =

@@ -55,9 +55,9 @@ let print_feed (feed : Feed.t) =
     p "\tattachments: %s\n" (list attach_to_string t.attachments);
     ()
   in
-  p "Feed title: %s\n" (opt Fun.id feed.feed_title);
-  p "Feed link: %s\n" (opt Uri.to_string feed.feed_link);
-  p "Feed icon: %s\n" (opt Uri.to_string feed.feed_icon);
+  p "Feed title: %s\n" (opt Fun.id feed.metadata.feed_title);
+  p "Feed link: %s\n" (opt Uri.to_string feed.metadata.feed_link);
+  p "Feed icon: %s\n" (opt Uri.to_string feed.metadata.feed_icon);
   p "Entries (%d):\n" (Array.length feed.entries);
   Array.iter print_entry feed.entries
 

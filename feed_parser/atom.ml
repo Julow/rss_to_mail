@@ -85,11 +85,13 @@ let entry ~resolve_uri node =
 
 let feed ~resolve_uri node =
   let links = Links.of_nodes (children ~ns "link" node) in
-  {
-    feed_title = node < "title" > text;
-    feed_icon = node < "icon" > uri ~resolve_uri % text;
-    feed_link = Links.(get Alternate) links > uri ~resolve_uri % fst;
-    entries = node << "entry" >> entry ~resolve_uri |> Array.of_list;
-  }
+  let metadata =
+    {
+      feed_title = node < "title" > text;
+      feed_icon = node < "icon" > uri ~resolve_uri % text;
+      feed_link = Links.(get Alternate) links > uri ~resolve_uri % fst;
+    }
+  in
+  { metadata; entries = node << "entry" >> entry ~resolve_uri |> Array.of_list }
 
 let parse = feed

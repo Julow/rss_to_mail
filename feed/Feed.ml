@@ -38,10 +38,14 @@ type entry = {
   attachments : attachment list;
 }
 
-type t = {
+type feed_metadata = {
   feed_title : string option;
   feed_link : Uri.t option;
   feed_icon : Uri.t option;
+}
+
+type t = {
+  metadata : feed_metadata;
   entries : entry array;
 }
 
@@ -58,6 +62,8 @@ let empty_entry =
     date = None;
     attachments = [];
   }
+
+let empty_metadata = { feed_title = None; feed_link = None; feed_icon = None }
 
 (** Try to returns the ID of an entry If the ID is None, try the link, title and
     date *)
