@@ -54,7 +54,7 @@ let verbose =
 
 let certs =
   let doc = "Path to certificate bundle file, in pem format." in
-  let env = Arg.env_var "CA_BUNDLE" ~doc in
+  let env = Cmd.Env.info ~doc "CA_BUNDLE" in
   Arg.(
     tagged `Certs
     & required
@@ -71,19 +71,18 @@ let config_file =
     & info [] ~docv:"CONFIG" ~doc
   )
 
-let run_term =
+let default_term, run_cmd =
   let doc = "Fetch a list of feeds and send a mail for new entries" in
-  ( Term.(const run_command $ config_file $ verbose $ certs),
-    Term.info "run" ~doc
-  )
+  let term = Term.(const run_command $ config_file $ verbose $ certs) in
+  (term, Cmd.v (Cmd.info "run" ~doc) term)
 
-let check_config_term =
+let check_config_cmd =
   let doc = "Check the configuration file for errors and exit" in
-  ( Term.(const check_config_command $ config_file $ verbose),
-    Term.info "check-config" ~doc
-  )
+  Cmd.v
+    (Cmd.info "check-config" ~doc)
+    Term.(const check_config_command $ config_file $ verbose)
 
-let run_scraper_term =
+let run_scraper_cmd =
   let source_arg =
     let doc = "Url to an html web page or path to local file." in
     Arg.(required & pos 0 (some string) None & info [] ~docv:"SRC" ~doc)
@@ -92,17 +91,20 @@ let run_scraper_term =
     "Run a scraper against a web page. Useful for degugging. Read the scraper \
      definition from stdin."
   in
-  ( Term.(const run_scraper_command $ source_arg $ verbose),
-    Term.info "run-scraper" ~doc
-  )
+  Cmd.v
+    (Cmd.info "run-scraper" ~doc)
+    Term.(const run_scraper_command $ source_arg $ verbose)
 
-let send_test_email =
+let send_test_email_cmd =
   let doc = "Send a test email and exit." in
-  ( Term.(const send_test_email $ config_file $ verbose $ certs),
-    Term.info "send-test-email" ~doc
-  )
+  Cmd.v
+    (Cmd.info "send-test-email" ~doc)
+    Term.(const send_test_email $ config_file $ verbose $ certs)
 
-let () =
-  Term.exit
-  @@ Term.eval_choice run_term
-       [ run_term; check_config_term; run_scraper_term; send_test_email ]
+let main_cmd =
+  let doc = "Fetches RSS feeds and sends emails." in
+  Cmd.group ~default:default_term
+    (Cmd.info "rss_to_mail" ~doc)
+    [ run_cmd; check_config_cmd; run_scraper_cmd; send_test_email_cmd ]
+
+let () = exit (Cmd.eval main_cmd)
