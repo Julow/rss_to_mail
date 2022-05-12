@@ -68,6 +68,7 @@ let run ~certs (conf : Feeds_config.t)
   let feeds_with_id =
     List.map
       (fun ((desc, _) as f) ->
+        let ((#Feed_desc.regular_feed as desc) | `Bundle desc) = desc in
         (Persistent_data.Feed_id.of_url (Feed_desc.url_of_feed desc), f)
       )
       conf.feeds

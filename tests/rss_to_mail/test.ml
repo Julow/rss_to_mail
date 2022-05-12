@@ -41,10 +41,10 @@ let print_options (opts : Feed_desc.options) =
 
 let print_feed (feed, options) =
   ( match feed with
-  | Feed_desc.Feed url -> printf "\n# %s\n\n" url
-  | Scraper (url, _) -> printf "\n# scraper %s\n\n" url
-  | Bundle (Feed url) -> printf "\n# bundle %s\n\n" url
-  | Bundle (Scraper (url, _)) -> printf "\n# bundle scraper %s\n\n" url
+  | `Feed url -> printf "\n# %s\n\n" url
+  | `Scraper (url, _) -> printf "\n# scraper %s\n\n" url
+  | `Bundle (`Feed url) -> printf "\n# bundle %s\n\n" url
+  | `Bundle (`Scraper (url, _)) -> printf "\n# bundle scraper %s\n\n" url
   );
   print_options options
 
@@ -72,6 +72,7 @@ let () =
   let feeds =
     List.map
       (fun ((desc, _) as f) ->
+        let ((#Feed_desc.regular_feed as desc) | `Bundle desc) = desc in
         (Persistent_data.Feed_id.of_url (Feed_desc.url_of_feed desc), f)
       )
       feeds

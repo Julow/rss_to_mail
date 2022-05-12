@@ -69,7 +69,12 @@ let check_duplicate feeds =
     if Hashtbl.mem tbl url then raise_error ("Feed declared twice: " ^ url);
     Hashtbl.add tbl url ()
   in
-  List.iter (fun (feed, _) -> check_url (Feed_desc.url_of_feed feed)) feeds
+  List.iter
+    (fun (feed, _) ->
+      let ((#Feed_desc.regular_feed as desc) | `Bundle desc) = feed in
+      check_url (Feed_desc.url_of_feed desc)
+    )
+    feeds
 
 type t = {
   server : string * int;
@@ -140,26 +145,28 @@ let parse_options =
 let parse_feed ~default_opts =
   let open Feed_desc in
   let rec parse_desc = function
-    | Atom url -> Feed url
+    | Atom url -> `Feed url
     | List (Atom "scraper" :: url :: scraper) ->
         let url = atom url and scraper = one_or_more scraper in
         let@ () = with_context (fun () -> spf "Scraper %S" url) in
-        Scraper (url, parse_scraper scraper)
+        `Scraper (url, parse_scraper scraper)
     | List (Atom "bundle" :: desc) -> (
         match parse_desc (one desc) with
-        | (Feed _ | Scraper _) as in_bundle -> Bundle in_bundle
-        | Bundle _ -> raise_error "Bundle in bundle"
+        | #regular_feed as desc -> `Bundle desc
+        | `Bundle _ -> raise_error "Bundle in bundle"
       )
     | List (Atom kind :: _) -> raise_error (kind ^ ": Unknown feed kind")
     | List _ -> raise_error "feeds: Syntax error"
   in
   function
-  | Atom url -> (Feed url, default_opts)
+  | Atom url -> (`Feed url, default_opts)
   | List (desc :: opts) ->
       let desc = parse_desc desc in
-      let@ () =
-        with_context (fun () -> spf "Feed %S" (Feed_desc.url_of_feed desc))
+      let context_url =
+        match desc with
+        | (#regular_feed as desc) | `Bundle desc -> Feed_desc.url_of_feed desc
       in
+      let@ () = with_context (fun () -> spf "Feed %S" context_url) in
       (desc, parse_options default_opts opts)
   | List [] -> raise_error "feeds: Syntax error"
 

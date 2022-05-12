@@ -90,8 +90,19 @@ module Make (Fetch : FETCH) (State : STATE) = struct
           )
           feed.Feed.entries ([], [])
       in
-      let seen_ids = SeenSet.new_ids (remove_date_from now) new_ids seen_ids in
-      (feed, seen_ids, entries)
+      let seen_ids =
+        SeenSet.new_ids (remove_date_from now) new_ids seen_ids
+        |> SeenSet.filter_removed now
+      in
+      (seen_ids, entries)
+
+    let sender_name feed_uri feed options =
+      let ( ||| ) opt def =
+        match opt with Some "" | None -> def () | Some v -> v
+      in
+      options.Feed_desc.title ||| fun () ->
+      feed.Feed.feed_title ||| fun () ->
+      Uri.host feed_uri ||| fun () -> Uri.to_string feed_uri
   end
 
   let prepare_mail ~now ~subject ~sender feed options entries =
@@ -100,14 +111,17 @@ module Make (Fetch : FETCH) (State : STATE) = struct
     { sender; to_; subject; body_html; body_text; timestamp = now }
 
   let prepare_bundle ~now ~sender feed options entries =
-    let prep subject = [ prepare_mail ~now ~subject ~sender feed options entries ] in
+    let prep subject =
+      [ prepare_mail ~now ~subject ~sender feed options entries ]
+    in
     match entries with
     | [] -> []
     | [ Feed.{ title = Some title; _ } ] -> prep title
     | _ ->
         prep (Format.sprintf "%d entries from %s" (List.length entries) sender)
 
-  let prepare_mails ~now ~sender feed options entries =
+  let prepare_mails ~now ~uri feed options entries =
+    let sender = Process_feed.sender_name uri feed options in
     let prepare entry =
       let subject =
         match entry.Feed.title with
@@ -125,6 +139,10 @@ module Make (Fetch : FETCH) (State : STATE) = struct
     then prepare_bundle ~now ~sender feed options entries
     else List.map prepare entries
 
+  let prepare_bundle ~uri feed options entries =
+    let sender = Process_feed.sender_name uri feed options in
+    prepare_bundle ~sender feed options entries
+
   module Check_feed = struct
     let fetch uri =
       let resolve_uri = Uri.resolve "" uri in
@@ -139,6 +157,21 @@ module Make (Fetch : FETCH) (State : STATE) = struct
            | Error e -> Error (`Fetch_error e)
            | Ok contents -> parse_content contents
            )
+
+    let update ~now uri options feed previous_entries =
+      let first_update, seen_ids =
+        match previous_entries with
+        | None -> (true, SeenSet.empty)
+        | Some seen_ids -> (false, seen_ids)
+      in
+      let seen_ids, entries =
+        Process_feed.process ~now uri options seen_ids feed
+      in
+      let entries =
+        (* Don't send anything on first update *)
+        if first_update then [] else entries
+      in
+      (seen_ids, entries)
   end
 
   module Check_scraper = struct
@@ -155,62 +188,49 @@ module Make (Fetch : FETCH) (State : STATE) = struct
   type nonrec mail = mail
   type nonrec 'a state_key = 'a state_key
 
-  let sender_name feed_uri feed options =
-    let ( ||| ) opt def =
-      match opt with Some "" | None -> def () | Some v -> v
-    in
-    options.Feed_desc.title ||| fun () ->
-    feed.Feed.feed_title ||| fun () ->
-    Uri.host feed_uri ||| fun () -> Uri.to_string feed_uri
+  let fetch_feed ~uri = function
+    | `Feed _ -> Check_feed.fetch uri
+    | `Scraper (_, s) -> Check_scraper.fetch uri s
 
-  let update_feed' ~now ~feed_id uri state options ~fetch ~prepare =
-    let uri = Uri.of_string uri in
-    let process ~first_update seen_ids = function
-      | Error ((`Fetch_error _ | `Parsing_error _) as error) ->
-          (* Set "next_update" even on error to avoid repeatedly calling them *)
-          (Fun.id, error)
-      | Ok feed ->
-          let feed, seen_ids, entries =
-            Process_feed.process ~now uri options seen_ids feed
-          in
-          let sender = sender_name uri feed options in
-          let mails =
-            (* Don't send anything on first update *)
-            if first_update then [] else prepare ~now ~sender feed options entries
-          in
-          let seen_ids = SeenSet.filter_removed now seen_ids in
-          let update_state state =
-            State.set state feed_id Previous_entries seen_ids
-          in
-          (update_state, `Updated mails)
-    in
-    let first_update, seen_ids =
-      match State.get state feed_id Previous_entries with
-      | None -> (true, SeenSet.empty)
-      | Some seen_ids -> (false, seen_ids)
-    in
-    fetch uri |> Lwt.map (process ~first_update seen_ids)
+  let with_state state feed_id key f =
+    let x = State.get state feed_id key in
+    f x
+    |> Lwt.map (function
+         | Error _ as e -> ((fun s -> s), e)
+         | Ok (x, r) ->
+             let update_state state = State.set state feed_id key x in
+             (update_state, Ok r)
+         )
 
   (** Check a feed for updates. Returns the list of generated mails and updated
       feed datas. Log informations by calling [log] once for each feed. [now] is
       used for forgetting entries some time after they have been removed from
       the feed. *)
-  let update_feed ~now state (feed_id, (feed, options)) =
-    match feed with
-    | Feed_desc.Feed url ->
-        let fetch = Check_feed.fetch and prepare = prepare_mails in
-        update_feed' ~now ~feed_id url state options ~fetch ~prepare
-    | Scraper (url, scraper) ->
-        let fetch uri = Check_scraper.fetch uri scraper
-        and prepare = prepare_mails in
-        update_feed' ~now ~feed_id url state options ~fetch ~prepare
-    | Bundle (Feed url) ->
-        let fetch = Check_feed.fetch and prepare = prepare_bundle in
-        update_feed' ~now ~feed_id url state options ~fetch ~prepare
-    | Bundle (Scraper (url, scraper)) ->
-        let fetch = Fun.flip Check_scraper.fetch scraper
-        and prepare = prepare_bundle in
-        update_feed' ~now ~feed_id url state options ~fetch ~prepare
+  let update_feed ~now state (feed_id, (desc, options)) =
+    let open Lwt_result.Syntax in
+    match desc with
+    | #Feed_desc.regular_feed as desc ->
+        with_state state feed_id Previous_entries (fun previous_entries ->
+            let uri = Uri.of_string (Feed_desc.url_of_feed desc) in
+            let+ feed = fetch_feed ~uri desc in
+            let seen_ids, entries =
+              Check_feed.update ~now uri options feed previous_entries
+            in
+            ( seen_ids,
+              prepare_mails ~now ~uri feed.Feed.metadata options entries
+            )
+        )
+    | `Bundle desc ->
+        with_state state feed_id Previous_entries (fun previous_entries ->
+            let uri = Uri.of_string (Feed_desc.url_of_feed desc) in
+            let+ feed = fetch_feed ~uri desc in
+            let seen_ids, entries =
+              Check_feed.update ~now uri options feed previous_entries
+            in
+            ( seen_ids,
+              prepare_bundle ~now ~uri feed.Feed.metadata options entries
+            )
+        )
 
   let check_feed ~now state ((feed_id, (_, options)) as feed) =
     match State.get state feed_id Next_update with
@@ -218,9 +238,13 @@ module Make (Fetch : FETCH) (State : STATE) = struct
         Lwt.return (feed_id, Fun.id, `Uptodate)
     | _ ->
         update_feed ~now state feed
-        |> Lwt.map (fun (updt, log) ->
+        |> Lwt.map (fun (updt, r) ->
+               let log =
+                 match r with Ok mails -> `Updated mails | Error e -> e
+               in
                let updt state =
                  let state = updt state in
+                 (* Set "next_update" even on error to avoid repeatedly calling them *)
                  State.set state feed_id Next_update
                    (Utils.next_update now options)
                in

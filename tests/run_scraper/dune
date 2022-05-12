@@ -1,3 +1,8 @@
+(env
+ (_
+  (binaries
+   (../../main_native/main_native.exe as rss_to_mail))))
+
 (rule
  (with-stdout-to
   simple.output

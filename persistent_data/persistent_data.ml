@@ -98,7 +98,8 @@ let of_v2 { V2.previous_entries; next_update; page_contents; unsent_mails } =
 let to_v2 { data; unsent_mails } =
   let unmake_feed_map f m =
     Feed_map.fold (fun id x acc -> (Feed_id.to_string id, f x) :: acc) m []
-  and mail_to_v1 { Rss_to_mail.sender; to_; subject; body_html; body_text; timestamp } =
+  and mail_to_v1
+      { Rss_to_mail.sender; to_; subject; body_html; body_text; timestamp } =
     { V1.sender; to_; subject; body_html; body_text; timestamp }
   in
   {

@@ -37,14 +37,16 @@ let make_options ?(refresh = `Every 6.) ?title ?label ?(content = `Keep) ?filter
     ?to_ ?max_entries () =
   { refresh; title; label; content; filter; to_; max_entries }
 
-type _ desc =
-  | Feed : string -> [< `In_bundle | `Any ] desc
-  | Scraper : string * Scraper.t -> [< `In_bundle | `Any ] desc
-  | Bundle : [> `In_bundle ] desc -> [< `Any ] desc
+type regular_feed =
+  [ `Feed of string
+  | `Scraper of string * Scraper.t
+  ]
 
-type t = [ `Any ] desc * options
+type desc =
+  [ regular_feed
+  | `Bundle of regular_feed
+  ]
 
-let url_of_feed = function
-  | Feed url | Scraper (url, _) | Bundle (Feed url) | Bundle (Scraper (url, _))
-    ->
-      url
+type t = desc * options
+
+let url_of_feed = function `Feed url | `Scraper (url, _) -> url
