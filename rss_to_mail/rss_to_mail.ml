@@ -4,6 +4,7 @@ type mail = {
   subject : string;
   body_html : string;
   body_text : string;
+  timestamp : int64;
 }
 
 type feed_data = int64 * SeenSet.t
@@ -87,27 +88,27 @@ struct
       (feed, seen_ids, entries)
   end
 
-  let prepare_mail ~subject ~sender feed options entries =
+  let prepare_mail ~now ~subject ~sender feed options entries =
     let label, to_ = Feed_desc.(options.label, options.to_) in
     let body_html, body_text = Mail_body.gen_mail ~sender ?label feed entries in
-    { sender; to_; subject; body_html; body_text }
+    { sender; to_; subject; body_html; body_text; timestamp = now }
 
-  let prepare_bundle ~sender feed options entries =
-    let prep subject = [ prepare_mail ~subject ~sender feed options entries ] in
+  let prepare_bundle ~now ~sender feed options entries =
+    let prep subject = [ prepare_mail ~now ~subject ~sender feed options entries ] in
     match entries with
     | [] -> []
     | [ Feed.{ title = Some title; _ } ] -> prep title
     | _ ->
         prep (Format.sprintf "%d entries from %s" (List.length entries) sender)
 
-  let prepare_mails ~sender feed options entries =
+  let prepare_mails ~now ~sender feed options entries =
     let prepare entry =
       let subject =
         match entry.Feed.title with
         | Some title -> title
         | None -> "New entry from " ^ sender
       in
-      prepare_mail ~subject ~sender feed options [ entry ]
+      prepare_mail ~now ~subject ~sender feed options [ entry ]
     in
     let too_many_entries =
       match options.Feed_desc.max_entries with
@@ -115,7 +116,7 @@ struct
       | Some _ | None -> false
     in
     if too_many_entries
-    then prepare_bundle ~sender feed options entries
+    then prepare_bundle ~now ~sender feed options entries
     else List.map prepare entries
 
   module Check_feed = struct
@@ -182,7 +183,7 @@ struct
           let sender = sender_name uri feed options in
           let mails =
             (* Don't send anything on first update *)
-            if first_update then [] else prepare ~sender feed options entries
+            if first_update then [] else prepare ~now ~sender feed options entries
           in
           let seen_ids = SeenSet.filter_removed now seen_ids in
           (feed_id, update_data ~seen_ids, `Updated mails)

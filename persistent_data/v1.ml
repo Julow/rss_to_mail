@@ -8,6 +8,7 @@ type mail = {
   subject : string;
   body_html : string;
   body_text : string;
+  timestamp : int64;
 }
 [@@deriving of_sexp, sexp_of]
 
@@ -20,8 +21,8 @@ type t = {
 let of_v0 V0.{ feed_datas; unsent_mails } =
   let seen_set_of_v0 = SeenSet.to_list in
   let data_of_v0 (key, (lu, seen_set)) = (key, lu, seen_set_of_v0 seen_set) in
-  let mail_of_v0 Rss_to_mail.{ sender; to_; subject; body_html; body_text } =
-    { sender; to_; subject; body_html; body_text }
+  let mail_of_v0 V0.{ sender; to_; subject; body_html; body_text } =
+    { sender; to_; subject; body_html; body_text; timestamp = 0L }
   in
   {
     feed_datas = List.map data_of_v0 (V0.StringMap.bindings feed_datas);

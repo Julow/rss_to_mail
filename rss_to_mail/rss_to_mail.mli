@@ -4,6 +4,7 @@ type mail = {
   subject : string;
   body_html : string;
   body_text : string;
+  timestamp : int64;
 }
 
 type feed_data = int64 * SeenSet.t

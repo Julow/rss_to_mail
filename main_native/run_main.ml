@@ -90,6 +90,7 @@ let send_test_email ~certs (conf : Feeds_config.t) =
         subject = "[rss_to_email] Test email";
         body_html = "This is a test email from rss_to_email.";
         body_text = "This is a test email from rss_to_email.";
+        timestamp = local_timestamp ();
       }
     
   in

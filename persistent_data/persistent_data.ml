@@ -49,8 +49,8 @@ let last_version, save, versions =
   Load_chain.(V1.(lastest 1 of_v0 ~load ~save) V0.(V0 (0, load)))
 
 let of_v1 V1.{ feed_datas; unsent_mails } =
-  let mail_of_v1 V1.{ sender; to_; subject; body_html; body_text } =
-    Rss_to_mail.{ sender; to_; subject; body_html; body_text }
+  let mail_of_v1 V1.{ sender; to_; subject; body_html; body_text; timestamp } =
+    Rss_to_mail.{ sender; to_; subject; body_html; body_text; timestamp }
   in
   let add_data acc (key, date, seen_set) =
     let id = Feed_id.Feed_id key in
@@ -65,8 +65,9 @@ let to_v1 { feed_datas; unsent_mails } =
   let data_of_v1 (Feed_id.Feed_id key, (date, seen_set)) =
     (key, date, SeenSet.to_list seen_set)
   in
-  let mail_of_v1 Rss_to_mail.{ sender; to_; subject; body_html; body_text } =
-    V1.{ sender; to_; subject; body_html; body_text }
+  let mail_of_v1
+      Rss_to_mail.{ sender; to_; subject; body_html; body_text; timestamp } =
+    V1.{ sender; to_; subject; body_html; body_text; timestamp }
   in
   V1.
     {

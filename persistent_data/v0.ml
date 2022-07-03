@@ -23,9 +23,17 @@ let opt f = function
   | Atom _ as t -> Some (f t)
   | List (_ :: _ :: _) -> failwith "Expecting a single value"
 
+type mail = {
+  sender : string;
+  to_ : string option;
+  subject : string;
+  body_html : string;
+  body_text : string;
+}
+
 type t = {
   feed_datas : (int64 * SeenSet.t) StringMap.t;
-  unsent_mails : Rss_to_mail.mail list;
+  unsent_mails : mail list;
 }
 
 let empty = { feed_datas = StringMap.empty; unsent_mails = [] }
@@ -46,17 +54,18 @@ let load sexp =
   let parse_unsent = function
     (* Compat, can be removed anytime *)
     | List [ Atom sender; Atom subject; Atom body_html ] ->
-        Rss_to_mail.{ sender; subject; body_html; body_text = ""; to_ = None }
+        { sender; subject; body_html; body_text = ""; to_ = None }
     | List [ Atom sender; Atom subject; Atom body_html; Atom body_text ] ->
-        Rss_to_mail.{ sender; subject; body_html; body_text; to_ = None }
+        { sender; subject; body_html; body_text; to_ = None }
     | sexp ->
         let sender = atom @@ required @@ record "sender" sexp
         and to_ = Option.bind (record "to" sexp) (fun t -> opt atom t)
         and subject = atom @@ required @@ record "subject" sexp
         and body_html = atom @@ required @@ record "body_html" sexp
         and body_text = atom @@ required @@ record "body_text" sexp in
-        Rss_to_mail.{ sender; to_; subject; body_html; body_text }
+        { sender; to_; subject; body_html; body_text }
   in
+
   let feed_datas =
     match record "feed_data" sexp with
     | None -> empty.feed_datas

@@ -60,28 +60,27 @@ let make_multipart_alternative ~header parts =
   let parts = Mt.multipart ~rng:Mt.rng ~header:multipart_header parts in
   Mt.make header Mt.multi parts
 
-let make_mail (conf : Feeds_config.t) mail =
-  let { Rss_to_mail.sender; to_ = recipient; subject; body_html; body_text } =
-    mail
-  in
+let ptime_of_int64 t = Int64.to_float t |> Ptime.of_float_s |> Option.get
+
+let make_mail (conf : Feeds_config.t) (mail : Rss_to_mail.mail) =
   let* sender =
-    make_address ~name:sender conf.from_address
+    make_address ~name:mail.sender conf.from_address
     |> map_error ~f:(fun e -> `Invalid_sender e)
   in
   let* recipient =
     let recipient =
-      match recipient with Some r -> r | None -> conf.to_address
+      match mail.to_ with Some r -> r | None -> conf.to_address
     in
     make_address recipient |> map_error ~f:(fun e -> `Invalid_recipient e)
   in
   let* subject =
     match
-      let* i, s = Unstrctrd.of_string (subject ^ "\r\n") in
-      if i <> String.length subject + 2 then Error `Partial else Ok s
+      let* i, s = Unstrctrd.of_string (mail.subject ^ "\r\n") in
+      if i <> String.length mail.subject + 2 then Error `Partial else Ok s
     with
     | Ok _ as s -> s
     | Error _ ->
-        Logs.err (fun fmt -> fmt "Error parsing subject %s" subject);
+        Logs.err (fun fmt -> fmt "Error parsing subject %s" mail.subject);
         let* _, s = Unstrctrd.of_string "New entry" in
         Ok s
   in
@@ -92,14 +91,16 @@ let make_mail (conf : Feeds_config.t) mail =
           make Field_name.from Mailbox sender;
           make Field_name.subject Unstructured (subject :> Unstructured.elt list);
           make (Field_name.v "To") Addresses [ Address.mailbox recipient ];
+          make Field_name.date Date
+            (Date.of_ptime ~zone:GMT (ptime_of_int64 mail.timestamp));
         ]
       
   in
 
   let parts =
     [
-      make_part (content_type `Text "plain") body_text;
-      make_part (content_type `Text "html") body_html;
+      make_part (content_type `Text "plain") mail.body_text;
+      make_part (content_type `Text "html") mail.body_html;
     ]
   in
   let* from = Colombe_emile.to_reverse_path sender in
