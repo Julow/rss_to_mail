@@ -122,34 +122,32 @@ let send_mails ~certs (conf : Feeds_config.t) mails =
     match make_mail conf t with
     | Ok (mail, from, recipient) ->
         let stream = lwt_stream (Mt.to_stream mail) in
-        Sendmail_lwt.sendmail ~hostname ~port ~domain ~authenticator
-          ~authentication from [ recipient ] stream
-        |> Lwt.map (function Error e -> `Sendmail_error e | Ok () -> `Ok)
-        |> Utils.lwt_timeout (fun () -> Lwt.return `Timeout) 15.
+        Lwt.catch
+          (fun () ->
+            Sendmail_lwt.sendmail ~hostname ~port ~domain ~authenticator
+              ~authentication from [ recipient ] stream
+            |> Lwt.map (function Error e -> `Sendmail_error e | Ok () -> `Ok)
+            |> Utils.lwt_timeout (fun () -> Lwt.return `Timeout) 15.
+          )
+          (fun exn -> Lwt.return (`Uncaught_exception exn))
     | Error e -> Lwt.return (`Make_mail_error e)
   in
   (* At most 2 mails sending in parallel *)
   let send_pooled = Utils.pooled 2 send in
+  let failed t fmt =
+    Logs.err (fun f ->
+        f "Failed sending mail \"%s\": %a" t.Rss_to_mail.subject fmt ()
+    );
+    Some t
+  in
   mails
   |> Lwt_list.map_p (fun t ->
          send_pooled t
          |> Lwt.map (function
-              | `Timeout ->
-                  Logs.err (fun fmt ->
-                      fmt "Timed out sending mail \"%s\"" t.Rss_to_mail.subject
-                  );
-                  Some t
-              | `Sendmail_error e ->
-                  Logs.err (fun fmt ->
-                      fmt "Failed sending mail \"%s\":\n %a" t.subject
-                        Sendmail.pp_error e
-                  );
-                  Some t
-              | `Make_mail_error _ ->
-                  Logs.err (fun fmt ->
-                      fmt "Failed sending mail \"%s\": Internal error" t.subject
-                  );
-                  Some t
+              | `Timeout -> failed t (Fmt.any "Timeout")
+              | `Sendmail_error e -> failed t (Fmt.const Sendmail.pp_error e)
+              | `Make_mail_error _ -> failed t (Fmt.any "Internal error")
+              | `Uncaught_exception exn -> failed t (Fmt.const Fmt.exn exn)
               | `Ok ->
                   Logs.debug (fun fmt -> fmt "Sent \"%s\"" t.subject);
                   None
