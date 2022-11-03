@@ -83,4 +83,4 @@ let () =
   List.iter print_log logs;
   List.iter print_mail (List.rev mails);
   let sexp = Persistent_data.(save { data; unsent_mails = [] }) in
-  Sexplib.Sexp.output_hum stdout (List sexp)
+  List.iter (Sexplib.Sexp.output_hum stdout) sexp
