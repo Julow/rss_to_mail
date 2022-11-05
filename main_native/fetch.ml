@@ -2,26 +2,32 @@ open Lwt.Syntax
 
 let () = Conduit_lwt_unix.(tls_library := OpenSSL)
 
-(** Wrapper around cohttp's [get] that support following redirections If there
-    is chain of more than [max_redirect] redirections, simply returns the last
-    response (with status 30x). Same if there is no "Location" header *)
+(** Wrapper around cohttp's [get] that support redirections and abstract errors. *)
 let rec get ?(max_redirect = 5) url =
   let open Cohttp in
+  let open Cohttp_lwt in
   let* resp, body = Cohttp_lwt_unix.Client.get url in
   match resp.status with
+  | `OK -> Lwt.return_ok body
   | `Multiple_choices | `Moved_permanently | `Found | `See_other
-  | `Temporary_redirect
-    when max_redirect > 0 -> (
-      let max_redirect = max_redirect - 1 in
+  | `Temporary_redirect ->
       let headers = Response.headers resp in
-      match Header.get headers "location" with
-      | Some url -> get ~max_redirect (Uri.of_string url)
-      | None -> Lwt.return (resp, body)
-    )
-  | _ -> Lwt.return (resp, body)
+      let* () = Body.drain_body body in
+      if max_redirect > 0
+      then
+        let max_redirect = max_redirect - 1 in
+        match Header.get headers "location" with
+        | Some url -> get ~max_redirect (Uri.of_string url)
+        | None -> Lwt.return_error `Broken_redir
+      else Lwt.return_error `Too_many_redir
+  | status ->
+      let* () = Body.drain_body body in
+      Lwt.return_error (`Http (Code.code_of_status status))
 
 type error =
   [ `System of string
+  | `Too_many_redir
+  | `Broken_redir
   | `Http of int
   | `Unknown
   ]
@@ -30,14 +36,12 @@ type error =
 let fetch url =
   Logs.debug (fun fmt -> fmt "Fetching %a" Uri.pp url);
   let fetch' () =
-    let* resp, body = get url in
-    match resp.status with
-    | `OK ->
+    let* resp = get url in
+    match resp with
+    | Ok body ->
         let* body = Cohttp_lwt.Body.to_string body in
         Lwt.return (Ok body)
-    | status ->
-        let code = Cohttp.Code.code_of_status status in
-        Lwt.return (Error (`Http code))
+    | Error _ as e -> Lwt.return e
   and handle_exn = function
     | Failure msg | Unix.Unix_error (_, msg, _) -> Error (`System msg)
     | _ -> Error `Unknown
@@ -47,4 +51,6 @@ let fetch url =
 let error_to_string = function
   | `Http code -> Printf.sprintf "Http error: %d" code
   | `System msg -> Printf.sprintf "Error: %s" msg
+  | `Too_many_redir -> "Too many redirections"
+  | `Broken_redir -> "Broken redirect"
   | `Unknown -> "Unknown error"
