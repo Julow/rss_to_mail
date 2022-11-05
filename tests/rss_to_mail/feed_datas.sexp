@@ -20,7 +20,7 @@
    (./././././././rss.rss ())
    (././././././././rss.rss ())))
  (next_update
-  ((rss.rss 12345678) (no_title.rss 0)
+  ((simple.html 0) (rss.rss 12345678) (no_title.rss 0)
    (https://some-website/relative.rss 0)
    (https://some-website/relative.atom 0)
    (error.rss 0)
@@ -38,4 +38,27 @@
    (././././././rss.rss 0)
    (./././././././rss.rss 0)
    (././././././././rss.rss 0)))
- (page_contents ()) (unsent_mails ()))
+ (page_contents
+  ((simple.html
+     "<html>\
+    \n  <head>\
+    \n    <title>T</title>\
+    \n  </head>\
+    \n  <body>\
+    \n    <div id=\"menu\">\
+    \n      <ul>\
+    \n        <li><a href=\"menu_a\">Menu A</a></li>\
+    \n        <li><a href=\"menu_b\">Menu B</a></li>\
+    \n      </ul>\
+    \n    </div>\
+    \n    <div id=\"content\">\
+    \n      <ul>\
+    \n        <li><a href=\"a\">A</a></li>\
+    \n        <li><a href=\"b\">B</a></li>\
+    \n        <li><a href=\"d\">D</a></li>\
+    \n      </ul>\
+    \n    </div>\
+    \n  </body>\
+    \n</html>\
+    \n")))
+ (unsent_mails ()))

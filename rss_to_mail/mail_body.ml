@@ -18,6 +18,7 @@ module Render (Impl : sig
   val entry_header : inline t -> block t
   val thumbnail_table : Uri.t -> block t -> block t
   val attachment_table : inline t list -> block t
+  val code_block : ?language:string -> string -> block t
   val body : sender:string -> ?hidden_summary:string -> block t list -> string
 end) =
 struct
@@ -95,26 +96,31 @@ struct
     in
     list [ full_header; attachments; content_ ]
 
-  let render_body ~sender ?label ?hidden_summary feed entries =
-    List.map (render_entry ~sender ?label feed) entries
-    |> body ~sender ?hidden_summary
+  let render_content ~sender ?label feed = function
+    | `Single entry -> [ render_entry ~sender ?label feed entry ]
+    | `Multi entries -> List.map (render_entry ~sender ?label feed) entries
+    | `Diff diff -> [ code_block diff ]
+
+  let render_body ~sender ?label ?hidden_summary feed content =
+    body ~sender ?hidden_summary (render_content ~sender ?label feed content)
 end
 
 module HtmlRender = Render (Mail_body_html)
 module TextRender = Render (Mail_body_text)
 
 let gen_summary = function
-  | [] -> None
-  | [ { summary = Some s; _ } ] -> Some s.content_text
-  | entries ->
+  | `Single { summary = Some s; _ } -> Some s.content_text
+  | `Single { summary = None; title; _ } -> title
+  | `Multi entries ->
       let titles = List.filter_map (fun e -> e.Feed.title) entries in
       Some (String.concat ", " titles)
+  | `Diff _ -> Some "Page changed"
 
-let gen_mail ~sender ?label feed entries =
-  let hidden_summary = gen_summary entries in
+let gen_mail ~sender ?label feed content =
+  let hidden_summary = gen_summary content in
   let body_html =
-    HtmlRender.render_body ~sender ?label ?hidden_summary feed entries
+    HtmlRender.render_body ~sender ?label ?hidden_summary feed content
   and body_text =
-    TextRender.render_body ~sender ?label ?hidden_summary feed entries
+    TextRender.render_body ~sender ?label ?hidden_summary feed content
   in
   (body_html, body_text)

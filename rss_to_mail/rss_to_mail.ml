@@ -33,6 +33,7 @@ module Make (Fetch : FETCH) (State : STATE) = struct
   type error =
     [ `Parsing_error of (int * int) * string
     | `Fetch_error of Fetch.error
+    | `Process_error of string
     ]
 
   type log = State.id * [ `Updated of update | error | `Uptodate ]
@@ -105,22 +106,18 @@ module Make (Fetch : FETCH) (State : STATE) = struct
       Uri.host feed_uri ||| fun () -> Uri.to_string feed_uri
   end
 
-  let prepare_mail ~now ~subject ~sender feed_metadata options entries =
+  let prepare_mail ~now ~subject ~sender feed_metadata options content =
     let label, to_ = Feed_desc.(options.label, options.to_) in
     let body_html, body_text =
-      Mail_body.gen_mail ~sender ?label feed_metadata entries
+      Mail_body.gen_mail ~sender ?label feed_metadata content
     in
     { sender; to_; subject; body_html; body_text; timestamp = now }
 
   let prepare_bundle ~now ~sender feed_metadata options entries =
-    let prep subject =
-      [ prepare_mail ~now ~subject ~sender feed_metadata options entries ]
+    let subject =
+      Format.sprintf "%d entries from %s" (List.length entries) sender
     in
-    match entries with
-    | [] -> []
-    | [ Feed.{ title = Some title; _ } ] -> prep title
-    | _ ->
-        prep (Format.sprintf "%d entries from %s" (List.length entries) sender)
+    prepare_mail ~now ~subject ~sender feed_metadata options (`Multi entries)
 
   let prepare_mails ~now ~uri feed_metadata options entries =
     let sender = Process_feed.sender_name uri feed_metadata options in
@@ -130,7 +127,7 @@ module Make (Fetch : FETCH) (State : STATE) = struct
         | Some title -> title
         | None -> "New entry from " ^ sender
       in
-      prepare_mail ~now ~subject ~sender feed_metadata options [ entry ]
+      prepare_mail ~now ~subject ~sender feed_metadata options (`Single entry)
     in
     let too_many_entries =
       match options.Feed_desc.max_entries with
@@ -138,12 +135,21 @@ module Make (Fetch : FETCH) (State : STATE) = struct
       | Some _ | None -> false
     in
     if too_many_entries
-    then prepare_bundle ~now ~sender feed_metadata options entries
+    then [ prepare_bundle ~now ~sender feed_metadata options entries ]
     else List.map prepare entries
 
-  let prepare_bundle ~uri feed options entries =
+  let prepare_bundle ~now ~uri feed options entries =
     let sender = Process_feed.sender_name uri feed options in
-    prepare_bundle ~sender feed options entries
+    prepare_bundle ~now ~sender feed options entries
+
+  let prepare_diff ~now ~uri feed options diff =
+    let sender = Process_feed.sender_name uri feed options in
+    let subject =
+      match feed.Feed.feed_title with
+      | Some title -> title
+      | None -> "Page changed at " ^ sender
+    in
+    prepare_mail ~now ~subject ~sender feed options (`Diff diff)
 
   module Check_feed = struct
     let fetch uri =
@@ -187,6 +193,15 @@ module Make (Fetch : FETCH) (State : STATE) = struct
            )
   end
 
+  module Check_diff = struct
+    let fetch uri =
+      Fetch.fetch uri
+      |> Lwt.map (function
+           | Error e -> Error (`Fetch_error e)
+           | Ok _ as contents -> contents
+           )
+  end
+
   type nonrec mail = mail
   type nonrec 'a state_key = 'a state_key
 
@@ -213,7 +228,7 @@ module Make (Fetch : FETCH) (State : STATE) = struct
     match desc with
     | #Feed_desc.regular_feed as desc ->
         with_state state feed_id Previous_entries (fun previous_entries ->
-            let uri = Uri.of_string (Feed_desc.url_of_feed desc) in
+            let uri = Uri.of_string (Feed_desc.url_of_regular_feed desc) in
             let+ feed = fetch_feed ~uri desc in
             let seen_ids, entries =
               Check_feed.update ~now uri options feed previous_entries
@@ -224,14 +239,44 @@ module Make (Fetch : FETCH) (State : STATE) = struct
         )
     | `Bundle desc ->
         with_state state feed_id Previous_entries (fun previous_entries ->
-            let uri = Uri.of_string (Feed_desc.url_of_feed desc) in
+            let uri = Uri.of_string (Feed_desc.url_of_regular_feed desc) in
             let+ feed = fetch_feed ~uri desc in
             let seen_ids, entries =
               Check_feed.update ~now uri options feed previous_entries
             in
-            ( seen_ids,
-              prepare_bundle ~now ~uri feed.Feed.metadata options entries
-            )
+            let mails =
+              match entries with
+              | [] -> []
+              | [ _ ] as entries ->
+                  prepare_mails ~now ~uri feed.Feed.metadata options entries
+              | entries ->
+                  [
+                    prepare_bundle ~now ~uri feed.Feed.metadata options entries;
+                  ]
+            in
+            (seen_ids, mails)
+        )
+    | `Diff url ->
+        with_state state feed_id Page_contents (fun previous_contents ->
+            let uri = Uri.of_string url in
+            let* contents = Check_diff.fetch uri in
+            let* mails =
+              match previous_contents with
+              | Some previous_contents -> (
+                  let+ diff =
+                    Lwt.return (Diff.compute previous_contents contents)
+                  in
+                  match diff with
+                  | Some diff ->
+                      [
+                        prepare_diff ~now ~uri Feed.empty_metadata options diff;
+                      ]
+                  | None -> []
+                )
+              | None -> (* First update, nothing to compare *) Lwt.return_ok []
+            in
+            (* Always record the new content, even if there's no diff *)
+            Lwt.return_ok (contents, mails)
         )
 
   let check_feed ~now state ((feed_id, (_, options)) as feed) =
@@ -258,7 +303,8 @@ module Make (Fetch : FETCH) (State : STATE) = struct
       match log with
       | `Updated mails ->
           (mails @ acc_mails, `Updated { entries = List.length mails })
-      | (`Fetch_error _ | `Parsing_error _ | `Uptodate) as log ->
+      | (`Fetch_error _ | `Parsing_error _ | `Process_error _ | `Uptodate) as
+        log ->
           (acc_mails, log)
     in
     (update_data acc_datas, acc_mails, (url, log) :: logs)

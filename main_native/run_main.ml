@@ -29,6 +29,9 @@ let metrics_updates ~mails logs =
         Logs.warn (fun fmt ->
             fmt "%s: Parsing error: %d:%d: %s" url line col msg
         )
+    | `Process_error msg ->
+        incr errors;
+        Logs.warn (fun fmt -> fmt "%s: Processing error: %s" url msg)
     | `Fetch_error err ->
         incr errors;
         Logs.warn (fun fmt -> fmt "%s: %s" url (Fetch.error_to_string err))
@@ -68,8 +71,8 @@ let run ~certs (conf : Feeds_config.t)
   let feeds_with_id =
     List.map
       (fun ((desc, _) as f) ->
-        let ((#Feed_desc.regular_feed as desc) | `Bundle desc) = desc in
-        (Persistent_data.Feed_id.of_url (Feed_desc.url_of_feed desc), f)
+        let url = Feed_desc.url_of_desc desc in
+        (Persistent_data.Feed_id.of_url url, f)
       )
       conf.feeds
   in

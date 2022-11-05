@@ -70,6 +70,8 @@ let attachment_table =
   in
   function [] -> [] | ts -> [ Html.table (List.map attachment ts) ]
 
+let code_block ?language:_ code = [ Html.code [ Html.cdata code ] ]
+
 let body ~sender ?hidden_summary entries =
   let entries =
     match entries with

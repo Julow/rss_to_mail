@@ -55,3 +55,19 @@ let rec list_interleave elt = function
   | [] -> []
   | [ _ ] as last -> last
   | hd :: tl -> hd :: elt :: list_interleave elt tl
+
+(** Write to a temporary file, remove it when the scope of [f] ends. The out
+    channel is automatically closed. *)
+let with_temp_file ~write f =
+  let path, outp = Filename.open_temp_file "rss_to_mail_tmp_" "" in
+  let remove () = Sys.remove path and close () = close_out outp in
+  Fun.protect ~finally:remove (fun () ->
+      Fun.protect ~finally:close (fun () -> write outp);
+      f path
+  )
+
+let with_open_process_in prog args f =
+  let inp = Unix.open_process_args_in prog args in
+  (* To use [Fun.protect], [finally] would have to kill the process. *)
+  let res = f inp in
+  (res, Unix.close_process_in inp)

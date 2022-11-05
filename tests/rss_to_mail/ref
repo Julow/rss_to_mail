@@ -75,6 +75,10 @@ Options: (refresh 2.000000)
 
 Options: (refresh 2.000000) (content remove)
 
+# diff simple.html
+
+Options: (refresh 2.000000)
+
 # error.rss
 
 Options: (refresh 2.000000)
@@ -100,6 +104,7 @@ Log: ./././././rss.rss: 2 entries
 Log: ././././././rss.rss: 2 entries
 Log: ./././././././rss.rss: 1 entries
 Log: ././././././././rss.rss: 4 entries
+Log: simple.html: 1 entries
 Log: error.rss: Parsing error (line 1, col 1)
 expected root element
 FROM: Atom Test
@@ -271,11 +276,7 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body>
-  <span
-   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
-   >
-  </span><h1 class="entry_title">New entry</h1><p>From no_title.rss</p>
+ <body><h1 class="entry_title">New entry</h1><p>From no_title.rss</p>
   <div class="content">no title</div>
                                      </body>
 </html>
@@ -513,11 +514,7 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body>
-  <span
-   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
-   >
-  </span><h1 class="entry_title">New entry</h1>
+ <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><p>CDATA</p></div>
                                          </body>
@@ -547,11 +544,7 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body>
-  <span
-   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
-   >
-  </span><h1 class="entry_title">New entry</h1>
+ <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">
                        			<div>
@@ -586,11 +579,7 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body>
-  <span
-   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
-   >
-  </span><h1 class="entry_title">New entry</h1>
+ <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content"><p>Html!</p></div>
                                          </body>
@@ -620,11 +609,7 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body>
-  <span
-   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
-   >
-  </span><h1 class="entry_title">New entry</h1>
+ <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">Text?</div>
                                   </body>
@@ -654,11 +639,7 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body>
-  <span
-   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
-   >
-  </span><h1 class="entry_title">New entry</h1>
+ <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">Text!</div>
                                   </body>
@@ -688,11 +669,7 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body>
-  <span
-   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
-   >
-  </span><h1 class="entry_title">New entry</h1>
+ <body><h1 class="entry_title">New entry</h1>
   <p>From <a href="feed%20link%20url">Atom content type</a></p>
   <div class="content">Text</div>
                                  </body>
@@ -885,11 +862,7 @@ BODY html: <!DOCTYPE html>
        
   </style>
  </head>
- <body>
-  <span
-   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
-   >
-  </span><h1 class="entry_title">New entry</h1><p>From ././no_title.rss</p>
+ <body><h1 class="entry_title">New entry</h1><p>From ././no_title.rss</p>
   <div class="content">no title</div>
                                      </body>
 </html>
@@ -1381,6 +1354,58 @@ Attachments:
 Attachment 1: some%20uri (8Kb, some type)
 
 
+FROM: simple.html
+SUBJECT: Page changed at simple.html
+BODY html: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>simple.html</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .content img { max-width: 100%; max-height: auto; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+       
+  </style>
+ </head>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >Page changed
+  </span>
+  <code>
+   
+<![CDATA[
+4a5
+> - Menu C <menu_c>
+8c9
+< - D <d>
+\ No newline at end of file
+---
+> - C <c>
+\ No newline at end of file
+
+]]>
+
+  </code>
+         </body>
+</html>
+BODY text: ```
+4a5
+> - Menu C <menu_c>
+8c9
+< - D <d>
+\ No newline at end of file
+---
+> - C <c>
+\ No newline at end of file
+```
+
+
 (version 2)((previous_entries
   ((rss.rss ((id ()))) (no_title.rss ((id2 ())))
    (https://some-website/relative.rss ((1 ())))
@@ -1398,7 +1423,7 @@ Attachment 1: some%20uri (8Kb, some type)
    (././././././././rss.rss
     (("Title 2" ()) ("Title 3" ()) ("Title 4" ()) (id ())))))
  (next_update
-  ((rss.rss 12345678) (no_title.rss 12352878)
+  ((simple.html 12352878) (rss.rss 12345678) (no_title.rss 12352878)
    (https://some-website/relative.rss 12352878)
    (https://some-website/relative.atom 12352878) (error.rss 12352878)
    (empty.rss 12352878) (content_type.atom 12352878) (atom.atom 12352878)
@@ -1408,4 +1433,28 @@ Attachment 1: some%20uri (8Kb, some type)
    (././././rss.rss 12352878) (./././././rss.rss 12352878)
    (././././././rss.rss 12352878) (./././././././rss.rss 12352878)
    (././././././././rss.rss 12352878)))
- (page_contents ()) (unsent_mails ()))
+ (page_contents
+  ((simple.html
+     "<html>\
+    \n  <head>\
+    \n    <title>T</title>\
+    \n  </head>\
+    \n  <body>\
+    \n    <div id=\"menu\">\
+    \n      <ul>\
+    \n        <li><a href=\"menu_a\">Menu A</a></li>\
+    \n        <li><a href=\"menu_b\">Menu B</a></li>\
+    \n        <li><a href=\"menu_c\">Menu C</a></li>\
+    \n      </ul>\
+    \n    </div>\
+    \n    <div id=\"content\">\
+    \n      <ul>\
+    \n        <li><a href=\"a\">A</a></li>\
+    \n        <li><a href=\"b\">B</a></li>\
+    \n        <li><a href=\"c\">C</a></li>\
+    \n      </ul>\
+    \n    </div>\
+    \n  </body>\
+    \n</html>\
+    \n")))
+ (unsent_mails ()))

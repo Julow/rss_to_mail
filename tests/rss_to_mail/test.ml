@@ -45,6 +45,7 @@ let print_feed (feed, options) =
   | `Scraper (url, _) -> printf "\n# scraper %s\n\n" url
   | `Bundle (`Feed url) -> printf "\n# bundle %s\n\n" url
   | `Bundle (`Scraper (url, _)) -> printf "\n# bundle scraper %s\n\n" url
+  | `Diff url -> printf "\n# diff %s\n\n" url
   );
   print_options options
 
@@ -54,6 +55,7 @@ let print_log (id, log) =
   | `Fetch_error code -> printf "Log: %s: Fetch error %d\n" url code
   | `Parsing_error ((line, col), msg) ->
       printf "Log: %s: Parsing error (line %d, col %d)\n%s\n" url line col msg
+  | `Process_error msg -> printf "Log: %s: Processing error: %s\n" url msg
   | `Updated { Rss_to_mail.entries } ->
       printf "Log: %s: %d entries\n" url entries
   | `Uptodate -> printf "Log: %s: Uptodate\n" url
@@ -72,8 +74,7 @@ let () =
   let feeds =
     List.map
       (fun ((desc, _) as f) ->
-        let ((#Feed_desc.regular_feed as desc) | `Bundle desc) = desc in
-        (Persistent_data.Feed_id.of_url (Feed_desc.url_of_feed desc), f)
+        (Persistent_data.Feed_id.of_url (Feed_desc.url_of_desc desc), f)
       )
       feeds
   in

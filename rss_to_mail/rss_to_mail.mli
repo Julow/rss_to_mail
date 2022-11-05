@@ -33,6 +33,7 @@ module Make (Fetch : FETCH) (State : STATE) : sig
   type error =
     [ `Parsing_error of (int * int) * string
     | `Fetch_error of Fetch.error
+    | `Process_error of string
     ]
 
   type log = State.id * [ `Updated of update | error | `Uptodate ]

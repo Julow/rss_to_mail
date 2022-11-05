@@ -40,32 +40,48 @@ let filter_attrs ~resolve_uri tag attrs =
     )
     attrs
 
-let element ~resolve_uri ((_, tagname) as tag) attrs childs =
-  let attrs = filter_attrs ~resolve_uri tagname attrs in
-  Feed.Html_E (tag, attrs, childs)
+let element ~filter_attrs ((_, tagname) as tag) attrs childs =
+  Feed.Html_E (tag, filter_attrs tagname attrs, childs)
 
-let rec of_xml_nodes ~resolve_uri nodes =
-  List.map (of_xml_node ~resolve_uri) nodes
+let rec of_xml_nodes ~filter_attrs nodes =
+  List.map (of_xml_node ~filter_attrs) nodes
 
-and of_xml_node ~resolve_uri = function
+and of_xml_node ~filter_attrs = function
   | Text txt -> Feed.Html_T txt
   | Node ((name, attrs), nodes) ->
-      element ~resolve_uri name attrs (of_xml_nodes ~resolve_uri nodes)
+      element ~filter_attrs name attrs (of_xml_nodes ~filter_attrs nodes)
 
 let to_feed_content content_html =
   let content_text = Html_to_text.convert content_html in
   { Feed.content_text; content_html }
 
-let of_xml ~resolve_uri nodes = to_feed_content (of_xml_nodes ~resolve_uri nodes)
+let markup_to_tree ~filter_attrs =
+  Markup.trees
+    ~text:(fun s -> Feed.Html_T (String.concat "" s))
+    ~element:(element ~filter_attrs)
 
-let parse ~resolve_uri contents =
+let of_xml ~resolve_uri nodes =
+  let filter_attrs = filter_attrs ~resolve_uri in
+  to_feed_content (of_xml_nodes ~filter_attrs nodes)
+
+let of_html_text ~resolve_uri contents =
+  let filter_attrs = filter_attrs ~resolve_uri in
   let open Markup in
   contents
   |> string
   |> parse_html
   |> signals
-  |> trees
-       ~text:(fun s -> Feed.Html_T (String.concat "" s))
-       ~element:(element ~resolve_uri)
+  |> markup_to_tree ~filter_attrs
   |> to_list
   |> to_feed_content
+
+let html_text_to_text contents =
+  let filter_attrs _ attrs = attrs in
+  let open Markup in
+  contents
+  |> string
+  |> parse_html
+  |> signals
+  |> markup_to_tree ~filter_attrs
+  |> to_list
+  |> Html_to_text.convert

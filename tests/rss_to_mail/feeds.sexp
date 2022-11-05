@@ -26,6 +26,6 @@
   (././././././rss.rss (filter (not (content "description"))))
   (./././././././rss.rss (max_entries 2))
   (././././././././rss.rss (content remove))
-
+  ((diff simple.html))
   error.rss
 )))

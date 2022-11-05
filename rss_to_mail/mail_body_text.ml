@@ -68,6 +68,15 @@ let attachment_table ts k =
         ts;
       k "\n"
 
+let code_block ?language code k =
+  k "```";
+  Option.iter k language;
+  k "\n";
+  k code;
+  if not (String.ends_with ~suffix:"\n" code) then k "\n";
+  k "```";
+  k "\n\n"
+
 let body ~sender:_ ?hidden_summary:_ entries =
   let buff = Buffer.create 64 in
   let k s = Buffer.add_string buff s in
