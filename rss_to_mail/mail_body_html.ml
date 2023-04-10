@@ -14,7 +14,7 @@ let list ?sep l =
   List.concat l
 
 let link ?mime_type ?text url =
-  let s = match text with Some s -> s | None -> Uri.path url in
+  let s = match text with Some "" | None -> Uri.path url | Some s -> s in
   let a_type =
     match mime_type with Some t -> [ Html.a_mime_type t ] | None -> []
   in

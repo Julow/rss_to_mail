@@ -23,13 +23,13 @@ let list ?(sep = none) l k =
 let link ?mime_type:_ ?text url k =
   let url = Uri.to_string url in
   match text with
+  | Some "" | None -> k url
   | Some s ->
       k "[";
       k s;
       k "](";
       k url;
       k ")"
-  | None -> k url
 
 let feed_icon _ ~alt:_ _ = ()
 
