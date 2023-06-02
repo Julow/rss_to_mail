@@ -25,7 +25,9 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         inherit (opam-nix.lib.${system}) buildOpamProject;
-        scope = buildOpamProject { } "rss_to_mail" ./. { ocaml-system = "*"; };
+        scope = buildOpamProject { } "rss_to_mail" ./. {
+          ocaml-base-compiler = "4.14.1";
+        };
 
         # Prevent unnecessary dependencies on the resulting derivation
         rss_to_mail = scope.rss_to_mail.overrideAttrs (_: {

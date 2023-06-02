@@ -33,7 +33,7 @@
   cmdliner
   tyxml
   (tyxml-ppx
-   (>= 4.4.0))
+   (>= 4.5.0))
   (colombe
    (= 0.4.0))
   sendmail-lwt
