@@ -29,7 +29,8 @@
   lambdasoup
   lwt_ssl
   lwt
-  cohttp-lwt-unix
+  (cohttp-lwt-unix
+   (<= 5.1.0))
   cmdliner
   tyxml
   (tyxml-ppx
