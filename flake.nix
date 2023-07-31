@@ -25,18 +25,25 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         inherit (opam-nix.lib.${system}) buildOpamProject;
-        scope = buildOpamProject { } "rss_to_mail" ./. {
-          ocaml-base-compiler = "4.14.1";
-        };
 
-        # Prevent unnecessary dependencies on the resulting derivation
-        rss_to_mail = scope.rss_to_mail.overrideAttrs (_: {
-          removeOcamlReferences = true;
-          doNixSupport = false;
-        });
-      in {
-        packages = { inherit rss_to_mail; };
-        defaultPackage = rss_to_mail;
+        build_ocaml_package = name: path:
+          let
+            scope = buildOpamProject {
+              resolveArgs = {
+                depopts = false;
+                env.sys-ocaml-version = "4.14.1";
+              };
+            } name path { ocaml-system = "*"; };
+
+          in scope.${name}.overrideAttrs (_: {
+            # Prevent unnecessary dependencies on the resulting derivation
+            removeOcamlReferences = true;
+            doNixSupport = false;
+          });
+
+      in rec {
+        packages = { rss_to_mail = build_ocaml_package "rss_to_mail" ./.; };
+        defaultPackage = packages.rss_to_mail;
 
       });
 }
