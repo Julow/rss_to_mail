@@ -13,6 +13,7 @@ type feed =
   | Feed_title
   | Feed_icon
   | Entry of entry Scrap.t list
+  | Default of entry
 
 let text node =
   match Soup.trimmed_texts node with
@@ -46,13 +47,16 @@ let scrap_entry ~parse_uri node t = function
       in
       { t with attachments }
 
-let scrap_feed ~parse_uri node (title, icon, entries) = function
-  | Feed_title -> (text node ||| title, icon, entries)
-  | Feed_icon -> (title, uri ~parse_uri node ||| icon, entries)
+(* [defaults] accumulates default fields. *)
+let scrap_feed ~parse_uri node (title, icon, entries, defaults) = function
+  | Feed_title -> (text node ||| title, icon, entries, defaults)
+  | Feed_icon -> (title, uri ~parse_uri node ||| icon, entries, defaults)
   | Entry s ->
       let scrap_entry = Scrap.scrap node (scrap_entry ~parse_uri) in
-      let e = List.fold_left scrap_entry Feed.empty_entry s in
-      (title, icon, e :: entries)
+      let e = List.fold_left scrap_entry defaults s in
+      (title, icon, e :: entries, defaults)
+  | Default ent ->
+      (title, icon, entries, scrap_entry ~parse_uri node defaults ent)
 
 let scrap_default_title node =
   match Soup.select_one "title" node with
@@ -75,8 +79,10 @@ let scrap ~resolve_uri node s =
   let feed_title = scrap_default_title node
   and feed_icon = scrap_default_icon ~parse_uri node
   and feed_link = guess_feed_link ~resolve_uri in
-  let feed_title, feed_icon, entries =
-    Scrap.scrap node (scrap_feed ~parse_uri) (feed_title, feed_icon, []) s
+  let feed_title, feed_icon, entries, _defaults =
+    Scrap.scrap node (scrap_feed ~parse_uri)
+      (feed_title, feed_icon, [], Feed.empty_entry)
+      s
   in
   let metadata = { Feed.feed_title; feed_icon; feed_link } in
   { Feed.metadata; entries = Array.of_list entries }

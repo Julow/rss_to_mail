@@ -31,22 +31,25 @@ let parse_scraper =
     | _ -> raise_error "Expected scraper rule"
   in
   let open Scraper in
+  let entry_target = function
+    | Atom "id" -> Id
+    | Atom "title" -> Title
+    | Atom "link" -> Link
+    | Atom "summary" -> Summary
+    | Atom "thumbnail" -> Thumbnail
+    | Atom "attachment" -> Attachment { attach_type = None }
+    | List [ Atom "attachment"; Atom attach_type ] ->
+        Attachment { attach_type = Some attach_type }
+    | Atom target -> raise_error ("Invalid target: " ^ target)
+    | List _ -> raise_error "Expected target"
+  in
   let target = function
     | Atom "feed_title" -> Feed_title
     | Atom "feed_icon" -> Feed_icon
     | List (Atom "entry" :: ts) ->
-        let target = function
-          | Atom "id" -> Id
-          | Atom "title" -> Title
-          | Atom "link" -> Link
-          | Atom "summary" -> Summary
-          | Atom "thumbnail" -> Thumbnail
-          | Atom "attachment" -> Attachment { attach_type = None }
-          | List [ Atom "attachment"; Atom attach_type ] ->
-              Attachment { attach_type = Some attach_type }
-          | _ -> raise_error "Invalid target"
-        in
-        Entry (List.map (scraper ~target) ts)
+        Entry (List.map (scraper ~target:entry_target) ts)
+    | List [ Atom "default"; def ] -> Default (entry_target def)
+    | List (Atom "default" :: _) -> raise_error "Invalid default target"
     | Atom target -> raise_error ("Invalid target: " ^ target)
     | List _ -> raise_error "Expected target"
   in
