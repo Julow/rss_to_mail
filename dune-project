@@ -30,7 +30,7 @@
   lwt_ssl
   lwt
   (cohttp-lwt-unix
-   (<= 5.1.0))
+   (>= 6.0.0~beta2))
   cmdliner
   tyxml
   (tyxml-ppx

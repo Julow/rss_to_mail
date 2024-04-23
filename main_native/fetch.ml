@@ -11,7 +11,7 @@ let rec get ?(max_redirect = 5) url =
   | `OK -> Lwt.return_ok body
   | `Multiple_choices | `Moved_permanently | `Found | `See_other
   | `Temporary_redirect ->
-      let headers = Response.headers resp in
+      let headers = Cohttp.Response.headers resp in
       let* () = Body.drain_body body in
       if max_redirect > 0
       then
