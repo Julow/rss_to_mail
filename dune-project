@@ -35,8 +35,7 @@
   tyxml
   (tyxml-ppx
    (>= 4.5.0))
-  (colombe
-   (= 0.4.0))
+  colombe
   sendmail-lwt
   logs
   (x509
