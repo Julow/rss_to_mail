@@ -5,6 +5,8 @@ module PooledFetch = struct
 
   (** at most 5 fetch at once *)
   let fetch = Utils.pooled 5 Fetch.fetch
+
+  let pp_error = Fetch.pp_error
 end
 
 module Rss_to_mail' = Rss_to_mail
@@ -15,32 +17,6 @@ let parse_certs certs_file =
   match X509.Certificate.decode_pem_multiple mapped with
   | Error (`Msg e) -> failwith e
   | Ok certs -> certs
-
-let metrics_updates ~mails logs =
-  let updated = ref 0 and errors = ref 0 in
-  let log_update (id, log) =
-    let url = Persistent_data.Feed_id.to_string id in
-    match log with
-    | `Updated { Rss_to_mail.entries } ->
-        incr updated;
-        Logs.info (fun fmt -> fmt "%s: %d new entries" url entries)
-    | `Parsing_error ((line, col), msg) ->
-        incr errors;
-        Logs.warn (fun fmt ->
-            fmt "%s: Parsing error: %d:%d: %s" url line col msg
-        )
-    | `Process_error msg ->
-        incr errors;
-        Logs.warn (fun fmt -> fmt "%s: Processing error: %s" url msg)
-    | `Fetch_error err ->
-        incr errors;
-        Logs.warn (fun fmt -> fmt "%s: %s" url (Fetch.error_to_string err))
-    | `Uptodate -> ()
-  in
-  List.iter log_update logs;
-  Logs.app (fun fmt ->
-      fmt "%d feeds updated, %d errors, %d new entries" !updated !errors mails
-  )
 
 let metrics_mails ~to_retry ~unsent_mails =
   Logs.app (fun fmt ->
@@ -76,8 +52,7 @@ let run ~certs (conf : Feeds_config.t)
       )
       conf.feeds
   in
-  let* data, mails, logs = Rss_to_mail.check_all ~now data feeds_with_id in
-  metrics_updates ~mails:(List.length mails) logs;
+  let* data, mails = Rss_to_mail.check_all ~now data feeds_with_id in
   let to_retry = unsent_mails in
   let+ unsent_mails = Mail.send_mails ~certs conf (to_retry @ mails) in
   metrics_mails ~to_retry ~unsent_mails;

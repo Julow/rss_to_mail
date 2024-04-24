@@ -48,9 +48,11 @@ let fetch url =
   in
   Lwt.catch fetch' (Lwt.wrap1 handle_exn)
 
-let error_to_string = function
-  | `Http code -> Printf.sprintf "Http error: %d" code
-  | `System msg -> Printf.sprintf "Error: %s" msg
-  | `Too_many_redir -> "Too many redirections"
-  | `Broken_redir -> "Broken redirect"
-  | `Unknown -> "Unknown error"
+let pp_error ppf error =
+  let p fmt = Format.fprintf ppf fmt in
+  match error with
+  | `Http code -> p "Http error: %d" code
+  | `System msg -> p "Error: %s" msg
+  | `Too_many_redir -> p "Too many redirections"
+  | `Broken_redir -> p "Broken redirect"
+  | `Unknown -> p "Unknown error"

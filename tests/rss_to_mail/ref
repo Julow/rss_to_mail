@@ -85,28 +85,27 @@ Options: (refresh 2.000000)
 
 # Done parsing
 
-Log: atom.atom: 1 entries
-Log: ./atom.atom: 0 entries
-Log: rss.rss: Uptodate
-Log: ././rss.rss: 1 entries
-Log: ./././rss.rss: 1 entries
-Log: empty.rss: 0 entries
-Log: no_title.rss: 1 entries
-Log: content_type.atom: 12 entries
-Log: ./empty.rss: 0 entries
-Log: ././empty.rss: 0 entries
-Log: https://some-website/relative.atom: 2 entries
-Log: https://some-website/relative.rss: 1 entries
-Log: ./no_title.rss: 0 entries
-Log: ././no_title.rss: 1 entries
-Log: ././././rss.rss: 1 entries
-Log: ./././././rss.rss: 2 entries
-Log: ././././././rss.rss: 2 entries
-Log: ./././././././rss.rss: 1 entries
-Log: ././././././././rss.rss: 4 entries
-Log: simple.html: 1 entries
-Log: error.rss: Parsing error (line 1, col 1)
-expected root element
+[INFO]atom.atom: 1 new entries
+[INFO]./atom.atom: 0 new entries
+[INFO]././rss.rss: 1 new entries
+[INFO]./././rss.rss: 1 new entries
+[INFO]empty.rss: 0 new entries
+[INFO]no_title.rss: 1 new entries
+[INFO]content_type.atom: 12 new entries
+[INFO]./empty.rss: 0 new entries
+[INFO]././empty.rss: 0 new entries
+[INFO]https://some-website/relative.atom: 2 new entries
+[INFO]https://some-website/relative.rss: 1 new entries
+[INFO]./no_title.rss: 0 new entries
+[INFO]././no_title.rss: 1 new entries
+[INFO]././././rss.rss: 1 new entries
+[INFO]./././././rss.rss: 2 new entries
+[INFO]././././././rss.rss: 2 new entries
+[INFO]./././././././rss.rss: 1 new entries
+[INFO]././././././././rss.rss: 4 new entries
+[INFO]simple.html: 1 new entries
+[WARNING]error.rss: Parsing error: 1:1: expected root element
+19 feeds updated, 1 errors, 31 new entries
 FROM: Atom Test
 SUBJECT: title
 BODY html: <!DOCTYPE html>

@@ -16,6 +16,7 @@ module type FETCH = sig
   type error
 
   val fetch : Uri.t -> (string, error) result Lwt.t
+  val pp_error : Format.formatter -> error -> unit
 end
 
 module type STATE = sig
@@ -24,19 +25,12 @@ module type STATE = sig
 
   val get : t -> id -> 'a state_key -> 'a option
   val set : t -> id -> 'a state_key -> 'a -> t
+  val pp_id : Format.formatter -> id -> unit
 end
 
 module Make (Fetch : FETCH) (State : STATE) = struct
   type feed = State.id * Feed_desc.t
   type update = { entries : int }
-
-  type error =
-    [ `Parsing_error of (int * int) * string
-    | `Fetch_error of Fetch.error
-    | `Process_error of string
-    ]
-
-  type log = State.id * [ `Updated of update | error | `Uptodate ]
 
   module Process_feed = struct
     (* Remove date for IDs that disapeared from the feed: 1 month *)
@@ -298,24 +292,41 @@ module Make (Fetch : FETCH) (State : STATE) = struct
                (feed_id, updt, log)
            )
 
-  let reduce_updated (acc_datas, acc_mails, logs) (url, update_data, log) =
-    let acc_mails, log =
-      match log with
-      | `Updated mails ->
-          (mails @ acc_mails, `Updated { entries = List.length mails })
-      | (`Fetch_error _ | `Parsing_error _ | `Process_error _ | `Uptodate) as
-        log ->
-          (acc_mails, log)
-    in
-    (update_data acc_datas, acc_mails, (url, log) :: logs)
+  let log_error id = function
+    | `Parsing_error ((line, col), msg) ->
+        Logs.warn (fun fmt ->
+            fmt "%a: Parsing error: %d:%d: %s" State.pp_id id line col msg
+        )
+    | `Process_error msg ->
+        Logs.warn (fun fmt -> fmt "%a: Processing error: %s" State.pp_id id msg)
+    | `Fetch_error err ->
+        Logs.warn (fun fmt -> fmt "%a: %a" State.pp_id id Fetch.pp_error err)
+
+  let reduce_updated (acc_datas, acc_mails, updated, errors)
+      (id, update_data, log) =
+    let acc_datas = update_data acc_datas in
+    match log with
+    | `Uptodate -> (acc_datas, acc_mails, updated, errors)
+    | `Updated mails ->
+        Logs.info (fun fmt ->
+            fmt "%a: %d new entries" State.pp_id id (List.length mails)
+        );
+        (acc_datas, mails @ acc_mails, updated + 1, errors)
+    | (`Fetch_error _ | `Parsing_error _ | `Process_error _) as log ->
+        log_error id log;
+        (acc_datas, acc_mails, updated, errors + 1)
 
   (** Update a list of feeds in parallel *)
   let check_all ~now state feeds =
     Lwt_list.map_p (check_feed ~now state) feeds
     |> Lwt.map (fun results ->
-           let state, mails, logs =
-             List.fold_left reduce_updated (state, [], []) results
+           let datas, mails, updated, errors =
+             List.fold_left reduce_updated (state, [], 0, 0) results
            in
-           (state, mails, List.rev logs)
+           Logs.app (fun fmt ->
+               fmt "%d feeds updated, %d errors, %d new entries" updated errors
+                 (List.length mails)
+           );
+           (datas, mails)
        )
 end
