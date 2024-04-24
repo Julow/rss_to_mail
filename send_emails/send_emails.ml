@@ -27,12 +27,19 @@ open Mrmime
 let ( >>* ) x f = match x with Ok x -> f x | Error _ as e -> e
 let ( let* ) = ( >>* )
 let map_error ~f x = match x with Ok _ as ok -> ok | Error e -> Error (f e)
-let ( let^ ) = Lwt.bind
 
 let make_address ?name addr =
   let name = Option.map (fun n -> [ `Word (`String n) ]) name in
   let* local, domain = Emile.address_of_string addr in
   Ok Emile.{ name; local; domain }
+
+let pp_error ppf error =
+  let p s = Format.fprintf ppf s in
+  match error with
+  | `Timeout -> p "Timeout"
+  | `Sendmail_error e -> Sendmail.pp_error ppf e
+  | `Make_mail_error _ -> p "Internal error"
+  | `Uncaught_exception exn -> Fmt.exn ppf exn
 
 module C = Content_type
 
@@ -107,8 +114,7 @@ let make_mail (conf : Feeds_config.t) (mail : Rss_to_mail.mail) =
   let* recipient = Colombe_emile.to_forward_path recipient in
   Ok (make_multipart_alternative ~header parts, from, recipient)
 
-(** Send a list of mail to [to_] Returns the list of unsent emails *)
-let send_mails ~certs (conf : Feeds_config.t) mails =
+let send ~certs (conf : Feeds_config.t) mails =
   let authenticator =
     let time () = Some (Ptime_clock.now ()) in
     X509.Authenticator.chain_of_trust ~time certs
@@ -118,6 +124,7 @@ let send_mails ~certs (conf : Feeds_config.t) mails =
   let domain = Colombe.Domain.of_string_exn "localhost" in
   let (`Plain (username, password)) = conf.server_auth in
   let authentication = Sendmail.{ username; password; mechanism = PLAIN } in
+  (* Send one email *)
   let send t =
     match make_mail conf t with
     | Ok (mail, from, recipient) ->
@@ -126,31 +133,37 @@ let send_mails ~certs (conf : Feeds_config.t) mails =
           (fun () ->
             Sendmail_lwt.sendmail ~hostname ~port ~domain ~authenticator
               ~authentication from [ recipient ] stream
-            |> Lwt.map (function Error e -> `Sendmail_error e | Ok () -> `Ok)
-            |> Utils.lwt_timeout (fun () -> Lwt.return `Timeout) 15.
+            |> Lwt.map (function
+                 | Error e -> Error (`Sendmail_error e)
+                 | Ok () as ok -> ok
+                 )
+            |> Utils.lwt_timeout (fun () -> Lwt.return_error `Timeout) 15.
           )
-          (fun exn -> Lwt.return (`Uncaught_exception exn))
-    | Error e -> Lwt.return (`Make_mail_error e)
+          (fun exn -> Lwt.return_error (`Uncaught_exception exn))
+    | Error e -> Lwt.return_error (`Make_mail_error e)
   in
   (* At most 2 mails sending in parallel *)
-  let send_pooled = Utils.pooled 2 send in
-  let failed t fmt =
-    Logs.err (fun f ->
-        f "Failed sending mail \"%s\": %a" t.Rss_to_mail.subject fmt ()
-    );
-    Some t
+  let send = Utils.pooled 2 send in
+  (* Log errors. Returns [None] on success and [Some t] on errors. *)
+  let handle_error t = function
+    | Error error ->
+        Logs.err (fun fmt ->
+            fmt "@[<2>Failed sending mail %S:@ %a@]" t.Rss_to_mail.subject
+              pp_error error
+        );
+        Some t
+    | Ok () ->
+        Logs.debug (fun fmt -> fmt "Sent \"%s\"" t.subject);
+        None
   in
   mails
-  |> Lwt_list.map_p (fun t ->
-         send_pooled t
-         |> Lwt.map (function
-              | `Timeout -> failed t (Fmt.any "Timeout")
-              | `Sendmail_error e -> failed t (Fmt.const Sendmail.pp_error e)
-              | `Make_mail_error _ -> failed t (Fmt.any "Internal error")
-              | `Uncaught_exception exn -> failed t (Fmt.const Fmt.exn exn)
-              | `Ok ->
-                  Logs.debug (fun fmt -> fmt "Sent \"%s\"" t.subject);
-                  None
-              )
+  |> Lwt_list.map_p (fun t -> Lwt.map (handle_error t) (send t))
+  |> Lwt.map (fun result ->
+         let unsent_mails = List.filter_map Fun.id result in
+         Logs.app (fun fmt ->
+             let tried = List.length mails
+             and failed = List.length unsent_mails in
+             fmt "%d/%d emails sent" (tried - failed) tried
+         );
+         unsent_mails
      )
-  |> Lwt.map (List.filter_map Fun.id)

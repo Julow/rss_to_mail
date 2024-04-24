@@ -18,16 +18,6 @@ let parse_certs certs_file =
   | Error (`Msg e) -> failwith e
   | Ok certs -> certs
 
-let metrics_mails ~to_retry ~unsent_mails =
-  Logs.app (fun fmt ->
-      let retried = List.length to_retry in
-      if retried > 0 then fmt "%d unsent emails to retry" retried
-  );
-  Logs.warn (fun fmt ->
-      let unsent = List.length unsent_mails in
-      if unsent > 0 then fmt "%d emails could not be sent" unsent
-  )
-
 (** Like unix timestamps but shifted by the local timezone offset *)
 let local_timestamp () =
   let now = Ptime_clock.now () and tz = Ptime_clock.current_tz_offset_s () in
@@ -52,10 +42,12 @@ let run ~certs (conf : Feeds_config.t)
       )
       conf.feeds
   in
+  Logs.app (fun fmt ->
+      let to_retry = List.length unsent_mails in
+      if to_retry > 0 then fmt "%d unsent emails to try" to_retry
+  );
   let* data, mails = Rss_to_mail.check_all ~now data feeds_with_id in
-  let to_retry = unsent_mails in
-  let+ unsent_mails = Mail.send_mails ~certs conf (to_retry @ mails) in
-  metrics_mails ~to_retry ~unsent_mails;
+  let+ unsent_mails = Send_emails.send ~certs conf (unsent_mails @ mails) in
   { Persistent_data.data; unsent_mails }
 
 let send_test_email ~certs (conf : Feeds_config.t) =
@@ -73,5 +65,5 @@ let send_test_email ~certs (conf : Feeds_config.t) =
     
   in
 
-  let+ unsent_mail = Mail.send_mails ~certs conf [ mail ] in
+  let+ unsent_mail = Send_emails.send ~certs conf [ mail ] in
   unsent_mail = []
