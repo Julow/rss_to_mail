@@ -1,11 +1,11 @@
 _build/*
 **/.merlin
 *.install
-main_mirage/dist/
-main_mirage/dune
-main_mirage/dune.build
-main_mirage/dune.config
-main_mirage/duniverse
-main_mirage/mirage
+bin/mirage/dist/
+bin/mirage/dune
+bin/mirage/dune.build
+bin/mirage/dune.config
+bin/mirage/duniverse
+bin/mirage/mirage
 dune-workspace
 Makefile
