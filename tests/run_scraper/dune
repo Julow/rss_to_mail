@@ -1,7 +1,7 @@
 (env
  (_
   (binaries
-   (../../main_native/main_native.exe as rss_to_mail))))
+   (../../bin/unix/main_native.exe as rss_to_mail))))
 
 (rule
  (with-stdout-to
