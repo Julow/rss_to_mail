@@ -1,5 +1,10 @@
 open Printf
 
+let _ =
+  Logs.set_level (Some Logs.Info);
+  let dst = Format.std_formatter and pp_header = Logs.pp_header in
+  Logs.set_reporter (Logs.format_reporter ~dst ~pp_header ())
+
 (* Fetch feeds in the `feeds/` subdirectory
    Fetchs are blocking *)
 module Local_fetch = struct
@@ -16,9 +21,15 @@ module Local_fetch = struct
     | inp ->
         let len = in_channel_length inp in
         Ok (really_input_string inp len)
+
+  let pp_error = Format.pp_print_int
 end
 
-module Rss_to_mail = Rss_to_mail.Make (Local_fetch) (Persistent_data.M)
+module Diff = struct
+  let compute _ _ = Error (`Msg "Not implemented")
+end
+
+module Rss_to_mail = Rss_to_mail.Make (Local_fetch) (Persistent_data.M) (Diff)
 
 let now = 12345678L
 
@@ -49,17 +60,6 @@ let print_feed (feed, options) =
   );
   print_options options
 
-let print_log (id, log) =
-  let url = Persistent_data.Feed_id.to_string id in
-  match log with
-  | `Fetch_error code -> printf "Log: %s: Fetch error %d\n" url code
-  | `Parsing_error ((line, col), msg) ->
-      printf "Log: %s: Parsing error (line %d, col %d)\n%s\n" url line col msg
-  | `Process_error msg -> printf "Log: %s: Processing error: %s\n" url msg
-  | `Updated { Rss_to_mail.entries } ->
-      printf "Log: %s: %d entries\n" url entries
-  | `Uptodate -> printf "Log: %s: Uptodate\n" url
-
 let () =
   let { Persistent_data.data; _ } =
     let sexp = Sexplib.Sexp.load_sexps "feed_datas.sexp" in
@@ -78,10 +78,7 @@ let () =
       )
       feeds
   in
-  let data, mails, logs =
-    Rss_to_mail.check_all ~now data feeds |> Lwt_main.run
-  in
-  List.iter print_log logs;
+  let data, mails = Rss_to_mail.check_all ~now data feeds |> Lwt_main.run in
   List.iter print_mail (List.rev mails);
   let sexp = Persistent_data.(save { data; unsent_mails = [] }) in
   List.iter (Sexplib.Sexp.output_hum stdout) sexp

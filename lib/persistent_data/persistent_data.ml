@@ -42,6 +42,8 @@ module M = struct
 
   type id = Feed_id.t
 
+  let pp_id ppf id = Format.pp_print_string ppf (Feed_id.to_string id)
+
   let empty =
     {
       next_update = Feed_map.empty;

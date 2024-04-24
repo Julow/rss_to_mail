@@ -11,7 +11,8 @@ let source_kind src =
   | Some uri ->
       let resolve_uri = Uri.resolve "" uri
       and fetch () =
-        Fetch.fetch uri |> Lwt.map (map_error Fetch.error_to_string)
+        Fetch.fetch uri
+        |> Lwt.map (map_error (Format.asprintf "%a" Fetch.pp_error))
       in
       (resolve_uri, fetch)
   | None ->

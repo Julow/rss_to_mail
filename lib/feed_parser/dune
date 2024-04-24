@@ -1,4 +1,5 @@
 (library
  (name feed_parser)
+ (public_name rss_to_mail.feed_parser)
  (wrapped false)
  (libraries uri xmlm markup feed astring))

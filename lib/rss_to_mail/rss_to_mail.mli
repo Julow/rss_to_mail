@@ -16,6 +16,7 @@ module type FETCH = sig
   type error
 
   val fetch : Uri.t -> (string, error) result Lwt.t
+  val pp_error : Format.formatter -> error -> unit
 end
 
 module type STATE = sig
@@ -24,23 +25,22 @@ module type STATE = sig
 
   val get : t -> id -> 'a state_key -> 'a option
   val set : t -> id -> 'a state_key -> 'a -> t
+
+  val pp_id : Format.formatter -> id -> unit
+  (** Used in logs. *)
 end
 
-module Make (Fetch : FETCH) (State : STATE) : sig
+module type DIFF = sig
+  val compute : string -> string -> (string option, [ `Msg of string ]) result
+end
+
+module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) : sig
   type feed = State.id * Feed_desc.t
   type update = { entries : int }
-
-  type error =
-    [ `Parsing_error of (int * int) * string
-    | `Fetch_error of Fetch.error
-    | `Process_error of string
-    ]
-
-  type log = State.id * [ `Updated of update | error | `Uptodate ]
   type nonrec mail = mail
   type nonrec 'a state_key = 'a state_key
 
   val check_all :
-    now:int64 -> State.t -> feed list -> (State.t * mail list * log list) Lwt.t
+    now:int64 -> State.t -> feed list -> (State.t * mail list) Lwt.t
   (** Update a list of feeds. Fetches are done asynchronously. *)
 end

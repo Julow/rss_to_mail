@@ -1,0 +1,14 @@
+(library
+ (name send_emails)
+ (public_name rss_to_mail.send_emails)
+ (libraries
+  feeds_config
+  lwt
+  rss_to_mail
+  emile
+  mrmime
+  colombe
+  colombe.emile
+  x509
+  sendmail-lwt
+  logs))

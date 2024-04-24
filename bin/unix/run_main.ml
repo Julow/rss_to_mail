@@ -5,52 +5,26 @@ module PooledFetch = struct
 
   (** at most 5 fetch at once *)
   let fetch = Utils.pooled 5 Fetch.fetch
+
+  let pp_error = Fetch.pp_error
 end
 
 module Rss_to_mail' = Rss_to_mail
-module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Persistent_data.M)
+module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Persistent_data.M) (Diff)
+
+(* Passed to [Send_emails]. *)
+let io =
+  (module struct
+    let now = Ptime_clock.now
+    let sleep_ns ns = Lwt_unix.sleep (Int64.to_float ns /. 1_000_000.)
+  end : Send_emails.IO
+  )
 
 let parse_certs certs_file =
   let mapped = Unix_cstruct.of_fd Unix.(openfile certs_file [ O_RDONLY ] 0o0) in
   match X509.Certificate.decode_pem_multiple mapped with
   | Error (`Msg e) -> failwith e
   | Ok certs -> certs
-
-let metrics_updates ~mails logs =
-  let updated = ref 0 and errors = ref 0 in
-  let log_update (id, log) =
-    let url = Persistent_data.Feed_id.to_string id in
-    match log with
-    | `Updated { Rss_to_mail.entries } ->
-        incr updated;
-        Logs.info (fun fmt -> fmt "%s: %d new entries" url entries)
-    | `Parsing_error ((line, col), msg) ->
-        incr errors;
-        Logs.warn (fun fmt ->
-            fmt "%s: Parsing error: %d:%d: %s" url line col msg
-        )
-    | `Process_error msg ->
-        incr errors;
-        Logs.warn (fun fmt -> fmt "%s: Processing error: %s" url msg)
-    | `Fetch_error err ->
-        incr errors;
-        Logs.warn (fun fmt -> fmt "%s: %s" url (Fetch.error_to_string err))
-    | `Uptodate -> ()
-  in
-  List.iter log_update logs;
-  Logs.app (fun fmt ->
-      fmt "%d feeds updated, %d errors, %d new entries" !updated !errors mails
-  )
-
-let metrics_mails ~to_retry ~unsent_mails =
-  Logs.app (fun fmt ->
-      let retried = List.length to_retry in
-      if retried > 0 then fmt "%d unsent emails to retry" retried
-  );
-  Logs.warn (fun fmt ->
-      let unsent = List.length unsent_mails in
-      if unsent > 0 then fmt "%d emails could not be sent" unsent
-  )
 
 (** Like unix timestamps but shifted by the local timezone offset *)
 let local_timestamp () =
@@ -76,11 +50,12 @@ let run ~certs (conf : Feeds_config.t)
       )
       conf.feeds
   in
-  let* data, mails, logs = Rss_to_mail.check_all ~now data feeds_with_id in
-  metrics_updates ~mails:(List.length mails) logs;
-  let to_retry = unsent_mails in
-  let+ unsent_mails = Mail.send_mails ~certs conf (to_retry @ mails) in
-  metrics_mails ~to_retry ~unsent_mails;
+  Logs.app (fun fmt ->
+      let to_retry = List.length unsent_mails in
+      if to_retry > 0 then fmt "%d unsent emails to try" to_retry
+  );
+  let* data, mails = Rss_to_mail.check_all ~now data feeds_with_id in
+  let+ unsent_mails = Send_emails.send ~io ~certs conf (unsent_mails @ mails) in
   { Persistent_data.data; unsent_mails }
 
 let send_test_email ~certs (conf : Feeds_config.t) =
@@ -98,5 +73,5 @@ let send_test_email ~certs (conf : Feeds_config.t) =
     
   in
 
-  let+ unsent_mail = Mail.send_mails ~certs conf [ mail ] in
+  let+ unsent_mail = Send_emails.send ~io ~certs conf [ mail ] in
   unsent_mail = []

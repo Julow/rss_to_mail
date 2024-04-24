@@ -1,6 +1,0 @@
-(library
- (name rss_to_mail)
- (wrapped false)
- (libraries uri lwt feed scraper feed_parser str tyxml ptime)
- (preprocess
-  (pps tyxml-ppx)))
