@@ -1,3 +1,4 @@
 (library
  (name feeds_config)
+ (public_name rss_to_mail.feeds_config)
  (libraries rss_to_mail scraper sexplib0))

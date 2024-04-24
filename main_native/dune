@@ -9,11 +9,6 @@
   scraper
   cmdliner
   persistent_data
-  emile
-  mrmime
-  colombe
-  colombe.emile
-  sendmail-lwt
   logs
   logs.cli
   logs.fmt
@@ -21,4 +16,5 @@
   x509
   ptime
   cstruct-unix
-  feeds_config))
+  feeds_config
+  send_emails))
