@@ -4,6 +4,7 @@
  (package rss_to_mail)
  (libraries
   lwt
+  lwt.unix
   cohttp-lwt-unix
   rss_to_mail
   scraper
@@ -17,4 +18,5 @@
   ptime
   cstruct-unix
   feeds_config
-  send_emails))
+  send_emails
+  ptime.clock))

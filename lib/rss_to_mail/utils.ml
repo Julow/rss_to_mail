@@ -56,11 +56,6 @@ let rec list_interleave elt = function
   | [ _ ] as last -> last
   | hd :: tl -> hd :: elt :: list_interleave elt tl
 
-(** Cancel a thread after [t] seconds raising the exception [Timeout]. *)
-let lwt_timeout fail t r =
-  let timeout = Lwt.bind (Lwt_unix.sleep t) fail in
-  Lwt.pick [ r; timeout ]
-
 (** Ensures [f] is running at most [n] times concurrently Internally uses an
     Lwt_pool of [unit] *)
 let pooled n f =

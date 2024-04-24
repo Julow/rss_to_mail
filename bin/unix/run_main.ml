@@ -12,6 +12,14 @@ end
 module Rss_to_mail' = Rss_to_mail
 module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Persistent_data.M) (Diff)
 
+(* Passed to [Send_emails]. *)
+let io =
+  (module struct
+    let now = Ptime_clock.now
+    let sleep_ns ns = Lwt_unix.sleep (Int64.to_float ns /. 1_000_000.)
+  end : Send_emails.IO
+  )
+
 let parse_certs certs_file =
   let mapped = Unix_cstruct.of_fd Unix.(openfile certs_file [ O_RDONLY ] 0o0) in
   match X509.Certificate.decode_pem_multiple mapped with
@@ -47,7 +55,7 @@ let run ~certs (conf : Feeds_config.t)
       if to_retry > 0 then fmt "%d unsent emails to try" to_retry
   );
   let* data, mails = Rss_to_mail.check_all ~now data feeds_with_id in
-  let+ unsent_mails = Send_emails.send ~certs conf (unsent_mails @ mails) in
+  let+ unsent_mails = Send_emails.send ~io ~certs conf (unsent_mails @ mails) in
   { Persistent_data.data; unsent_mails }
 
 let send_test_email ~certs (conf : Feeds_config.t) =
@@ -65,5 +73,5 @@ let send_test_email ~certs (conf : Feeds_config.t) =
     
   in
 
-  let+ unsent_mail = Send_emails.send ~certs conf [ mail ] in
+  let+ unsent_mail = Send_emails.send ~io ~certs conf [ mail ] in
   unsent_mail = []

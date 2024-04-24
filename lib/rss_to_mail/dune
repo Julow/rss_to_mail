@@ -2,6 +2,6 @@
  (name rss_to_mail)
  (public_name rss_to_mail)
  (wrapped false)
- (libraries uri lwt feed scraper feed_parser str tyxml ptime logs lwt.unix)
+ (libraries uri lwt feed scraper feed_parser str tyxml ptime logs)
  (preprocess
   (pps tyxml-ppx)))

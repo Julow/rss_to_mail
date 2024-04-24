@@ -22,6 +22,18 @@ let stream_of_multiline_string s =
 
 let lwt_stream t () = Lwt.return (t ())
 
+module type IO = sig
+  val now : unit -> Ptime.t
+  val sleep_ns : int64 -> unit Lwt.t
+end
+
+(** Cancel a thread after [t] milliseconds raising the exception [Timeout]. *)
+let lwt_timeout ~io:(module Io : IO) fail time_ms r =
+  let timeout =
+    Lwt.bind (Io.sleep_ns Int64.(mul (of_int time_ms) 1_000_000L)) fail
+  in
+  Lwt.pick [ r; timeout ]
+
 open Mrmime
 
 let ( >>* ) x f = match x with Ok x -> f x | Error _ as e -> e
@@ -114,9 +126,10 @@ let make_mail (conf : Feeds_config.t) (mail : Rss_to_mail.mail) =
   let* recipient = Colombe_emile.to_forward_path recipient in
   Ok (make_multipart_alternative ~header parts, from, recipient)
 
-let send ~certs (conf : Feeds_config.t) mails =
+let send ~io ~certs (conf : Feeds_config.t) mails =
+  let module Io = (val io : IO) in
   let authenticator =
-    let time () = Some (Ptime_clock.now ()) in
+    let time () = Some (Io.now ()) in
     X509.Authenticator.chain_of_trust ~time certs
   in
   let hostname, port = conf.server in
@@ -137,7 +150,7 @@ let send ~certs (conf : Feeds_config.t) mails =
                  | Error e -> Error (`Sendmail_error e)
                  | Ok () as ok -> ok
                  )
-            |> Utils.lwt_timeout (fun () -> Lwt.return_error `Timeout) 15.
+            |> lwt_timeout ~io (fun () -> Lwt.return_error `Timeout) 15000
           )
           (fun exn -> Lwt.return_error (`Uncaught_exception exn))
     | Error e -> Lwt.return_error (`Make_mail_error e)
