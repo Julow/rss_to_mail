@@ -28,7 +28,11 @@ module type STATE = sig
   val pp_id : Format.formatter -> id -> unit
 end
 
-module Make (Fetch : FETCH) (State : STATE) = struct
+module type DIFF = sig
+  val compute : string -> string -> (string option, [ `Msg of string ]) result
+end
+
+module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) = struct
   type feed = State.id * Feed_desc.t
   type update = { entries : int }
 
@@ -257,15 +261,15 @@ module Make (Fetch : FETCH) (State : STATE) = struct
             let* mails =
               match previous_contents with
               | Some previous_contents -> (
-                  let+ diff =
-                    Lwt.return (Diff.compute previous_contents contents)
-                  in
-                  match diff with
-                  | Some diff ->
-                      [
-                        prepare_diff ~now ~uri Feed.empty_metadata options diff;
-                      ]
-                  | None -> []
+                  match Diff.compute previous_contents contents with
+                  | Ok (Some diff) ->
+                      Lwt.return_ok
+                        [
+                          prepare_diff ~now ~uri Feed.empty_metadata options
+                            diff;
+                        ]
+                  | Ok None -> Lwt.return_ok []
+                  | Error (`Msg msg) -> Lwt.return_error (`Process_error msg)
                 )
               | None -> (* First update, nothing to compare *) Lwt.return_ok []
             in

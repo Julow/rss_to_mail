@@ -10,7 +10,7 @@ module PooledFetch = struct
 end
 
 module Rss_to_mail' = Rss_to_mail
-module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Persistent_data.M)
+module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Persistent_data.M) (Diff)
 
 let parse_certs certs_file =
   let mapped = Unix_cstruct.of_fd Unix.(openfile certs_file [ O_RDONLY ] 0o0) in

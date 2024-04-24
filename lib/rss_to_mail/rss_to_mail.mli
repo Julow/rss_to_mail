@@ -30,7 +30,11 @@ module type STATE = sig
   (** Used in logs. *)
 end
 
-module Make (Fetch : FETCH) (State : STATE) : sig
+module type DIFF = sig
+  val compute : string -> string -> (string option, [ `Msg of string ]) result
+end
+
+module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) : sig
   type feed = State.id * Feed_desc.t
   type update = { entries : int }
   type nonrec mail = mail

@@ -25,7 +25,11 @@ module Local_fetch = struct
   let pp_error = Format.pp_print_int
 end
 
-module Rss_to_mail = Rss_to_mail.Make (Local_fetch) (Persistent_data.M)
+module Diff = struct
+  let compute _ _ = Error (`Msg "Not implemented")
+end
+
+module Rss_to_mail = Rss_to_mail.Make (Local_fetch) (Persistent_data.M) (Diff)
 
 let now = 12345678L
 

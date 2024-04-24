@@ -103,9 +103,9 @@ Options: (refresh 2.000000)
 [INFO]././././././rss.rss: 2 new entries
 [INFO]./././././././rss.rss: 1 new entries
 [INFO]././././././././rss.rss: 4 new entries
-[INFO]simple.html: 1 new entries
+[WARNING]simple.html: Processing error: Not implemented
 [WARNING]error.rss: Parsing error: 1:1: expected root element
-19 feeds updated, 1 errors, 31 new entries
+18 feeds updated, 2 errors, 30 new entries
 FROM: Atom Test
 SUBJECT: title
 BODY html: <!DOCTYPE html>
@@ -1353,58 +1353,6 @@ Attachments:
 Attachment 1: some%20uri (8Kb, some type)
 
 
-FROM: simple.html
-SUBJECT: Page changed at simple.html
-BODY html: <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
- <head><title>simple.html</title>
-  <style>
-   
-   a { text-decoration: none; }
-   .entry_title { margin: 0; }
-   .entry_title a { border-bottom: 1px dashed black; }
-   .entry_header { margin-top: 0; }
-   .content { margin: 20px 0 25px 10px; max-width: 600px; }
-   .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
-       
-  </style>
- </head>
- <body>
-  <span
-   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
-   >Page changed
-  </span>
-  <code>
-   
-<![CDATA[
-4a5
-> - Menu C <menu_c>
-8c9
-< - D <d>
-\ No newline at end of file
----
-> - C <c>
-\ No newline at end of file
-
-]]>
-
-  </code>
-         </body>
-</html>
-BODY text: ```
-4a5
-> - Menu C <menu_c>
-8c9
-< - D <d>
-\ No newline at end of file
----
-> - C <c>
-\ No newline at end of file
-```
-
-
 (version 2)((previous_entries
   ((rss.rss ((id ()))) (no_title.rss ((id2 ())))
    (https://some-website/relative.rss ((1 ())))
@@ -1443,14 +1391,13 @@ BODY text: ```
     \n      <ul>\
     \n        <li><a href=\"menu_a\">Menu A</a></li>\
     \n        <li><a href=\"menu_b\">Menu B</a></li>\
-    \n        <li><a href=\"menu_c\">Menu C</a></li>\
     \n      </ul>\
     \n    </div>\
     \n    <div id=\"content\">\
     \n      <ul>\
     \n        <li><a href=\"a\">A</a></li>\
     \n        <li><a href=\"b\">B</a></li>\
-    \n        <li><a href=\"c\">C</a></li>\
+    \n        <li><a href=\"d\">D</a></li>\
     \n      </ul>\
     \n    </div>\
     \n  </body>\
