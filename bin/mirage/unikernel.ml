@@ -1,24 +1,34 @@
 open Lwt.Syntax
 
-let or_failure = function Ok x -> x | Error (`Msg msg) -> failwith msg
+module Args = struct
+  open Cmdliner
 
-module Diff = struct
-  let compute _ _ = Error (`Msg "Diffs are not implemented")
+  let program_block_size =
+    Arg.(value & opt int 16 & info [ "program-block-size" ])
 end
-
-let pooled n f =
-  let pool = Lwt_pool.create n (fun _ -> Lwt.return_unit) in
-  fun x -> Lwt_pool.use pool (fun () -> f x)
 
 module Main
     (Time : Mirage_time.S)
     (Pclock : Mirage_clock.PCLOCK)
     (Resolver : Resolver_mirage.S)
     (Conduit : Conduit_mirage.S)
-    (Kv_rw : Mirage_kv.RW) =
+    (Db_block : Mirage_block.S) =
 struct
+  module Db_fs = OneFFS.Make (Db_block)
   module HttpClient = Cohttp_mirage.Client.Make (Pclock) (Resolver) (Conduit)
   module NSS = Ca_certs_nss.Make (Pclock)
+
+  (** {1 Utils} *)
+
+  let or_failure = function Ok x -> x | Error (`Msg msg) -> failwith msg
+
+  module Diff = struct
+    let compute _ _ = Error (`Msg "Diffs are not implemented")
+  end
+
+  let pooled n f =
+    let pool = Lwt_pool.create n (fun _ -> Lwt.return_unit) in
+    fun x -> Lwt_pool.use pool (fun () -> f x)
 
   (* Passed to [Send_emails]. *)
   let io =
@@ -41,7 +51,33 @@ struct
     in
     Ptime.to_float_s local_now |> Int64.of_float
 
-  let start _time _clock res_dns conduit _kv_rw =
+  (** {1 Persistent data} *)
+
+  let load_data db_fs =
+    let* result = Db_fs.read db_fs in
+    match result with
+    | Ok (Some data) ->
+        let data = Sexplib.Sexp.of_string_many data in
+        Lwt.return (Persistent_data.load data)
+    | Ok None -> Lwt.return Persistent_data.empty
+    | Error err ->
+        (* Something went wrong with the store. *)
+        Format.kasprintf failwith "Failed to load persistent data: %a"
+          Db_fs.pp_error err
+
+  let save_data db_fs data =
+    let data = Persistent_data.save data in
+    let buf = Buffer.create 1024 in
+    List.iter (Sexplib.Sexp.to_buffer_mach ~buf) data;
+    let* result = Db_fs.write db_fs (Buffer.contents buf) in
+    match result with
+    | Ok () -> Lwt.return_unit
+    | Error err -> Format.kasprintf failwith "%a" Db_fs.pp_write_error err
+
+  (** {1 Entry point} *)
+
+  let start _time _clock res_dns conduit db_block : unit Lwt.t =
+    let* db_fs = Db_fs.connect db_block in
     let conf = User_conf.conf in
     let authenticator = or_failure (NSS.authenticator ()) in
     let module Fetch = struct
@@ -98,7 +134,7 @@ struct
     let module Rss_to_mail = Rss_to_mail.Make (Fetch) (Persistent_data.M) (Diff)
     in
     let now = local_timestamp () in
-    let state = Persistent_data.empty in
+    let* state = load_data db_fs in
     let feeds_with_id =
       List.map
         (fun ((desc, _) as f) ->
@@ -107,7 +143,12 @@ struct
         )
         conf.feeds
     in
-    let* data, mails = Rss_to_mail.check_all ~now state.data feeds_with_id in
-    let+ unsent_mails = Send_emails.send ~io ~authenticator conf mails in
-    ignore unsent_mails
+    let* data, new_mails =
+      Rss_to_mail.check_all ~now state.Persistent_data.data feeds_with_id
+    in
+    let* unsent_mails =
+      Send_emails.send ~io ~authenticator conf (state.unsent_mails @ new_mails)
+    in
+    let* () = save_data db_fs { Persistent_data.data; unsent_mails } in
+    Lwt.return ()
 end
