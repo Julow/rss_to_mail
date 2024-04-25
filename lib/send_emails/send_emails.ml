@@ -23,7 +23,6 @@ let stream_of_multiline_string s =
 let lwt_stream t () = Lwt.return (t ())
 
 module type IO = sig
-  val now : unit -> Ptime.t
   val sleep_ns : int64 -> unit Lwt.t
 end
 
@@ -126,12 +125,8 @@ let make_mail (conf : Feeds_config.t) (mail : Rss_to_mail.mail) =
   let* recipient = Colombe_emile.to_forward_path recipient in
   Ok (make_multipart_alternative ~header parts, from, recipient)
 
-let send ~io ~certs (conf : Feeds_config.t) mails =
+let send ~io ~authenticator (conf : Feeds_config.t) mails =
   let module Io = (val io : IO) in
-  let authenticator =
-    let time () = Some (Io.now ()) in
-    X509.Authenticator.chain_of_trust ~time certs
-  in
   let hostname, port = conf.server in
   let hostname = Domain_name.of_string_exn hostname in
   let domain = Colombe.Domain.of_string_exn "localhost" in
