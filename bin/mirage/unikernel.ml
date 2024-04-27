@@ -3,8 +3,12 @@ open Lwt.Syntax
 module Args = struct
   open Cmdliner
 
-  let program_block_size =
-    Arg.(value & opt int 16 & info [ "program-block-size" ])
+  let conf_url =
+    let doc =
+      "Git URI of the repository containing the configuration. Only \
+       unauthenticated Git servers can be accessed."
+    in
+    Arg.(required & opt (some string) None & info ~doc [ "conf-git" ])
 end
 
 module Main
@@ -12,11 +16,13 @@ module Main
     (Pclock : Mirage_clock.PCLOCK)
     (Resolver : Resolver_mirage.S)
     (Conduit : Conduit_mirage.S)
-    (Db_block : Mirage_block.S) =
+    (Db_block : Mirage_block.S)
+    (_ : sig end) =
 struct
   module Db_fs = OneFFS.Make (Db_block)
   module HttpClient = Cohttp_mirage.Client.Make (Pclock) (Resolver) (Conduit)
   module NSS = Ca_certs_nss.Make (Pclock)
+  module Conf_git = Git_kv.Make (Pclock)
 
   (** {1 Utils} *)
 
@@ -35,7 +41,7 @@ struct
     (module struct
       let sleep_ns = Time.sleep_ns
     end : Send_emails.IO
-    )
+  )
 
   (** Like unix timestamps but shifted by the local timezone offset *)
   let local_timestamp () =
@@ -76,9 +82,10 @@ struct
 
   (** {1 Entry point} *)
 
-  let start _time _clock res_dns conduit db_block : unit Lwt.t =
+  let start _time _clock res_dns conduit db_block conf_git_ctx conf_git_url :
+      unit Lwt.t =
     let* db_fs = Db_fs.connect db_block in
-    let conf = User_conf.conf in
+    let* conf_git = Git_kv.connect conf_git_ctx conf_git_url in
     let authenticator = or_failure (NSS.authenticator ()) in
     let module Fetch = struct
       let rec get ~ctx ?(max_redirect = 5) url =
@@ -134,6 +141,12 @@ struct
     let module Rss_to_mail = Rss_to_mail.Make (Fetch) (Persistent_data.M) (Diff)
     in
     let now = local_timestamp () in
+    let* conf = Conf_git.get conf_git (Mirage_kv.Key.v "feeds.sexp") in
+    let conf =
+      match conf with
+      | Ok conf -> Feeds_config.parse (Sexplib.Sexp.of_string conf)
+      | Error err -> Format.kasprintf failwith "%a" Conf_git.pp_error err
+    in
     let* state = load_data db_fs in
     let feeds_with_id =
       List.map
