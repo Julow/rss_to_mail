@@ -57,6 +57,9 @@ struct
     in
     Ptime.to_float_s local_now |> Int64.of_float
 
+  (* One minute in ps unit. *)
+  let minute_ps = 60_000_000_000L
+
   (** {1 Persistent data} *)
 
   let load_data db_fs =
@@ -140,28 +143,32 @@ struct
     end in
     let module Rss_to_mail = Rss_to_mail.Make (Fetch) (Persistent_data.M) (Diff)
     in
-    let now = local_timestamp () in
-    let* conf = Conf_git.get conf_git (Mirage_kv.Key.v "feeds.sexp") in
-    let conf =
-      match conf with
-      | Ok conf -> Feeds_config.parse (Sexplib.Sexp.of_string conf)
-      | Error err -> Format.kasprintf failwith "%a" Conf_git.pp_error err
+    let rec loop () =
+      let now = local_timestamp () in
+      let* conf = Conf_git.get conf_git (Mirage_kv.Key.v "feeds.sexp") in
+      let conf =
+        match conf with
+        | Ok conf -> Feeds_config.parse (Sexplib.Sexp.of_string conf)
+        | Error err -> Format.kasprintf failwith "%a" Conf_git.pp_error err
+      in
+      let* state = load_data db_fs in
+      let feeds_with_id =
+        List.map
+          (fun ((desc, _) as f) ->
+            let url = Feed_desc.url_of_desc desc in
+            (Persistent_data.Feed_id.of_url url, f)
+          )
+          conf.feeds
+      in
+      let* data, new_mails =
+        Rss_to_mail.check_all ~now state.Persistent_data.data feeds_with_id
+      in
+      let* unsent_mails =
+        Send_emails.send ~io ~authenticator conf (state.unsent_mails @ new_mails)
+      in
+      let* () = save_data db_fs { Persistent_data.data; unsent_mails } in
+      let* () = Time.sleep_ns (Int64.mul 10L minute_ps) in
+      loop ()
     in
-    let* state = load_data db_fs in
-    let feeds_with_id =
-      List.map
-        (fun ((desc, _) as f) ->
-          let url = Feed_desc.url_of_desc desc in
-          (Persistent_data.Feed_id.of_url url, f)
-        )
-        conf.feeds
-    in
-    let* data, new_mails =
-      Rss_to_mail.check_all ~now state.Persistent_data.data feeds_with_id
-    in
-    let* unsent_mails =
-      Send_emails.send ~io ~authenticator conf (state.unsent_mails @ new_mails)
-    in
-    let* () = save_data db_fs { Persistent_data.data; unsent_mails } in
-    Lwt.return ()
+    loop ()
 end
