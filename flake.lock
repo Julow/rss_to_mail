@@ -21,11 +21,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1685518550,
-        "narHash": "sha256-o2d0KcvaXzTrPRIo0kOLV0/QXHhDQ5DTi+OxcjO8xqY=",
+        "lastModified": 1710146030,
+        "narHash": "sha256-SZ5L6eA7HJ/nmkzGG7/ISclqe6oZdOZTNoesiInkXPQ=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "a1720a10a6cfe8234c0e93907ffe81be440f4cef",
+        "rev": "b1d9ab70662946ef0850d488da1c9019f3a9752a",
         "type": "github"
       },
       "original": {
@@ -36,11 +36,11 @@
     "mirage-opam-overlays": {
       "flake": false,
       "locked": {
-        "lastModified": 1661959605,
-        "narHash": "sha256-CPTuhYML3F4J58flfp3ZbMNhkRkVFKmBEYBZY5tnQwA=",
+        "lastModified": 1710922379,
+        "narHash": "sha256-j4QREQDUf8oHOX7qg6wAOupgsNQoYlufxoPrgagD+pY=",
         "owner": "dune-universe",
         "repo": "mirage-opam-overlays",
-        "rev": "05f1c1823d891ce4d8adab91f5db3ac51d86dc0b",
+        "rev": "797cb363df3ff763c43c8fbec5cd44de2878757e",
         "type": "github"
       },
       "original": {
@@ -52,8 +52,8 @@
     "nixpkgs": {
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-Y5iqtWkO82gHAnrBvNu/yLQsiVNJRCad4wWGz2a1urk=",
-        "path": "/nix/store/rzwjwszilpn4mybd5f8s36rdka2h2059-nixpkgs",
+        "narHash": "sha256-0OZBHLwFiJruu156980AugLHtFEX9i/R14UZqVmLsPQ=",
+        "path": "/nix/store/hi5h1wcandk9g9bihza8m7jdq95g1di6-nixpkgs",
         "type": "path"
       },
       "original": {
@@ -82,11 +82,11 @@
         "opam2json": "opam2json"
       },
       "locked": {
-        "lastModified": 1682411044,
-        "narHash": "sha256-HJY+LANQ75YQSfaTCOnmtiF4pF8d9Eb4dz+wLyNAihE=",
+        "lastModified": 1715087815,
+        "narHash": "sha256-FjIg+rO+aIfVFzSbvNznVhCn/s2MS8HkPhht7LqzLlk=",
         "owner": "tweag",
         "repo": "opam-nix",
-        "rev": "02f7ae28a210e17ca5811b0a4c116acd94e82faa",
+        "rev": "d42a3b8f234dd8c922020f8b2f4e326406bf23d1",
         "type": "github"
       },
       "original": {
@@ -98,11 +98,11 @@
     "opam-overlays": {
       "flake": false,
       "locked": {
-        "lastModified": 1685007198,
-        "narHash": "sha256-e1gmcV68YJcHAtdfPkf6s4JxhtCSnIli8goUWVSIsvY=",
+        "lastModified": 1707830526,
+        "narHash": "sha256-pbrx2ez7IcWzwBRPldTxHZSLShPhmURv8yXs/5FnLgc=",
         "owner": "dune-universe",
         "repo": "opam-overlays",
-        "rev": "fcccfb1a2f5727fbc5399ed835a3d5024549252a",
+        "rev": "4e75ee36715b27550d5bdb87686bb4ae4c9e89c4",
         "type": "github"
       },
       "original": {
@@ -114,11 +114,11 @@
     "opam-repository": {
       "flake": false,
       "locked": {
-        "lastModified": 1685605470,
-        "narHash": "sha256-tNAdwTd+HOkAKjgQ496ZX1UQO3jbiL6NVVqVur2Zzkg=",
+        "lastModified": 1715756189,
+        "narHash": "sha256-dzstEyXBhzQtj5BIVYKe8zkn3d+uNm12u4o/6GhDPoA=",
         "owner": "ocaml",
         "repo": "opam-repository",
-        "rev": "5db1152b08e4fb674c6a8624e8ea37c62c04696e",
+        "rev": "0dc68a8b920a5b579062cfcdbdf841a82e137ebd",
         "type": "github"
       },
       "original": {

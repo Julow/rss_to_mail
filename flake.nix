@@ -31,7 +31,7 @@
             scope = buildOpamProject {
               resolveArgs = {
                 depopts = false;
-                env.sys-ocaml-version = "4.14.1";
+                env.sys-ocaml-version = "4.14.2";
               };
             } name path { ocaml-system = "*"; };
 
