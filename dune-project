@@ -27,25 +27,37 @@
   xmlm
   markup
   lambdasoup
-  lwt_ssl
   lwt
-  (cohttp-lwt-unix
-   (>= 6.0.0~beta2))
   cmdliner
   tyxml
   (tyxml-ppx
    (>= 4.5.0))
   colombe
-  sendmail-lwt
+  sendmail
   logs
   (x509
    (>= 0.10))
   ptime
-  cstruct-unix
   sexplib0
-  sexplib
   emile
   (mrmime
    (>= 0.3.2))
   (alcotest :with-test)
   (mdx :with-test)))
+
+(package
+ (name rss_to_mail-unix)
+ (synopsis "Sends an email for every new entries on RSS feeds")
+ (depends
+  (ocaml
+   (>= 4.10))
+  rss_to_mail
+  lwt_ssl
+  lwt
+  cmdliner
+  logs
+  fmt
+  (x509
+   (>= 0.10))
+  ptime
+  sexplib))

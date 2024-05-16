@@ -10,24 +10,15 @@ bug-reports: "https://github.com/Julow/rss_to_mail/issues"
 depends: [
   "dune" {>= "2.8"}
   "ocaml" {>= "4.10"}
-  "uri"
-  "xmlm"
-  "markup"
-  "lambdasoup"
+  "rss_to_mail"
+  "lwt_ssl"
   "lwt"
   "cmdliner"
-  "tyxml"
-  "tyxml-ppx" {>= "4.5.0"}
-  "colombe"
-  "sendmail"
   "logs"
+  "fmt"
   "x509" {>= "0.10"}
   "ptime"
-  "sexplib0"
-  "emile"
-  "mrmime" {>= "0.3.2"}
-  "alcotest" {with-test}
-  "mdx" {with-test}
+  "sexplib"
   "odoc" {with-doc}
 ]
 build: [

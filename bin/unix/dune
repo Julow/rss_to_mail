@@ -1,7 +1,7 @@
 (executable
  (name main_native)
  (public_name rss_to_mail)
- (package rss_to_mail)
+ (package rss_to_mail-unix)
  (libraries
   lwt
   lwt.unix

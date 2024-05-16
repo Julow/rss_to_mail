@@ -15,9 +15,9 @@ module Main
     (Time : Mirage_time.S)
     (Pclock : Mirage_clock.PCLOCK)
     (Resolver : Resolver_mirage.S)
+    (Dns : Dns_client_mirage.S)
     (Conduit : Conduit_mirage.S)
-    (Db_block : Mirage_block.S)
-    (_ : sig end) =
+    (Db_block : Mirage_block.S) (_ : sig end) =
 struct
   module Db_fs = OneFFS.Make (Db_block)
   module HttpClient = Cohttp_mirage.Client.Make (Pclock) (Resolver) (Conduit)
@@ -35,13 +35,6 @@ struct
   let pooled n f =
     let pool = Lwt_pool.create n (fun _ -> Lwt.return_unit) in
     fun x -> Lwt_pool.use pool (fun () -> f x)
-
-  (* Passed to [Send_emails]. *)
-  let io =
-    (module struct
-      let sleep_ns = Time.sleep_ns
-    end : Send_emails.IO
-  )
 
   (** Like unix timestamps but shifted by the local timezone offset *)
   let local_timestamp () =
@@ -85,11 +78,49 @@ struct
 
   (** {1 Entry point} *)
 
-  let start _time _clock res_dns conduit db_block conf_git_ctx conf_git_url :
-      unit Lwt.t =
+  let start _time _clock resolver_ctx dns_ctx conduit db_block conf_git_ctx
+      conf_git_url : unit Lwt.t =
     let* db_fs = Db_fs.connect db_block in
     let* conf_git = Git_kv.connect conf_git_ctx conf_git_url in
     let authenticator = or_failure (NSS.authenticator ()) in
+    (* Passed to [Send_emails]. *)
+    let io =
+      (module struct
+        let sleep_ns = Time.sleep_ns
+
+        let establish_tls ~hostname ~port =
+          let hostname =
+            let d = or_failure (Domain_name.of_string hostname) in
+            or_failure (Domain_name.host d)
+          in
+          let* ipaddr = Dns.gethostbyname dns_ctx hostname in
+          let ipaddr = or_failure ipaddr in
+          let config = Tls.Config.client ~authenticator () in
+          let* flow =
+            Conduit.connect conduit
+              (`TLS (config, `TCP (Ipaddr.V4 ipaddr, port)))
+          in
+          let read () =
+            let* r = Conduit.Flow.read flow in
+            match r with
+            | Ok _ as ok -> Lwt.return ok
+            | Error err ->
+                Format.kasprintf
+                  (fun err -> Lwt.return_error (`Msg err))
+                  "%a" Conduit.Flow.pp_error err
+          and write cstr =
+            let* r = Conduit.Flow.write flow cstr in
+            match r with
+            | Ok _ as ok -> Lwt.return ok
+            | Error err ->
+                Format.kasprintf
+                  (fun err -> Lwt.return_error (`Msg err))
+                  "%a" Conduit.Flow.pp_write_error err
+          in
+          Lwt.return { Send_emails.read; write }
+      end : Send_emails.IO
+      )
+    in
     let module Fetch = struct
       let rec get ~ctx ?(max_redirect = 5) url =
         let* resp, body = HttpClient.get ~ctx url in
@@ -138,7 +169,7 @@ struct
       (** at most 5 fetch at once *)
       let fetch ~ctx = pooled 5 (fetch ~ctx)
 
-      let ctx = HttpClient.ctx res_dns conduit
+      let ctx = HttpClient.ctx resolver_ctx conduit
       let fetch uri = fetch ~ctx uri
     end in
     let module Rss_to_mail = Rss_to_mail.Make (Fetch) (Persistent_data.M) (Diff)

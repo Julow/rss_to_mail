@@ -12,13 +12,6 @@ end
 module Rss_to_mail' = Rss_to_mail
 module Rss_to_mail = Rss_to_mail.Make (PooledFetch) (Persistent_data.M) (Diff)
 
-(* Passed to [Send_emails]. *)
-let io =
-  (module struct
-    let sleep_ns ns = Lwt_unix.sleep (Int64.to_float ns /. 1_000_000.)
-  end : Send_emails.IO
-  )
-
 let parse_certs certs_file =
   let mapped = Unix_cstruct.of_fd Unix.(openfile certs_file [ O_RDONLY ] 0o0) in
   match X509.Certificate.decode_pem_multiple mapped with
@@ -26,7 +19,7 @@ let parse_certs certs_file =
   | Ok certs -> certs
 
 let make_authenticator certs_file =
-  let certs = parse_certs certs in
+  let certs = parse_certs certs_file in
   let time () = Some (Ptime_clock.now ()) in
   X509.Authenticator.chain_of_trust ~time certs
 
@@ -41,9 +34,40 @@ let local_timestamp () =
   in
   Ptime.to_float_s local_now |> Int64.of_float
 
+let rdwr =
+  {
+    Colombe.Sigs.rd =
+      (fun { ic; _ } bytes off len ->
+        let open Lwt.Infix in
+        Colombe.Lwt_scheduler.inj
+          (Lwt_io.read_into ic bytes off len >>= function
+           | 0 -> Lwt.return `End
+           | len -> Lwt.return (`Len len)));
+    wr =
+      (fun { oc; _ } bytes off len ->
+        let res =
+          Lwt_io.write_from_exactly oc (Bytes.unsafe_of_string bytes) off len
+        in
+        Colombe.Lwt_scheduler.inj res);
+  }
+
 let run ~certs (conf : Feeds_config.t)
     ({ data; unsent_mails } : Persistent_data.t) =
   let authenticator = make_authenticator certs in
+  (* Passed to [Send_emails]. *)
+  let io =
+    (module struct
+      let sleep_ns ns = Lwt_unix.sleep (Int64.to_float ns /. 1_000_000.)
+
+      let establish_tls ~hostname ~port =
+        let* ic, oc = Tls_lwt.connect authenticator (hostname, port) in
+        let read () = Tls_lwt.read ic
+        and write cstr =
+        in
+        { Send_emails.read; write }
+    end : Send_emails.IO
+  )
+  in
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = local_timestamp () in
   let feeds_with_id =

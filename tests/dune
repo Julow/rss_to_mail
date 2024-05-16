@@ -4,4 +4,5 @@
    (tools/parse_config.exe as parse_config))))
 
 (cram
+ (package rss_to_mail)
  (deps %{bin:parse_config}))

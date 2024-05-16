@@ -14,5 +14,6 @@
 
 (rule
  (alias runtest)
+ (package rss_to_mail-unix)
  (action
   (diff ref output)))

@@ -24,5 +24,6 @@
 
 (rule
  (alias runtest)
+ (package rss_to_mail-unix)
  (action
   (diff advanced.expected advanced.output)))

@@ -22,8 +22,17 @@ let stream_of_multiline_string s =
 
 let lwt_stream t () = Lwt.return (t ())
 
+module Lwt_scheduler = Colombe.Sigs.Make (Lwt)
+
+type rw = {
+  read :
+    unit -> ([ `Data of Cstruct.t | `Eof ], [ `Msg of string ]) result Lwt.t;
+  write : Cstruct.t -> (unit, [ `Msg of string ]) result Lwt.t;
+}
+
 module type IO = sig
   val sleep_ns : int64 -> unit Lwt.t
+  val establish_tls : hostname:string -> port:int -> rw Lwt.t
 end
 
 (** Cancel a thread after [t] milliseconds raising the exception [Timeout]. *)
@@ -32,6 +41,42 @@ let lwt_timeout ~io:(module Io : IO) fail time_ms r =
     Lwt.bind (Io.sleep_ns Int64.(mul (of_int time_ms) 1_000_000L)) fail
   in
   Lwt.pick [ r; timeout ]
+
+(** Construct a [rw] from a [flow]. This is needed to make colombe communicate
+    with a flow. *)
+let colombe_rw_of_flow rw =
+  let open Lwt.Syntax in
+  let rbuf = ref Cstruct.empty in
+  let rd_blit bytes off outlen =
+    (* [rbuf] is not empty. *)
+    let l = min outlen (Cstruct.length !rbuf) in
+    Cstruct.blit_to_bytes !rbuf 0 bytes off l;
+    rbuf := Cstruct.shift !rbuf l;
+    Lwt.return (`Len l)
+  in
+  let rd () bytes off outlen =
+    Lwt_scheduler.inj
+    @@
+    if Cstruct.length !rbuf = 0
+    then
+      (* Refill *)
+      let* r = rw.read () in
+      match r with
+      | Ok (`Data cstr) ->
+          rbuf := cstr;
+          rd_blit bytes off outlen
+      | Ok `Eof -> Lwt.return `End
+      | Error (`Msg err) -> failwith err
+    else rd_blit bytes off outlen
+  in
+  let wr () str off len =
+    Lwt_scheduler.inj
+    @@
+    let cstruct = Cstruct.of_string ~off ~len str in
+    let* r = rw.write cstruct in
+    match r with Ok x -> Lwt.return x | Error (`Msg err) -> failwith err
+  in
+  { Colombe.Sigs.rd; wr }
 
 open Mrmime
 
@@ -125,13 +170,39 @@ let make_mail (conf : Feeds_config.t) (mail : Rss_to_mail.mail) =
   let* recipient = Colombe_emile.to_forward_path recipient in
   Ok (make_multipart_alternative ~header parts, from, recipient)
 
+let sendmail ~io ~hostname ~port ~domain ~authenticator ~authentication sender
+    recipients stream =
+  let module Io = (val io : IO) in
+  let ( <.> ) f g x = f (g x) in
+  let lwt_bind x f =
+    let open Lwt.Infix in
+    let open Lwt_scheduler in
+    (* inj (prj x >>= fun x -> f (prj x)) *)
+    inj (prj x >>= (prj <.> f))
+  in
+  let lwt =
+    {
+      Colombe.Sigs.bind = lwt_bind;
+      return = (fun x -> Lwt_scheduler.inj (Lwt.return x));
+    }
+  in
+  let ctx = Colombe.State.Context.make () in
+  let hostname = Domain_name.to_string hostname in
+  let stream () = Lwt_scheduler.inj (stream ()) in
+  Lwt.bind (Io.establish_tls ~hostname ~port) @@ fun rw ->
+  Lwt_scheduler.prj
+  @@ Sendmail.sendmail lwt (colombe_rw_of_flow rw) () ctx ~domain
+       ?authentication sender recipients stream
+
 let send ~io ~authenticator (conf : Feeds_config.t) mails =
   let module Io = (val io : IO) in
   let hostname, port = conf.server in
   let hostname = Domain_name.of_string_exn hostname in
   let domain = Colombe.Domain.of_string_exn "localhost" in
   let (`Plain (username, password)) = conf.server_auth in
-  let authentication = Sendmail.{ username; password; mechanism = PLAIN } in
+  let authentication =
+    Some Sendmail.{ username; password; mechanism = PLAIN }
+  in
   (* Send one email *)
   let send t =
     match make_mail conf t with
@@ -139,8 +210,8 @@ let send ~io ~authenticator (conf : Feeds_config.t) mails =
         let stream = lwt_stream (Mt.to_stream mail) in
         Lwt.catch
           (fun () ->
-            Sendmail_lwt.sendmail ~hostname ~port ~domain ~authenticator
-              ~authentication from [ recipient ] stream
+            sendmail ~io ~hostname ~port ~domain ~authenticator ~authentication
+              from [ recipient ] stream
             |> Lwt.map (function
                  | Error e -> Error (`Sendmail_error e)
                  | Ok () as ok -> ok
