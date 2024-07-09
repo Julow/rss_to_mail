@@ -162,7 +162,6 @@ struct
         in
         Lwt.catch get (function
           | Failure msg -> Lwt.return (Error (`System msg))
-          | Unix.Unix_error (_, msg, _) -> Lwt.return (Error (`System msg))
           | _ -> Lwt.return (Error `Unknown)
           )
 

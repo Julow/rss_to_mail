@@ -10,5 +10,5 @@
   colombe
   colombe.emile
   x509
-  sendmail-lwt
+  sendmail
   logs))
