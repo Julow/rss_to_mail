@@ -32,13 +32,14 @@
   outputs = { self, nixpkgs, opam-nix, flake-utils, hillingar, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
+        pkgs = nixpkgs.legacyPackages.${system};
         inherit (opam-nix.lib.${system}) buildOpamProject;
         inherit (hillingar.lib.${system}) mkUnikernelPackages;
 
         queryArgs = {
           resolveArgs = {
             depopts = false;
-            env.sys-ocaml-version = "4.14.1";
+            env.sys-ocaml-version = "4.14.2";
           };
         };
 
@@ -56,10 +57,11 @@
         build_unikernel = unikernelName: target: mirageDir:
           (mkUnikernelPackages rec {
             inherit unikernelName mirageDir;
-            monorepoQuery = { ocaml-base-compiler = "4.14.1"; };
+            depexts = with pkgs; [ m4 gmp solo5 libseccomp pkg-config ];
+            monorepoQuery = { gmp = "*"; ocaml-base-compiler = "4.14.2"; };
             query = {
               ocaml-base-compiler = "4.14.1";
-              mirage = "4.5.0";
+              mirage = "4.6.0";
             };
           } ./.).${target};
 

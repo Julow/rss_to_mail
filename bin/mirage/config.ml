@@ -9,7 +9,6 @@ let packages =
     package "ca-certs-nss";
     package "oneffs" ~pin:"git+https://github.com/reynir/oneffs";
     package "git-kv" ~max:"0.0.4";
-    package "solo5-elftool";
   ]
 
 let runtime_args = [ runtime_arg ~pos:__POS__ "Unikernel.Args.conf_url" ]

@@ -33,6 +33,7 @@
   (tyxml-ppx
    (>= 4.5.0))
   colombe
+  astring
   sendmail
   logs
   (x509
@@ -42,6 +43,7 @@
   emile
   (mrmime
    (>= 0.3.2))
+  ppx_sexp_conv
   (alcotest :with-test)
   (mdx :with-test)))
 
