@@ -25,6 +25,7 @@ module type STATE = sig
 
   val get : t -> id -> 'a state_key -> 'a option
   val set : t -> id -> 'a state_key -> 'a -> t
+  val id_of_url : string -> id
   val pp_id : Format.formatter -> id -> unit
 end
 
@@ -33,7 +34,7 @@ module type DIFF = sig
 end
 
 module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) = struct
-  type feed = State.id * Feed_desc.t
+  type feed = Feed_desc.t
   type update = { entries : int }
 
   module Process_feed = struct
@@ -207,95 +208,6 @@ module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) = struct
     | `Feed _ -> Check_feed.fetch uri
     | `Scraper (_, s) -> Check_scraper.fetch uri s
 
-  let with_state state feed_id key f =
-    let x = State.get state feed_id key in
-    f x
-    |> Lwt.map (function
-         | Error _ as e -> ((fun s -> s), e)
-         | Ok (x, r) ->
-             let update_state state = State.set state feed_id key x in
-             (update_state, Ok r)
-         )
-
-  (** Check a feed for updates. Returns the list of generated mails and updated
-      feed datas. Log informations by calling [log] once for each feed. [now] is
-      used for forgetting entries some time after they have been removed from
-      the feed. *)
-  let update_feed ~now state (feed_id, (desc, options)) =
-    let open Lwt_result.Syntax in
-    match desc with
-    | #Feed_desc.regular_feed as desc ->
-        with_state state feed_id Previous_entries (fun previous_entries ->
-            let uri = Uri.of_string (Feed_desc.url_of_regular_feed desc) in
-            let+ feed = fetch_feed ~uri desc in
-            let seen_ids, entries =
-              Check_feed.update ~now uri options feed previous_entries
-            in
-            ( seen_ids,
-              prepare_mails ~now ~uri feed.Feed.metadata options entries
-            )
-        )
-    | `Bundle desc ->
-        with_state state feed_id Previous_entries (fun previous_entries ->
-            let uri = Uri.of_string (Feed_desc.url_of_regular_feed desc) in
-            let+ feed = fetch_feed ~uri desc in
-            let seen_ids, entries =
-              Check_feed.update ~now uri options feed previous_entries
-            in
-            let mails =
-              match entries with
-              | [] -> []
-              | [ _ ] as entries ->
-                  prepare_mails ~now ~uri feed.Feed.metadata options entries
-              | entries ->
-                  [
-                    prepare_bundle ~now ~uri feed.Feed.metadata options entries;
-                  ]
-            in
-            (seen_ids, mails)
-        )
-    | `Diff url ->
-        with_state state feed_id Page_contents (fun previous_contents ->
-            let uri = Uri.of_string url in
-            let* contents = Check_diff.fetch uri in
-            let* mails =
-              match previous_contents with
-              | Some previous_contents -> (
-                  match Diff.compute previous_contents contents with
-                  | Ok (Some diff) ->
-                      Lwt.return_ok
-                        [
-                          prepare_diff ~now ~uri Feed.empty_metadata options
-                            diff;
-                        ]
-                  | Ok None -> Lwt.return_ok []
-                  | Error (`Msg msg) -> Lwt.return_error (`Process_error msg)
-                )
-              | None -> (* First update, nothing to compare *) Lwt.return_ok []
-            in
-            (* Always record the new content, even if there's no diff *)
-            Lwt.return_ok (contents, mails)
-        )
-
-  let check_feed ~now state ((feed_id, (_, options)) as feed) =
-    match State.get state feed_id Next_update with
-    | Some next_update when next_update >= now ->
-        Lwt.return (feed_id, Fun.id, `Uptodate)
-    | _ ->
-        update_feed ~now state feed
-        |> Lwt.map (fun (updt, r) ->
-               let log =
-                 match r with Ok mails -> `Updated mails | Error e -> e
-               in
-               let updt state =
-                 let state = updt state in
-                 (* Set "next_update" even on error to avoid repeatedly calling them *)
-                 State.set state feed_id Next_update
-                   (Utils.next_update now options)
-               in
-               (feed_id, updt, log)
-           )
-
   let log_error id = function
     | `Parsing_error ((line, col), msg) ->
         Logs.warn (fun fmt ->
@@ -306,26 +218,126 @@ module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) = struct
     | `Fetch_error err ->
         Logs.warn (fun fmt -> fmt "%a: %a" State.pp_id id Fetch.pp_error err)
 
-  let reduce_updated (acc_datas, acc_mails, updated, errors)
-      (id, update_data, log) =
-    let acc_datas = update_data acc_datas in
-    match log with
-    | `Uptodate -> (acc_datas, acc_mails, updated, errors)
-    | `Updated mails ->
+  let with_state state feed_id key f =
+    let x = State.get state feed_id key in
+    f x
+    |> Lwt.map (function
+         | Error _ as e -> ((fun s -> s), e)
+         | Ok (x, r) ->
+             let update_state state = State.set state feed_id key x in
+             (update_state, Ok r)
+         )
+
+  let id_of_regular_feed (`Feed feed_url | `Scraper (feed_url, _)) =
+    State.id_of_url feed_url
+
+  let check_next_update ~now state feed_id options k =
+    let open Lwt.Syntax in
+    match State.get state feed_id Next_update with
+    | Some next_update when next_update >= now ->
+        Lwt.return (Fun.id, Ok `Uptodate)
+    | _ ->
+        let+ updt, r = k () in
+        let updt state =
+          let state = updt state in
+          (* Set "next_update" even on error to avoid repeatedly calling them *)
+          State.set state feed_id Next_update (Utils.next_update now options)
+        in
+        (updt, r)
+
+  let log_error feed_id k =
+    let open Lwt.Syntax in
+    let+ x, r = k () in
+    match r with
+    | Ok ((`Updated _ | `Uptodate) as y) -> (x, y)
+    | Error err ->
+        log_error feed_id err;
+        (x, `Error)
+
+  let ( let@ ) f k = f k
+
+  (** Check a feed for updates. Returns the list of mails and a function for
+      updating the state. [now] is used for forgetting entries some time after
+      they have been removed from the feed. *)
+  let check_feed ~now state (desc, options) =
+    let open Lwt_result.Syntax in
+    match desc with
+    | #Feed_desc.regular_feed as desc ->
+        let feed_id = id_of_regular_feed desc in
+        let@ () = log_error feed_id in
+        let@ () = check_next_update ~now state feed_id options in
+        let@ previous_entries = with_state state feed_id Previous_entries in
+        let uri = Uri.of_string (Feed_desc.url_of_regular_feed desc) in
+        let+ feed = fetch_feed ~uri desc in
+        let seen_ids, entries =
+          Check_feed.update ~now uri options feed previous_entries
+        in
+        let mails =
+          prepare_mails ~now ~uri feed.Feed.metadata options entries
+        in
         Logs.info (fun fmt ->
-            fmt "%a: %d new entries" State.pp_id id (List.length mails)
+            fmt "%a: %d new entries" State.pp_id feed_id (List.length mails)
         );
-        (acc_datas, mails @ acc_mails, updated + 1, errors)
-    | (`Fetch_error _ | `Parsing_error _ | `Process_error _) as log ->
-        log_error id log;
-        (acc_datas, acc_mails, updated, errors + 1)
+        (seen_ids, `Updated mails)
+    | `Bundle desc ->
+        let feed_id = id_of_regular_feed desc in
+        let@ () = log_error feed_id in
+        let@ () = check_next_update ~now state feed_id options in
+        let@ previous_entries = with_state state feed_id Previous_entries in
+        let uri = Uri.of_string (Feed_desc.url_of_regular_feed desc) in
+        let+ feed = fetch_feed ~uri desc in
+        let seen_ids, entries =
+          Check_feed.update ~now uri options feed previous_entries
+        in
+        let mails =
+          match entries with
+          | [] -> []
+          | [ _ ] as entries ->
+              prepare_mails ~now ~uri feed.Feed.metadata options entries
+          | entries ->
+              [ prepare_bundle ~now ~uri feed.Feed.metadata options entries ]
+        in
+        Logs.info (fun fmt ->
+            fmt "%a: %d new entries" State.pp_id feed_id (List.length mails)
+        );
+        (seen_ids, `Updated mails)
+    | `Diff url ->
+        let feed_id = State.id_of_url url in
+        let@ () = log_error feed_id in
+        let@ () = check_next_update ~now state feed_id options in
+        let@ previous_contents = with_state state feed_id Page_contents in
+        let uri = Uri.of_string url in
+        let* contents = Check_diff.fetch uri in
+        let* mails =
+          match previous_contents with
+          | Some previous_contents -> (
+              match Diff.compute previous_contents contents with
+              | Ok (Some diff) ->
+                  Lwt.return_ok
+                    [ prepare_diff ~now ~uri Feed.empty_metadata options diff ]
+              | Ok None -> Lwt.return_ok []
+              | Error (`Msg msg) -> Lwt.return_error (`Process_error msg)
+            )
+          | None -> (* First update, nothing to compare *) Lwt.return_ok []
+        in
+        Logs.info (fun fmt -> fmt "%s: page changed" url);
+        (* Always record the new content, even if there's no diff *)
+        Lwt.return_ok (contents, `Updated mails)
+
+  let reduce_results (acc_datas, acc_mails, updated, errors)
+      (update_data, result) =
+    let acc_datas = update_data acc_datas in
+    match result with
+    | `Uptodate -> (acc_datas, acc_mails, updated, errors)
+    | `Updated mails -> (acc_datas, mails @ acc_mails, updated + 1, errors)
+    | `Error -> (acc_datas, acc_mails, updated, errors + 1)
 
   (** Update a list of feeds in parallel *)
   let check_all ~now state feeds =
     Lwt_list.map_p (check_feed ~now state) feeds
     |> Lwt.map (fun results ->
            let datas, mails, updated, errors =
-             List.fold_left reduce_updated (state, [], 0, 0) results
+             List.fold_left reduce_results (state, [], 0, 0) results
            in
            Logs.app (fun fmt ->
                fmt "%d feeds updated, %d errors, %d new entries" updated errors

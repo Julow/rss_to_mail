@@ -42,6 +42,7 @@ module M = struct
 
   type id = Feed_id.t
 
+  let id_of_url = Feed_id.of_url
   let pp_id ppf id = Format.pp_print_string ppf (Feed_id.to_string id)
 
   let empty =

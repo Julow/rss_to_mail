@@ -72,7 +72,11 @@ let check_duplicate feeds =
     if Hashtbl.mem tbl url then raise_error ("Feed declared twice: " ^ url);
     Hashtbl.add tbl url ()
   in
-  List.iter (fun (desc, _) -> check_url (Feed_desc.url_of_desc desc)) feeds
+  let rec check_desc = function
+    | `Feed url | `Scraper (url, _) | `Diff url -> check_url url
+    | `Bundle desc -> check_desc desc
+  in
+  List.iter (fun (desc, _) -> check_desc desc) feeds
 
 type t = {
   server : string * int;
@@ -140,6 +144,12 @@ let parse_options =
       | _ -> raise_error "Expected option"
   )
 
+let rec context_of_desc = function
+  | `Feed url -> spf "Feed %S" url
+  | `Scraper (url, _) -> spf "Scraper %S" url
+  | `Bundle desc -> context_of_desc desc
+  | `Diff url -> spf "Diff %S" url
+
 let parse_feed ~default_opts =
   let open Feed_desc in
   let rec parse_desc = function
@@ -165,8 +175,7 @@ let parse_feed ~default_opts =
   | Atom url -> (`Feed url, default_opts)
   | List (desc :: opts) ->
       let desc = parse_desc desc in
-      let context_url = Feed_desc.url_of_desc desc in
-      let@ () = with_context (fun () -> spf "Feed %S" context_url) in
+      let@ () = with_context (fun () -> context_of_desc desc) in
       (desc, parse_options default_opts opts)
   | List [] -> raise_error "feeds: Syntax error"
 

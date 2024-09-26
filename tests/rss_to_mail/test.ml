@@ -51,13 +51,14 @@ let print_options (opts : Feed_desc.options) =
   printf "\n"
 
 let print_feed (feed, options) =
-  ( match feed with
-  | `Feed url -> printf "\n# %s\n\n" url
-  | `Scraper (url, _) -> printf "\n# scraper %s\n\n" url
-  | `Bundle (`Feed url) -> printf "\n# bundle %s\n\n" url
-  | `Bundle (`Scraper (url, _)) -> printf "\n# bundle scraper %s\n\n" url
-  | `Diff url -> printf "\n# diff %s\n\n" url
-  );
+  let rec print_feed_desc ppf = function
+    | `Feed url -> fprintf ppf "%s" url
+    | `Scraper (url, _) -> fprintf ppf "(scraper %s)" url
+    | `Bundle desc ->
+        fprintf ppf "(bundle %a)" print_feed_desc (desc :> Feed_desc.desc)
+    | `Diff url -> fprintf ppf "(diff %s)" url
+  in
+  printf "\n# %a\n\n" print_feed_desc feed;
   print_options options
 
 let () =
@@ -71,13 +72,6 @@ let () =
   in
   List.iter print_feed feeds;
   printf "\n# Done parsing\n\n";
-  let feeds =
-    List.map
-      (fun ((desc, _) as f) ->
-        (Persistent_data.Feed_id.of_url (Feed_desc.url_of_desc desc), f)
-      )
-      feeds
-  in
   let data, mails = Rss_to_mail.check_all ~now data feeds |> Lwt_main.run in
   List.iter print_mail (List.rev mails);
   let sexp = Persistent_data.(save { data; unsent_mails = [] }) in

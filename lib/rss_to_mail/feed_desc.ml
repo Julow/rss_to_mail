@@ -51,7 +51,3 @@ type desc =
 type t = desc * options
 
 let url_of_regular_feed = function `Feed url | `Scraper (url, _) -> url
-
-let url_of_desc = function
-  | (#regular_feed as desc) | `Bundle desc -> url_of_regular_feed desc
-  | `Diff url -> url

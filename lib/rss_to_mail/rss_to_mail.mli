@@ -25,6 +25,7 @@ module type STATE = sig
 
   val get : t -> id -> 'a state_key -> 'a option
   val set : t -> id -> 'a state_key -> 'a -> t
+  val id_of_url : string -> id
 
   val pp_id : Format.formatter -> id -> unit
   (** Used in logs. *)
@@ -35,7 +36,7 @@ module type DIFF = sig
 end
 
 module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) : sig
-  type feed = State.id * Feed_desc.t
+  type feed = Feed_desc.t
   type update = { entries : int }
   type nonrec mail = mail
   type nonrec 'a state_key = 'a state_key

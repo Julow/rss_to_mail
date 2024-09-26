@@ -11,7 +11,7 @@ Options: (refresh 2.000000)
 
 Options: (refresh (at 18:0))
 
-# bundle ././rss.rss
+# (bundle ././rss.rss)
 
 Options: (refresh 2.000000) (title Title) (label Label)
 
@@ -19,7 +19,7 @@ Options: (refresh 2.000000) (title Title) (label Label)
 
 Options: (refresh 2.000000)
 
-# bundle empty.rss
+# (bundle empty.rss)
 
 Options: (refresh 2.000000)
 
@@ -75,7 +75,7 @@ Options: (refresh 2.000000)
 
 Options: (refresh 2.000000) (content remove)
 
-# diff simple.html
+# (diff simple.html)
 
 Options: (refresh 2.000000)
 

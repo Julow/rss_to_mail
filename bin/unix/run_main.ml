@@ -42,19 +42,11 @@ let run ~certs (conf : Feeds_config.t)
   let certs = parse_certs certs in
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = local_timestamp () in
-  let feeds_with_id =
-    List.map
-      (fun ((desc, _) as f) ->
-        let url = Feed_desc.url_of_desc desc in
-        (Persistent_data.Feed_id.of_url url, f)
-      )
-      conf.feeds
-  in
   Logs.app (fun fmt ->
       let to_retry = List.length unsent_mails in
       if to_retry > 0 then fmt "%d unsent emails to try" to_retry
   );
-  let* data, mails = Rss_to_mail.check_all ~now data feeds_with_id in
+  let* data, mails = Rss_to_mail.check_all ~now data conf.feeds in
   let+ unsent_mails = Send_emails.send ~io ~certs conf (unsent_mails @ mails) in
   { Persistent_data.data; unsent_mails }
 
