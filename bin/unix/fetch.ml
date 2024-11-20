@@ -30,10 +30,11 @@ type error =
   | `Broken_redir
   | `Http of int
   | `Unknown
+  | `Unknown_scheme
   ]
 
 (** Returns the body as a string and handle errors *)
-let fetch url =
+let http_fetch url =
   Logs.debug (fun fmt -> fmt "Fetching %a" Uri.pp url);
   let fetch' () =
     let* resp = get url in
@@ -48,7 +49,27 @@ let fetch url =
   in
   Lwt.catch fetch' (Lwt.wrap1 handle_exn)
 
-let pp_error ppf error =
+let file_read path =
+  Logs.debug (fun fmt -> fmt "Reading %s" path);
+  Lwt.catch
+    (fun () ->
+      Lwt_io.lines_of_file path
+      |> Lwt_stream.to_list
+      |> Lwt.map (fun lines -> Ok (String.concat "\n" lines))
+    )
+    (function
+      | Unix.Unix_error (e, _, _) ->
+          Lwt.return_error (`System (Unix.error_message e))
+      | _ -> Lwt.return_error `Unknown
+      )
+
+let fetch uri =
+  match Uri.scheme uri with
+  | Some "http" | Some "https" -> http_fetch uri
+  | Some _ -> Lwt.return_error `Unknown_scheme
+  | None -> file_read (Uri.path uri)
+
+let pp_error ppf (error : error) =
   let p fmt = Format.fprintf ppf fmt in
   match error with
   | `Http code -> p "Http error: %d" code
@@ -56,3 +77,4 @@ let pp_error ppf error =
   | `Too_many_redir -> p "Too many redirections"
   | `Broken_redir -> p "Broken redirect"
   | `Unknown -> p "Unknown error"
+  | `Unknown_scheme -> p "Unknown URL scheme"

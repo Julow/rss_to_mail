@@ -67,3 +67,11 @@ let send_test_email ~certs (conf : Feeds_config.t) =
 
   let+ unsent_mail = Send_emails.send ~io ~certs conf [ mail ] in
   unsent_mail = []
+
+let fetch url =
+  let+ feed = Rss_to_mail.fetch_one url in
+  match feed with
+  | Some feed ->
+      Print.print_feed feed;
+      true
+  | None -> false

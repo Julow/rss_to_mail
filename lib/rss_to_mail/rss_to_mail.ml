@@ -208,7 +208,7 @@ module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) = struct
     | `Feed _ -> Check_feed.fetch uri
     | `Scraper (_, s) -> Check_scraper.fetch uri s
 
-  let log_error id = function
+  let print_error id = function
     | `Parsing_error ((line, col), msg) ->
         Logs.warn (fun fmt ->
             fmt "%a: Parsing error: %d:%d: %s" State.pp_id id line col msg
@@ -249,9 +249,9 @@ module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) = struct
     let open Lwt.Syntax in
     let+ x, r = k () in
     match r with
-    | Ok ((`Updated _ | `Uptodate) as y) -> (x, y)
+    | Ok y -> (x, y)
     | Error err ->
-        log_error feed_id err;
+        print_error feed_id err;
         (x, `Error)
 
   let ( let@ ) f k = f k
@@ -345,4 +345,15 @@ module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) = struct
            );
            (datas, mails)
        )
+
+  let fetch_one uri =
+    let open Lwt.Syntax in
+    let feed_id = State.id_of_url uri in
+    let uri = Uri.of_string uri in
+    let+ feed = Check_feed.fetch uri in
+    match feed with
+    | Ok feed -> Some feed
+    | Error e ->
+        print_error feed_id e;
+        None
 end

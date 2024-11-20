@@ -32,14 +32,19 @@ let check_config_command (`Config, config_file) () =
     exit 1
 
 let run_scraper_command src () =
+  let src = Uri.of_string src in
   match Lwt_main.run (Run_scraper.run src) with
   | Ok () -> ()
-  | Error e -> Logs.err (fun fmt -> fmt "%s: %s" src e)
+  | Error e -> Logs.err (fun fmt -> fmt "%a: %s" Uri.pp src e)
 
 let send_test_email (`Config, config_file) () (`Certs, certs) =
   let conf = parse_config_file config_file in
   let success = Lwt_main.run (Run_main.send_test_email ~certs conf) in
   if success then Logs.app (fun fmt -> fmt "Success.") else exit 1
+
+let fetch url () =
+  let success = Lwt_main.run (Run_main.fetch url) in
+  if not success then exit 1
 
 open Cmdliner
 
@@ -101,10 +106,20 @@ let send_test_email_cmd =
     (Cmd.info "send-test-email" ~doc)
     Term.(const send_test_email $ config_file $ verbose $ certs)
 
+let fetch_cmd =
+  let src =
+    let doc = "Url to a feed or path to a file." in
+    Arg.(required & pos 0 (some string) None & info [] ~docv:"SRC" ~doc)
+  in
+  let doc = "Fetch a feed. Can be used to debug a feed." in
+  Cmd.v (Cmd.info "fetch" ~doc) Term.(const fetch $ src $ verbose)
+
 let main_cmd =
   let doc = "Fetches RSS feeds and sends emails." in
   Cmd.group ~default:default_term
     (Cmd.info "rss_to_mail" ~doc)
-    [ run_cmd; check_config_cmd; run_scraper_cmd; send_test_email_cmd ]
+    [
+      run_cmd; check_config_cmd; run_scraper_cmd; send_test_email_cmd; fetch_cmd;
+    ]
 
 let () = exit (Cmd.eval main_cmd)

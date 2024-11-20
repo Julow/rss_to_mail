@@ -44,4 +44,7 @@ module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) : sig
   val check_all :
     now:int64 -> State.t -> feed list -> (State.t * mail list) Lwt.t
   (** Update a list of feeds. Fetches are done asynchronously. *)
+
+  val fetch_one : string -> Feed.t option Lwt.t
+  (** Fetch a feed at the given URL. Returns [None] on error. *)
 end

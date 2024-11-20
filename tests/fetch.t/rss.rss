@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/">
+	<channel>
+
+		<title>RSS Test</title>
+		<link>Feed link</link>
+		<image><url>Feed icon</url></image>
+
+		<item>
+			<title>Title</title>
+			<link>url</link>
+			<guid>id</guid>
+			<description>summary</description>
+			<content:encoded><![CDATA[<p>content</p>]]></content:encoded>
+			<category>A</category>
+			<category>B</category>
+			<dc:creator>Author</dc:creator>
+			<dc:creator>Author 2</dc:creator>
+			<enclosure url="some uri" length="9000" type="some type" />
+			<enclosure />
+			<pubDate>pub date</pubDate>
+		</item>
+
+		<item>
+			<title>Title 2</title>
+			<content:encoded><![CDATA[
+				<div>
+					<p><a><b></b></a></p>
+				</div>
+			]]></content:encoded>
+		</item>
+
+		<item>
+			<title>Title 3</title>
+			<description>text description</description>
+		</item>
+
+		<item>
+			<title>Title 4</title>
+			<description><![CDATA[<div>html description</div>]]></description>
+		</item>
+
+	</channel>
+</rss>
