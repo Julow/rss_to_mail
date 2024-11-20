@@ -83,6 +83,10 @@ Options: (refresh 2.000000)
 
 Options: (refresh 2.000000)
 
+# bad_xmlns.atom
+
+Options: (refresh 2.000000)
+
 # Done parsing
 
 [INFO]atom.atom: 1 new entries
@@ -105,7 +109,8 @@ Options: (refresh 2.000000)
 [INFO]././././././././rss.rss: 4 new entries
 [WARNING]simple.html: Processing error: Not implemented
 [WARNING]error.rss: Parsing error: 1:1: expected root element
-18 feeds updated, 2 errors, 30 new entries
+[INFO]bad_xmlns.atom: 2 new entries
+19 feeds updated, 2 errors, 32 new entries
 FROM: Atom Test
 SUBJECT: title
 BODY html: <!DOCTYPE html>
@@ -1353,16 +1358,83 @@ Attachments:
 Attachment 1: some%20uri (8Kb, some type)
 
 
+FROM: Title
+SUBJECT: T2
+BODY html: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>Title</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .content img { max-width: 100%; max-height: auto; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+       
+  </style>
+ </head>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >summary
+  </span><h1 class="entry_title">T2</h1><p>From Title</p>
+  <div class="content">summary</div>
+                                    </body>
+</html>
+BODY text: # T2
+
+From Title
+
+summary
+
+
+FROM: Title
+SUBJECT: T1
+BODY html: <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+ <head><title>Title</title>
+  <style>
+   
+   a { text-decoration: none; }
+   .entry_title { margin: 0; }
+   .entry_title a { border-bottom: 1px dashed black; }
+   .entry_header { margin-top: 0; }
+   .content { margin: 20px 0 25px 10px; max-width: 600px; }
+   .content img { max-width: 100%; max-height: auto; }
+   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
+   60px; }
+       
+  </style>
+ </head>
+ <body>
+  <span
+   style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
+   >summary
+  </span><h1 class="entry_title">T1</h1><p>From Title</p>
+  <div class="content">summary</div>
+                                    </body>
+</html>
+BODY text: # T1
+
+From Title
+
+summary
+
+
 (version 2)((previous_entries
   ((rss.rss ((id ()))) (no_title.rss ((id2 ())))
    (https://some-website/relative.rss ((1 ())))
    (https://some-website/relative.atom ((1 ()) (2 ()))) (error.rss ())
    (empty.rss ())
    (content_type.atom ((1 ()) (2 ()) (3 ()) (4 ()) (5 ()) (6 ())))
-   (atom.atom (("id here" ()))) (./no_title.rss ()) (./empty.rss ())
-   (./atom.atom (("id here" ()))) (././rss.rss (("Title 2" ())))
-   (././no_title.rss ((id2 ()))) (././empty.rss ())
-   (./././rss.rss (("Title 2" ()))) (././././rss.rss ((id ())))
+   (bad_xmlns.atom ((T1 ()) (T2 ()))) (atom.atom (("id here" ())))
+   (./no_title.rss ()) (./empty.rss ()) (./atom.atom (("id here" ())))
+   (././rss.rss (("Title 2" ()))) (././no_title.rss ((id2 ())))
+   (././empty.rss ()) (./././rss.rss (("Title 2" ())))
+   (././././rss.rss ((id ())))
    (./././././rss.rss (("Title 3" ()) ("Title 4" ())))
    (././././././rss.rss (("Title 2" ()) (id ())))
    (./././././././rss.rss
@@ -1373,13 +1445,13 @@ Attachment 1: some%20uri (8Kb, some type)
   ((simple.html 12352878) (rss.rss 12345678) (no_title.rss 12352878)
    (https://some-website/relative.rss 12352878)
    (https://some-website/relative.atom 12352878) (error.rss 12352878)
-   (empty.rss 12352878) (content_type.atom 12352878) (atom.atom 12352878)
-   (./no_title.rss 12352878) (./empty.rss 12352878) (./atom.atom 12352878)
-   (././rss.rss 12352878) (././no_title.rss 12352878)
-   (././empty.rss 12352878) (./././rss.rss 12352878)
-   (././././rss.rss 12352878) (./././././rss.rss 12352878)
-   (././././././rss.rss 12352878) (./././././././rss.rss 12352878)
-   (././././././././rss.rss 12352878)))
+   (empty.rss 12352878) (content_type.atom 12352878)
+   (bad_xmlns.atom 12352878) (atom.atom 12352878) (./no_title.rss 12352878)
+   (./empty.rss 12352878) (./atom.atom 12352878) (././rss.rss 12352878)
+   (././no_title.rss 12352878) (././empty.rss 12352878)
+   (./././rss.rss 12352878) (././././rss.rss 12352878)
+   (./././././rss.rss 12352878) (././././././rss.rss 12352878)
+   (./././././././rss.rss 12352878) (././././././././rss.rss 12352878)))
  (page_contents
   ((simple.html
      "<html>\

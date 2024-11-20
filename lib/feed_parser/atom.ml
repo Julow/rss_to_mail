@@ -7,8 +7,10 @@ open Operators
 let ns = "http://www.w3.org/2005/Atom"
 and media_ns = "http://search.yahoo.com/mrss/"
 
-let ( < ) ?(ns = ns) = ( < ) ~ns
-let ( << ) ?(ns = ns) = ( << ) ~ns
+let ( < ) ?(ns = ns) node f =
+  match ( < ) ~ns node f with Some _ as x -> x | None -> node < f
+
+let ( << ) node f = ( << ) ~ns node f @ (node << f)
 
 module Links = struct
   type rel =

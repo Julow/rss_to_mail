@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:voxeus="http://www.voxeus.com/1.0/xml/schema" version="2.0">
+  <ttl>60</ttl>
+  <atom:link href="https://podcasts.nova.fr/radio-nova-la-derniere/feed/rss/website.xml" rel="self" type="application/rss+xml"/>
+  <title>Title</title>
+  <link href="link"/>
+  <lang>fr</lang>
+  <entry>
+    <title>T1</title>
+    <summary><![CDATA[summary]]></summary>
+  </entry>
+  <entry>
+    <title>T2</title>
+    <summary><![CDATA[summary]]></summary>
+  </entry>
+</feed>

@@ -28,4 +28,5 @@
   (././././././././rss.rss (content remove))
   ((diff simple.html))
   error.rss
+  bad_xmlns.atom
 )))

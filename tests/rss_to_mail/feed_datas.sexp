@@ -18,7 +18,8 @@
    (./././././rss.rss ())
    (././././././rss.rss ())
    (./././././././rss.rss ())
-   (././././././././rss.rss ())))
+   (././././././././rss.rss ())
+   (bad_xmlns.atom ())))
  (next_update
   ((simple.html 0) (rss.rss 12345678) (no_title.rss 0)
    (https://some-website/relative.rss 0)
