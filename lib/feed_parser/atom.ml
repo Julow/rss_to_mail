@@ -1,5 +1,4 @@
 open Feed
-open Xml
 open Operators
 
 (** Atom parser * https://validator.w3.org/feed/docs/atom.html *)
@@ -7,10 +6,19 @@ open Operators
 let ns = "http://www.w3.org/2005/Atom"
 and media_ns = "http://search.yahoo.com/mrss/"
 
+let attr = Xml.attr
+let text = Xml.text
+let children_all = Xml.children_all
+
+let children ~ns name node =
+  match Xml.children ~ns name node with
+  | [] -> Xml.children name node
+  | cs -> cs
+
 let ( < ) ?(ns = ns) node f =
   match ( < ) ~ns node f with Some _ as x -> x | None -> node < f
 
-let ( << ) node f = ( << ) ~ns node f @ (node << f)
+let ( << ) node name = children ~ns name node
 
 module Links = struct
   type rel =
