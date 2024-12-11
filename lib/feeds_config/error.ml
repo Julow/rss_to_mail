@@ -13,6 +13,9 @@ let with_context c f =
     let context = c () :: context in
     raise (E { context; msg })
 
+let with_context_field n f =
+  with_context (fun () -> Format.asprintf "while reading field %S" n) f
+
 let to_string =
   let open Format in
   let pp_sep fmt () = fprintf fmt ",@\n" in

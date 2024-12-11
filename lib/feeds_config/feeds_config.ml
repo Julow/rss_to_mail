@@ -3,20 +3,14 @@ open Error
 
 let spf = Format.asprintf
 
-let record field = function
-  | List ts ->
-      List.find_map
-        (function
-          | List (Atom f :: t) when String.equal f field -> (
-              match t with [ t ] -> Some t | ts -> Some (List ts)
-            )
-          | _ -> None
-          )
-        ts
-  | Atom _ -> raise_error "Expected list"
+let record field ts =
+  List.find_map
+    (function
+      | List (Atom f :: t) when String.equal f field -> Some t | _ -> None
+      )
+    ts
 
 let atom = function List _ -> raise_error "Expected string" | Atom s -> s
-let list = function List ts -> ts | Atom _ as t -> [ t ]
 let one = function [ v ] -> v | _ -> raise_error "Expected a single value"
 let one_or_more = function [] -> raise_error "Expected a value" | v -> v
 
@@ -136,19 +130,18 @@ let parse_options =
     | _ -> raise_error (spf "Unknown option %S" name)
   in
 
-  List.fold_left (fun opts t ->
-      match list t with
-      | Atom name :: values ->
-          let@ () = with_context (fun () -> spf "option %S" name) in
-          parse_option name values opts
-      | _ -> raise_error "Expected option"
+  List.fold_left (fun opts -> function
+    | List (Atom name :: values) ->
+        let@ () = with_context (fun () -> spf "in option %S" name) in
+        parse_option name values opts
+    | _ -> raise_error "Expected option"
   )
 
 let rec context_of_desc = function
-  | `Feed url -> spf "Feed %S" url
-  | `Scraper (url, _) -> spf "Scraper %S" url
+  | `Feed url -> spf "in feed %S" url
+  | `Scraper (url, _) -> spf "in scraper %S" url
   | `Bundle desc -> context_of_desc desc
-  | `Diff url -> spf "Diff %S" url
+  | `Diff url -> spf "in diff %S" url
 
 let parse_feed ~default_opts =
   let open Feed_desc in
@@ -156,7 +149,7 @@ let parse_feed ~default_opts =
     | Atom url -> `Feed url
     | List (Atom "scraper" :: url :: scraper) ->
         let url = atom url and scraper = one_or_more scraper in
-        let@ () = with_context (fun () -> spf "Scraper %S" url) in
+        let@ () = with_context (fun () -> spf "in scraper %S" url) in
         `Scraper (url, parse_scraper scraper)
     | List (Atom "bundle" :: desc) -> (
         match parse_desc (one desc) with
@@ -187,36 +180,45 @@ let parse sexp =
           List.rev_map (parse_feed ~default_opts) feeds @ acc
       | feed -> parse_feed ~default_opts feed :: acc
     in
-    List.fold_left parse [] (list t) |> List.rev
+    List.fold_left parse [] t |> List.rev
   in
 
   let parse_default_opts t =
     let refresh =
-      Option.map parse_option_refresh (record "default_refresh" t)
+      let@ () = with_context_field "default_refresh" in
+      Option.map
+        (fun ts -> parse_option_refresh (one ts))
+        (record "default_refresh" t)
     in
     let max_entries =
-      Option.map parse_option_max_entries (record "max_entries" t)
+      let@ () = with_context_field "max_entries" in
+      Option.map
+        (fun ts -> parse_option_max_entries (one ts))
+        (record "max_entries" t)
     in
     Feed_desc.make_options ?refresh ?max_entries ()
   in
 
   let parse_smtp t =
     let server =
+      let@ () = with_context_field "server" in
       match record "server" t with
-      | Some (List [ Atom host ]) | Some (Atom host) -> (host, 465)
-      | Some (List [ Atom host; Atom port ]) -> (host, int_of_string port)
+      | Some [ Atom host ] -> (host, 465)
+      | Some [ Atom host; Atom port ] -> (host, int_of_string port)
       | Some _ -> raise_error "Malformated field `server`"
       | None -> raise_error "Missing field `server`"
     in
     let from =
+      let@ () = with_context_field "from" in
       match record "from" t with
-      | Some (Atom from) -> from
+      | Some [ Atom from ] -> from
       | Some _ -> raise_error "Malformated field `from`"
       | None -> raise_error "Missing field `from`"
     in
     let auth =
+      let@ () = with_context_field "auth" in
       match record "auth" t with
-      | Some (List [ Atom user; Atom pass ]) -> `Plain (user, pass)
+      | Some [ Atom user; Atom pass ] -> `Plain (user, pass)
       | None -> raise_error "Missing field `auth`"
       | Some _ -> raise_error "Malformated field `auth`"
     in
@@ -225,23 +227,35 @@ let parse sexp =
   let parse t =
     let default_opts = parse_default_opts t in
     let feeds =
+      let@ () = with_context_field "feeds" in
       match record "feeds" t with
-      | Some t -> parse_feeds ~default_opts t
+      | Some [ List t ] (* Old syntax *) | Some t -> parse_feeds ~default_opts t
       | None -> raise_error "Missing field `feeds`"
     and server, server_auth, from_address =
+      let@ () = with_context_field "smtp" in
       match record "smtp" t with
       | Some t -> parse_smtp t
       | None -> raise_error "Missing field `smtp`"
     and to_address =
+      let@ () = with_context_field "to" in
       match record "to" t with
-      | Some (Atom a) -> a
+      | Some [ Atom a ] -> a
       | Some _ -> raise_error "Malformated field `to`"
       | None -> raise_error "Missing field `to`"
     in
     check_duplicate feeds;
     { server; server_auth; from_address; to_address; feeds }
   in
-  handle_error (fun () -> parse sexp)
+  handle_error (fun () ->
+      (* Allow the old syntax:
+          ((smtp ...)
+           (feeds ...))
+         And the new syntax:
+          (smtp ...)
+          (feeds ...) *)
+      let ([ List t ] | t) = sexp in
+      parse t
+  )
 
 let parse_scraper sexps = handle_error (fun () -> parse_scraper sexps)
 

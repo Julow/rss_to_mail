@@ -67,7 +67,7 @@ let () =
     Persistent_data.load sexp
   in
   let { Feeds_config.feeds; _ } =
-    let sexp = Sexplib.Sexp.load_sexp "feeds.sexp" in
+    let sexp = Sexplib.Sexp.load_sexps "feeds.sexp" in
     Feeds_config.parse sexp
   in
   List.iter print_feed feeds;
