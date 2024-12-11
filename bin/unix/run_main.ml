@@ -21,8 +21,8 @@ let io =
   )
 
 let parse_certs certs_file =
-  let mapped = Unix_cstruct.of_fd Unix.(openfile certs_file [ O_RDONLY ] 0o0) in
-  match X509.Certificate.decode_pem_multiple mapped with
+  let src = In_channel.(input_all (open_bin certs_file)) in
+  match X509.Certificate.decode_pem_multiple src with
   | Error (`Msg e) -> failwith e
   | Ok certs -> certs
 

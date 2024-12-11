@@ -49,7 +49,9 @@ let pp_error ppf error =
   let p s = Format.fprintf ppf s in
   match error with
   | `Timeout -> p "Timeout"
-  | `Sendmail_error e -> Sendmail.pp_error ppf e
+  | `Sendmail_error (#Sendmail_with_starttls.error as e) ->
+      Sendmail_with_starttls.pp_error ppf e
+  | `Sendmail_error (`Msg msg) -> p "Sendmail error: %s" msg
   | `Make_mail_error _ -> p "Internal error"
   | `Uncaught_exception exn -> Fmt.exn ppf exn
 
@@ -133,7 +135,9 @@ let send ~io ~certs (conf : Feeds_config.t) mails =
     X509.Authenticator.chain_of_trust ~time certs
   in
   let hostname, port = conf.server in
-  let hostname = Domain_name.of_string_exn hostname in
+  let destination =
+    `Domain_name (Domain_name.host_exn (Domain_name.of_string_exn hostname))
+  in
   let domain = Colombe.Domain.of_string_exn "localhost" in
   let (`Plain (username, password)) = conf.server_auth in
   let authentication = Sendmail.{ username; password; mechanism = PLAIN } in
@@ -144,7 +148,7 @@ let send ~io ~certs (conf : Feeds_config.t) mails =
         let stream = lwt_stream (Mt.to_stream mail) in
         Lwt.catch
           (fun () ->
-            Sendmail_lwt.sendmail ~hostname ~port ~domain ~authenticator
+            Sendmail_lwt.sendmail ~destination ~port ~domain ~authenticator
               ~authentication from [ recipient ] stream
             |> Lwt.map (function
                  | Error e -> Error (`Sendmail_error e)

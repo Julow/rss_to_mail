@@ -36,12 +36,12 @@
   (tyxml-ppx
    (>= 4.5.0))
   colombe
-  sendmail-lwt
+  (sendmail-lwt
+   (>= 0.10.0))
   logs
   (x509
-   (>= 0.10))
+   (>= 1.0.2))
   ptime
-  cstruct-unix
   sexplib0
   sexplib
   emile

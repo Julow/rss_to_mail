@@ -16,7 +16,6 @@
   sexplib
   x509
   ptime
-  cstruct-unix
   feeds_config
   send_emails
   ptime.clock))
