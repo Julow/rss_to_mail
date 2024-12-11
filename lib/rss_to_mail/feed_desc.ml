@@ -8,7 +8,7 @@ type weekday =
   | `Sun
   ]
 
-type refresh_options =
+type refresh_option =
   [ `Every of float  (** Every [n] hours *)
   | `At of int * int  (** Every days at [hour, min] *)
   | `At_weekly of weekday * int * int  (** Every weeks on [day, hour, minute]*)
@@ -23,7 +23,7 @@ type filter_expr =
       (** Matches both the summary and the full content. *)
 
 type options = {
-  refresh : refresh_options;  (** Update interval *)
+  refresh : refresh_option list;  (** Update interval *)
   title : string option;  (** Override the feed's title *)
   label : string option;  (** Appended to the content *)
   content : [ `Keep | `Remove ];
@@ -33,8 +33,8 @@ type options = {
   max_entries : int option;  (** Max number of entries at the same time *)
 }
 
-let make_options ?(refresh = `Every 6.) ?title ?label ?(content = `Keep) ?filter
-    ?to_ ?max_entries () =
+let make_options ?(refresh = []) ?title ?label ?(content = `Keep) ?filter ?to_
+    ?max_entries () =
   { refresh; title; label; content; filter; to_; max_entries }
 
 type regular_feed =

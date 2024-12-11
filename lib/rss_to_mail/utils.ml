@@ -12,7 +12,9 @@ let today_at h m now =
   let _, ((h', m', s'), _) = Ptime.to_date_time now in
   S.sub (make_span ~hour:h ~min:m ()) (make_span ~hour:h' ~min:m' ~sec:s' ())
 
-let next_day_at h m now = S.add (today_at h m now) (S.v (1, 0L))
+let next_day_at h m now =
+  let today = today_at h m now in
+  if compare today S.zero > 0 then today else S.add today (S.v (1, 0L))
 
 let weekday_index = function
   | `Mon -> 0
@@ -28,19 +30,29 @@ let next_week_at day h m now =
   let d = ((weekday_index day - weekday_index today_wd + 6) mod 7) + 1 in
   S.add (today_at h m now) (S.v (d, 0L))
 
-let next_update now options =
+let next_update_one now refresh =
   let now_t =
     match Ptime.of_float_s (Int64.to_float now) with
     | Some t -> t
     | None -> assert false
   in
   let d =
-    match options.Feed_desc.refresh with
+    match refresh with
     | `Every h -> span_of_hour_f h
     | `At (h, m) -> next_day_at h m now_t
     | `At_weekly (d, h, m) -> next_week_at d h m now_t
   in
   Int64.add now (Int64.of_float (S.to_float_s d))
+
+let next_update now options =
+  match options.Feed_desc.refresh with
+  | hd :: tl ->
+      List.fold_left
+        (fun acc r -> Int64.min acc (next_update_one now r))
+        (next_update_one now hd) tl
+  | [] ->
+      (* Default to every 6 hours *)
+      next_update_one now (`Every 6.)
 
 let rec size s u =
   let to_s () = Int64.to_string s ^ u in

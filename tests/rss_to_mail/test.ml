@@ -37,13 +37,19 @@ let print_mail (m : Rss_to_mail.mail) =
   printf "FROM: %s\nSUBJECT: %s\nBODY html: %s\nBODY text: %s\n" m.sender
     m.subject m.body_html m.body_text
 
+let print_refresh = function
+  | `Every h -> printf " %f" h
+  | `At (h, m) -> printf " (at %d:%d)" h m
+  | `At_weekly (d, h, m) -> printf " (at %d:%d %d)" h m (Utils.weekday_index d)
+
 let print_options (opts : Feed_desc.options) =
   printf "Options:";
   ( match opts.refresh with
-  | `Every h -> printf " (refresh %f)" h
-  | `At (h, m) -> printf " (refresh (at %d:%d))" h m
-  | `At_weekly (d, h, m) ->
-      printf " (refresh (at %d:%d %d)" h m (Utils.weekday_index d)
+  | [] -> ()
+  | r ->
+      printf " (refresh";
+      List.iter print_refresh r;
+      printf ")"
   );
   Option.iter (printf " (title %s)") opts.title;
   Option.iter (printf " (label %s)") opts.label;

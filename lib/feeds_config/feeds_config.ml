@@ -97,13 +97,15 @@ let parse_option_refresh =
     | "sun" -> `Sun
     | _ -> raise_error "Invalid day"
   in
-  function
-  | Atom hours -> `Every (float_of_string hours)
-  | List [ Atom "at"; Atom time ] -> `At (parse_time time)
-  | List [ Atom "at"; Atom time; Atom day ] ->
-      let h, m = parse_time time and d = parse_day day in
-      `At_weekly (d, h, m)
-  | List _ -> raise_error "Invalid value"
+  let parse_refresh = function
+    | Atom hours -> `Every (float_of_string hours)
+    | List [ Atom "at"; Atom time ] -> `At (parse_time time)
+    | List [ Atom "at"; Atom time; Atom day ] ->
+        let h, m = parse_time time and d = parse_day day in
+        `At_weekly (d, h, m)
+    | List _ -> raise_error "Invalid value"
+  in
+  List.map parse_refresh
 
 and parse_option_max_entries t =
   let s = atom t in
@@ -119,7 +121,7 @@ let parse_options =
 
   let parse_option name values (opts : Feed_desc.options) =
     match name with
-    | "refresh" -> { opts with refresh = parse_option_refresh (one values) }
+    | "refresh" -> { opts with refresh = parse_option_refresh values }
     | "title" -> { opts with title = Some (atom (one values)) }
     | "label" -> { opts with label = Some (atom (one values)) }
     | "content" -> { opts with content = parse_content_option values }
@@ -186,9 +188,7 @@ let parse sexp =
   let parse_default_opts t =
     let refresh =
       let@ () = with_context_field "default_refresh" in
-      Option.map
-        (fun ts -> parse_option_refresh (one ts))
-        (record "default_refresh" t)
+      Option.map parse_option_refresh (record "default_refresh" t)
     in
     let max_entries =
       let@ () = with_context_field "max_entries" in

@@ -45,7 +45,7 @@ let config_input = {|
    (feed_2)
    (feed_3 (refresh 3.)) ; Refresh every 3 hours
    (feed_4 (refresh (at 17:00))) ; Refresh every day at 5PM
-   (feed_5 (refresh (at 17:00 wed))) ; Refresh every week on wednesday at 5PM
+   (feed_5 (refresh (at 17:00 wed) (at 17:00 sat))) ; Refresh every week on wednesday and saturday at 5PM
    (feed_6 (title "Title") (label "Label") (no_content true) (to other@address))
    (feed_7 (filter "filter1" ("filter2") (not "filter3")))
 
