@@ -8,7 +8,7 @@ let parse_config_file config_file =
   match Sexplib.Sexp.load_sexps config_file with
   | exception Sexplib.Sexp.Parse_error { err_msg; _ } -> failwith err_msg
   | exception (Failure _ as e) -> raise e
-  | sexps -> Feeds_config.parse sexp
+  | sexps -> Feeds_config.parse sexps
 
 let with_feed_datas config_file f =
   let config = parse_config_file config_file in
