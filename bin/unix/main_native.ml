@@ -50,10 +50,21 @@ open Cmdliner
 
 let tagged tag arg = Term.app (Term.const (fun v -> (tag, v))) arg
 
+(* The ca-cert library logs warnings that we can't fix and don't have an
+   effect. *)
+let disable_library_logs () =
+  Logs.Src.list ()
+  |> List.iter (fun src ->
+         match Logs.Src.name src with
+         | "ca-certs" -> Logs.Src.set_level src (Some Error)
+         | _ -> ()
+     )
+
 let verbose =
   let setup_log level =
     Logs.set_level level;
-    Logs.set_reporter (Logs_fmt.reporter ())
+    Logs.set_reporter (Logs_fmt.reporter ());
+    disable_library_logs ()
   in
   Term.(const setup_log $ Logs_cli.level ())
 
