@@ -134,7 +134,7 @@ let send ~io ~auth (conf : Feeds_config.t) mails =
   let destination =
     `Domain_name (Domain_name.host_exn (Domain_name.of_string_exn hostname))
   in
-  let domain = Colombe.Domain.of_string_exn "localhost" in
+  let domain = Colombe.Domain.of_string_exn hostname in
   let (`Plain (username, password)) = conf.server_auth in
   let authentication = Sendmail.{ username; password; mechanism = PLAIN } in
   (* Send one email *)
@@ -144,7 +144,7 @@ let send ~io ~auth (conf : Feeds_config.t) mails =
         let stream = lwt_stream (Mt.to_stream mail) in
         Lwt.catch
           (fun () ->
-            Sendmail_lwt.sendmail ~destination ~port ~domain ~authenticator:auth
+            Sendmail_lwt.submit ~destination ~port ~domain ~authenticator:auth
               ~authentication from [ recipient ] stream
             |> Lwt.map (function
                  | Error e -> Error (`Sendmail_error e)
