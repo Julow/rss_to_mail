@@ -9,7 +9,7 @@ end
 
 val send :
   io:(module IO) ->
-  certs:X509.Certificate.t list ->
+  auth:X509.Authenticator.t ->
   Feeds_config.t ->
   Rss_to_mail.mail list ->
   Rss_to_mail.mail list Lwt.t

@@ -128,12 +128,8 @@ let make_mail (conf : Feeds_config.t) (mail : Rss_to_mail.mail) =
   let* recipient = Colombe_emile.to_forward_path recipient in
   Ok (make_multipart_alternative ~header parts, from, recipient)
 
-let send ~io ~certs (conf : Feeds_config.t) mails =
+let send ~io ~auth (conf : Feeds_config.t) mails =
   let module Io = (val io : IO) in
-  let authenticator =
-    let time () = Some (Io.now ()) in
-    X509.Authenticator.chain_of_trust ~time certs
-  in
   let hostname, port = conf.server in
   let destination =
     `Domain_name (Domain_name.host_exn (Domain_name.of_string_exn hostname))
@@ -148,7 +144,7 @@ let send ~io ~certs (conf : Feeds_config.t) mails =
         let stream = lwt_stream (Mt.to_stream mail) in
         Lwt.catch
           (fun () ->
-            Sendmail_lwt.sendmail ~destination ~port ~domain ~authenticator
+            Sendmail_lwt.sendmail ~destination ~port ~domain ~authenticator:auth
               ~authentication from [ recipient ] stream
             |> Lwt.map (function
                  | Error e -> Error (`Sendmail_error e)

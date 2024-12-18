@@ -24,6 +24,7 @@ depends: [
   "sendmail-lwt" {>= "0.10.0"}
   "logs"
   "x509" {>= "1.0.2"}
+  "ca-certs"
   "ptime"
   "sexplib0"
   "sexplib"

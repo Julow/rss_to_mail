@@ -22,8 +22,8 @@ let with_feed_datas config_file f =
   Sexplib.Sexp.save_sexps_mach feed_datas_file (Persistent_data.save datas);
   Lwt.return_unit
 
-let run_command (`Config, config_file) () (`Certs, certs) =
-  Lwt_main.run (with_feed_datas config_file (Run_main.run ~certs))
+let run_command (`Config, config_file) () =
+  Lwt_main.run (with_feed_datas config_file Run_main.run)
 
 let check_config_command (`Config, config_file) () =
   try ignore (parse_config_file config_file)
@@ -37,9 +37,9 @@ let run_scraper_command src () =
   | Ok () -> ()
   | Error e -> Logs.err (fun fmt -> fmt "%a: %s" Uri.pp src e)
 
-let send_test_email (`Config, config_file) () (`Certs, certs) =
+let send_test_email (`Config, config_file) () =
   let conf = parse_config_file config_file in
-  let success = Lwt_main.run (Run_main.send_test_email ~certs conf) in
+  let success = Lwt_main.run (Run_main.send_test_email conf) in
   if success then Logs.app (fun fmt -> fmt "Success.") else exit 1
 
 let fetch url () =
@@ -57,16 +57,6 @@ let verbose =
   in
   Term.(const setup_log $ Logs_cli.level ())
 
-let certs =
-  let doc = "Path to certificate bundle file, in pem format." in
-  let env = Cmd.Env.info ~doc "CA_BUNDLE" in
-  Arg.(
-    tagged `Certs
-    & required
-    & opt (some file) None
-    & info [ "certs" ] ~env ~docs:"FILE" ~doc
-  )
-
 let config_file =
   let doc = "Configuration file" in
   Arg.(
@@ -78,7 +68,7 @@ let config_file =
 
 let default_term, run_cmd =
   let doc = "Fetch a list of feeds and send a mail for new entries" in
-  let term = Term.(const run_command $ config_file $ verbose $ certs) in
+  let term = Term.(const run_command $ config_file $ verbose) in
   (term, Cmd.v (Cmd.info "run" ~doc) term)
 
 let check_config_cmd =
@@ -104,7 +94,7 @@ let send_test_email_cmd =
   let doc = "Send a test email and exit." in
   Cmd.v
     (Cmd.info "send-test-email" ~doc)
-    Term.(const send_test_email $ config_file $ verbose $ certs)
+    Term.(const send_test_email $ config_file $ verbose)
 
 let fetch_cmd =
   let src =

@@ -14,7 +14,7 @@
   logs.cli
   logs.fmt
   sexplib
-  x509
+  ca-certs
   ptime
   feeds_config
   send_emails

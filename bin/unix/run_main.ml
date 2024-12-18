@@ -20,11 +20,10 @@ let io =
   end : Send_emails.IO
   )
 
-let parse_certs certs_file =
-  let src = In_channel.(input_all (open_bin certs_file)) in
-  match X509.Certificate.decode_pem_multiple src with
+let authenticator () =
+  match Ca_certs.authenticator () with
   | Error (`Msg e) -> failwith e
-  | Ok certs -> certs
+  | Ok auth -> auth
 
 (** Like unix timestamps but shifted by the local timezone offset *)
 let local_timestamp () =
@@ -37,9 +36,8 @@ let local_timestamp () =
   in
   Ptime.to_float_s local_now |> Int64.of_float
 
-let run ~certs (conf : Feeds_config.t)
-    ({ data; unsent_mails } : Persistent_data.t) =
-  let certs = parse_certs certs in
+let run (conf : Feeds_config.t) ({ data; unsent_mails } : Persistent_data.t) =
+  let auth = authenticator () in
   Logs.debug (fun fmt -> fmt "%d feeds" (List.length conf.feeds));
   let now = local_timestamp () in
   Logs.app (fun fmt ->
@@ -47,11 +45,11 @@ let run ~certs (conf : Feeds_config.t)
       if to_retry > 0 then fmt "%d unsent emails to try" to_retry
   );
   let* data, mails = Rss_to_mail.check_all ~now data conf.feeds in
-  let+ unsent_mails = Send_emails.send ~io ~certs conf (unsent_mails @ mails) in
+  let+ unsent_mails = Send_emails.send ~io ~auth conf (unsent_mails @ mails) in
   { Persistent_data.data; unsent_mails }
 
-let send_test_email ~certs (conf : Feeds_config.t) =
-  let certs = parse_certs certs in
+let send_test_email (conf : Feeds_config.t) =
+  let auth = authenticator () in
   let mail =
     Rss_to_mail'.
       {
@@ -65,7 +63,7 @@ let send_test_email ~certs (conf : Feeds_config.t) =
     
   in
 
-  let+ unsent_mail = Send_emails.send ~io ~certs conf [ mail ] in
+  let+ unsent_mail = Send_emails.send ~io ~auth conf [ mail ] in
   unsent_mail = []
 
 let fetch url =

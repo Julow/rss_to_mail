@@ -41,6 +41,7 @@
   logs
   (x509
    (>= 1.0.2))
+  ca-certs
   ptime
   sexplib0
   sexplib
