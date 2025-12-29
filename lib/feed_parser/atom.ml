@@ -54,7 +54,7 @@ end
 
 let uri ~resolve_uri s = resolve_uri (Uri.of_string s)
 
-let content ~resolve_uri node =
+let decode_content ~resolve_uri node =
   match attr "type" node with
   | None | Some "text" -> Some (Feed.make_text_content (text node))
   | Some "html" -> Some (Html_content.of_html_text ~resolve_uri (text node))
@@ -77,18 +77,38 @@ let author ~resolve_uri node =
 
 let category node = { term = attr "term" node; label = attr "label" node }
 
+let media_group ~resolve_uri entry =
+  match entry <~ (media_ns, "group") with
+  | None -> (None, None)
+  | Some group ->
+      let thumbnail =
+        group <~ (media_ns, "thumbnail") >$ fun node ->
+        attr "url" node > fun url ->
+        {
+          thumbnail_uri = uri ~resolve_uri url;
+          thumbnail_width = attr "width" node >$ int_of_string_opt;
+          thumbnail_height = attr "height" node >$ int_of_string_opt;
+        }
+      in
+      (thumbnail, group <~ (media_ns, "description") > text)
+
 let entry ~resolve_uri node =
   let links = Links.of_nodes (children ~ns "link" node) in
+  let thumbnail, media_description = media_group ~resolve_uri node in
+  let content =
+    match node < "content" >$ decode_content ~resolve_uri with
+    | Some _ as c -> c
+    | None -> media_description > Feed.make_text_content
+  in
   {
     id = node < "id" > text;
     title = node < "title" > text;
-    summary = node < "summary" >$ content ~resolve_uri;
-    content = node < "content" >$ content ~resolve_uri;
+    summary = node < "summary" >$ decode_content ~resolve_uri;
+    content;
     date = node < "updated" > text;
     link = Links.(get Alternate) links > uri ~resolve_uri % fst;
     attachments = Links.(get_all Enclosure) links >> attachment ~resolve_uri;
-    thumbnail =
-      ( < ) ~ns:media_ns node "thumbnail" >$ attr "url" > uri ~resolve_uri;
+    thumbnail;
     authors = node << "author" >>$ author ~resolve_uri;
     categories = node << "category" >> category;
   }

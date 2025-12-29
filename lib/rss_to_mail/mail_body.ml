@@ -16,7 +16,7 @@ module Render (Impl : sig
   val feed_icon : Uri.t -> alt:string -> inline t
   val entry_title : string -> Uri.t option -> block t
   val entry_header : inline t -> block t
-  val thumbnail_table : Uri.t -> block t -> block t
+  val thumbnail : thumbnail -> block t
   val attachment_table : inline t list -> block t
   val code_block : ?language:string -> string -> block t
   val body : sender:string -> ?hidden_summary:string -> block t list -> string
@@ -31,6 +31,7 @@ struct
     let entry_title =
       let title = Option.value ~default:"New entry" entry.title in
       entry_title title entry.link
+    and thumbnail = Option.fold ~none ~some:thumbnail entry.thumbnail
     and info_header =
       let feed_title =
         let feed_icon =
@@ -68,11 +69,7 @@ struct
       @@ [ feed_title; categories; date; authors; label ]
     in
 
-    let full_header =
-      let header = list [ entry_title; info_header ] in
-      match entry.thumbnail with
-      | Some url -> thumbnail_table url header
-      | None -> header
+    let header = list [ entry_title; thumbnail; info_header ]
     and attachments =
       let attachment index t =
         let index = string (string_of_int (index + 1)) in
@@ -94,7 +91,7 @@ struct
       | Some c -> content c
       | None -> none
     in
-    list [ full_header; attachments; content_ ]
+    list [ header; attachments; content_ ]
 
   let render_content ~sender ?label feed = function
     | `Single entry -> [ render_entry ~sender ?label feed entry ]

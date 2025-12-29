@@ -54,14 +54,24 @@ let entry_title title entry_link =
 
 let entry_header t = [ Html.p t ]
 
-let thumbnail_table url t =
-  let thumbnail =
-    [%html
-      "<img class=\"thumbnail\" alt=\"thumbnail\" width=\"60\" height=\"60\" \
-       src="
-      (Uri.to_string url) " />"]
-  in
-  [ Html.table [ Html.tr [ Html.td [ thumbnail ]; Html.td t ] ] ]
+let thumbnail thumb =
+  let opt_attr at opt = Option.fold ~none:[] ~some:(fun x -> [ at x ]) opt in
+  Html.
+    [
+      div
+        ~a:[ a_class [ "thumbnail-container" ] ]
+        [
+          img
+            ~src:(Uri.to_string thumb.Feed.thumbnail_uri)
+            ~alt:"thumbnail"
+            ~a:
+              (opt_attr a_width thumb.thumbnail_width
+              @ opt_attr a_height thumb.thumbnail_height
+              )
+            ();
+        ];
+    ]
+  
 
 let attachment_table =
   let attachment ts =
@@ -101,7 +111,8 @@ a { text-decoration: none; }
 .entry_header { margin-top: 0; }
 .content { margin: 20px 0 25px 10px; max-width: 600px; }
 .content img { max-width: 100%; max-height: auto; }
-.thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height: 60px; }
+.thumbnail-container { margin: 20px 0 20px 0; max-width: 600px; }
+.thumbnail-container img { display: block; margin: 0 auto; }
     </style>
     <title>|}
          (Html.txt sender) {|</title>

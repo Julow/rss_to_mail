@@ -37,7 +37,15 @@ let scrap_entry ~parse_uri node t = function
   | Summary ->
       let summary = String.concat "\n" (Soup.trimmed_texts node) in
       { t with summary = Some (Feed.make_text_content summary) }
-  | Thumbnail -> { t with thumbnail = uri ~parse_uri node ||| t.thumbnail }
+  | Thumbnail ->
+      let thumbnail =
+        match uri ~parse_uri node with
+        | Some thumbnail_uri ->
+            Some
+              { thumbnail_uri; thumbnail_width = None; thumbnail_height = None }
+        | None -> t.thumbnail
+      in
+      { t with thumbnail }
   | Attachment { attach_type } ->
       let attachments =
         match uri ~parse_uri node with

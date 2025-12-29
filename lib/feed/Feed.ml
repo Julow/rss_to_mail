@@ -14,6 +14,12 @@ type attachment = {
   attach_type : string option;
 }
 
+type thumbnail = {
+  thumbnail_uri : Uri.t;
+  thumbnail_width : int option;
+  thumbnail_height : int option;
+}
+
 type html_name = string * string
 
 type html_content =
@@ -33,7 +39,7 @@ type entry = {
   summary : content option;
   content : content option;
   link : Uri.t option;
-  thumbnail : Uri.t option;
+  thumbnail : thumbnail option;
   date : string option;
   attachments : attachment list;
 }

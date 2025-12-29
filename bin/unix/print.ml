@@ -14,7 +14,8 @@ let print_feed (feed : Feed.t) =
     p "  title: %s\n" (opt Fun.id t.title);
     p "  link: %s\n" (opt Uri.to_string t.link);
     p "  summary: %s\n" (opt (fun c -> c.Feed.content_text) t.summary);
-    p "  thumbnail: %s\n" (opt Uri.to_string t.thumbnail);
+    p "  thumbnail: %s\n"
+      (opt (fun t -> Uri.to_string t.Feed.thumbnail_uri) t.thumbnail);
     p "  attachments: %s\n" (list attach_to_string t.attachments);
     ()
   in
