@@ -53,7 +53,10 @@ let entry_header t k =
   t k;
   k "\n\n"
 
-let thumbnail_table _thumbnail rhs k = rhs k
+let thumbnail th k =
+  k "Thumbnail: ";
+  k (Uri.to_string th.Feed.thumbnail_uri);
+  k "\n\n"
 
 let attachment_table ts k =
   match ts with
