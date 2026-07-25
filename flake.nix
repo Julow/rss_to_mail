@@ -1,5 +1,5 @@
 {
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
   inputs.opam-nix = {
     url = "github:tweag/opam-nix";
     inputs.nixpkgs.follows = "nixpkgs";
@@ -27,7 +27,7 @@
         inherit (opam-nix.lib.${system}) buildOpamProject;
 
         build_ocaml_package = name: path:
-          let scope = buildOpamProject { } name path { ocaml-system = "*"; };
+          let scope = buildOpamProject { } name path { };
 
           in scope.${name}.overrideAttrs (_: {
             # Prevent unnecessary dependencies on the resulting derivation
