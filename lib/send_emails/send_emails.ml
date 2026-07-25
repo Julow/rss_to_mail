@@ -124,8 +124,8 @@ let make_mail (conf : Feeds_config.t) (mail : Rss_to_mail.mail) =
       make_part (content_type `Text "html") mail.body_html;
     ]
   in
-  let* from = Colombe_emile.to_reverse_path sender in
-  let* recipient = Colombe_emile.to_forward_path recipient in
+  let from = Colombe_emile.to_reverse_path sender in
+  let recipient = Colombe_emile.to_forward_path recipient in
   Ok (make_multipart_alternative ~header parts, from, recipient)
 
 let send ~io ~auth (conf : Feeds_config.t) mails =

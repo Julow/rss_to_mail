@@ -20,7 +20,7 @@ depends: [
   "cmdliner"
   "tyxml"
   "tyxml-ppx" {>= "4.5.0"}
-  "colombe"
+  "colombe" {>= "0.13.0"}
   "sendmail-lwt" {>= "0.10.0"}
   "logs"
   "x509" {>= "1.0.2"}
