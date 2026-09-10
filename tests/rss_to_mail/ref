@@ -124,8 +124,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -133,24 +134,14 @@ BODY html: <!DOCTYPE html>
   <span
    style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
    >summary
-  </span>
-  <table>
-   <tr>
-    <td>
-     <img src="some%20url" alt="thumbnail" class="thumbnail" width="60"
-      height="60"/>
-    </td>
-    <td><h1 class="entry_title"><a href="link%20url">title</a></h1>
-     <p>From 
-      <img src="icon%20uri" alt="Atom Test" width="16" height="16"
-       style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
-       />
-      <a href="feed%20link%20url">Atom Test</a> (Cat 1) on Some date 
-      by <a href="uri">Author 1</a>, Author 2
-     </p>
-    </td>
-   </tr>
-  </table>
+  </span><h1 class="entry_title"><a href="link%20url">title</a></h1>
+  <p>From 
+   <img src="icon%20uri" alt="Atom Test" width="16" height="16"
+    style="display: inline !important; height: 1em !important; margin: 0 0 -0.1em 0 !important"
+    />
+   <a href="feed%20link%20url">Atom Test</a> (Cat 1) on Some date by 
+   <a href="uri">Author 1</a>, Author 2
+  </p>
   <table>
    <tr>
     <td>Attachment 1: <a href="attach%201" type="truc">attach%201</a> (truc)
@@ -187,8 +178,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -231,8 +223,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -275,8 +268,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -304,8 +298,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -338,8 +333,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -377,8 +373,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -411,8 +408,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -445,8 +443,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -479,8 +478,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -513,8 +513,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -543,8 +544,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -578,8 +580,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -608,8 +611,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -638,8 +642,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -668,8 +673,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -698,8 +704,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -737,8 +744,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -747,20 +755,10 @@ BODY html: <!DOCTYPE html>
    style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;"
    >1
   </span>
-  <table>
-   <tr>
-    <td>
-     <img src="https://some-website/thumbnail/1" alt="thumbnail"
-      class="thumbnail" width="60" height="60"/>
-    </td>
-    <td>
-     <h1 class="entry_title"><a href="https://some-website/link">1</a></h1>
-     <p>From Test relative links by 
-      <a href="https://some-website/author/1">Author 1</a>
-     </p>
-    </td>
-   </tr>
-  </table>
+  <h1 class="entry_title"><a href="https://some-website/link">1</a></h1>
+  <p>From Test relative links by 
+   <a href="https://some-website/author/1">Author 1</a>
+  </p>
   <table>
    <tr>
     <td>Attachment 1: 
@@ -807,8 +805,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -861,8 +860,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -890,8 +890,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -941,8 +942,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -979,8 +981,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -1017,8 +1020,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -1061,8 +1065,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -1112,8 +1117,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -1214,8 +1220,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -1250,8 +1257,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -1286,8 +1294,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -1322,8 +1331,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -1371,8 +1381,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
@@ -1404,8 +1415,9 @@ BODY html: <!DOCTYPE html>
    .entry_header { margin-top: 0; }
    .content { margin: 20px 0 25px 10px; max-width: 600px; }
    .content img { max-width: 100%; max-height: auto; }
-   .thumbnail { display: block; margin: 0 5px 5px 0; width: 60px; height:
-   60px; }
+   .thumbnail-container { margin: 20px 0 20px 0; max-width: 600px;
+   }
+   .thumbnail-container img { display: block; margin: 0 auto; }
        
   </style>
  </head>
