@@ -61,12 +61,15 @@ let decode_content ~resolve_uri node =
   | Some "xhtml" -> Some (Html_content.of_xml ~resolve_uri (children_all node))
   | Some _ -> None
 
-let attachment ~resolve_uri (href, node) =
+let attachment_from_links ~resolve_uri (href, node) =
   {
     attach_url = uri ~resolve_uri href;
     attach_size = attr "length" node >$ Int64.of_string_opt;
     attach_type = attr "type" node;
   }
+
+(* Some feeds mix RSS and Atom *)
+let attachment_from_enclosure = Rss.attachment
 
 let author ~resolve_uri node =
   node < "name" > fun name ->
@@ -107,7 +110,9 @@ let entry ~resolve_uri node =
     content;
     date = node < "updated" > text;
     link = Links.(get Alternate) links > uri ~resolve_uri % fst;
-    attachments = Links.(get_all Enclosure) links >> attachment ~resolve_uri;
+    attachments =
+      (Links.(get_all Enclosure) links >> attachment_from_links ~resolve_uri)
+      @ (node << "enclosure" >>$ attachment_from_enclosure ~resolve_uri);
     thumbnail;
     authors = node << "author" >>$ author ~resolve_uri;
     categories = node << "category" >> category;

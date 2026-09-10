@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:voxeus="http://www.voxeus.com/1.0/xml/schema" version="2.0">
+  <id>xxxxxxxxxx</id>
+  <ttl>60</ttl>
+  <generator>Voxeus (https://www.voxeus.com)</generator>
+  <atom:link href="rss link" rel="self" type="application/rss+xml"/>
+  <title>Podcast title</title>
+  <subtitle>Podcast subtitle</subtitle>
+  <link href="podcast link"/>
+  <lang>fr</lang>
+  <pubDate>2026-09-01T12:00:00+00:00</pubDate>
+  <updated>2026-09-01T12:00:00+00:00</updated>
+  <copyright>Copyright</copyright>
+  <image>
+    <url>podcast-image</url>
+    <title>Podcast image title</title>
+    <link>podcast-image-link-to</link>
+  </image>
+  <author>
+    <name>Author</name>
+    <email>email</email>
+  </author>
+  <content:encoded>Podcast content</content:encoded>
+  <itunes:keywords>Keywords</itunes:keywords>
+  <itunes:type>episodic</itunes:type>
+  <itunes:author>Author</itunes:author>
+  <itunes:subtitle>Subtitle</itunes:subtitle>
+  <itunes:summary>Summary</itunes:summary>
+  <itunes:explicit>false</itunes:explicit>
+  <itunes:image href="podcast-image"/>
+  <itunes:owner>
+    <itunes:name>Owner</itunes:name>
+    <itunes:email>email</itunes:email>
+  </itunes:owner>
+  <entry>
+    <title>Entry title</title>
+    <summary>Entry summary</summary>
+    <link href="entry link"/>
+    <published>2026-09-01T12:00:00+00:00</published>
+    <enclosure url="enclosure-link" length="102010253" type="audio/mpeg"/>
+    <guid isPermaLink="false">GUID</guid>
+    <item key="guid@isPermaLink">0</item>
+    <author>Entry author</author>
+    <content:encoded>Entry content</content:encoded>
+    <itunes:episodeType>full</itunes:episodeType>
+    <itunes:block>no</itunes:block>
+    <itunes:title>Entry title</itunes:title>
+    <itunes:subtitle>Entry subtitle</itunes:subtitle>
+    <itunes:summary>Entry summary</itunes:summary>
+    <itunes:author>Entry author</itunes:author>
+    <itunes:image href="entry-image"/>
+    <itunes:duration>0123</itunes:duration>
+    <itunes:explicit>false</itunes:explicit>
+    <voxeus:episode-url>eposode-url</voxeus:episode-url>
+    <voxeus:embed-url>embed-url</voxeus:embed-url>
+    <voxeus:oembed-url>oembed-url</voxeus:oembed-url>
+    <voxeus:embed-html>embed-html</voxeus:embed-html>
+    <voxeus:embed-amp>embed-amp</voxeus:embed-amp>
+    <category><![CDATA[Comedy, News, Society & Culture]]></category>
+  </entry>
+  <itunes:category text="Comedy"/>
+  <itunes:category text="News"/>
+  <itunes:category text="Society &amp; Culture"/>
+</feed>

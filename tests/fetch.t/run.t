@@ -27,3 +27,15 @@
     summary: html description
     thumbnail: None
     attachments: None
+
+  $ rss_to_mail fetch -v voxeus.atom
+  Feed title: Podcast title
+  Feed link: None
+  Feed icon: None
+  Entries (1):
+  - id: None
+    title: Entry title
+    link: entry%20link
+    summary: Entry summary
+    thumbnail: None
+    attachments: enclosure-link (type = audio/mpeg)
