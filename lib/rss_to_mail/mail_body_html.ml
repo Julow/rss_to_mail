@@ -14,11 +14,11 @@ let list ?sep l =
   List.concat l
 
 let link ?mime_type ?text url =
-  let s = match text with Some "" | None -> Uri.path url | Some s -> s in
+  let text = match text with Some "" | None -> Uri.path url | Some s -> s in
   let a_type =
     match mime_type with Some t -> [ Html.a_mime_type t ] | None -> []
   in
-  Html.[ a ~a:(a_href (Uri.to_string url) :: a_type) [ txt s ] ]
+  Html.[ a ~a:(a_href (Uri.to_string url) :: a_type) [ txt text ] ]
 
 let content_div cont = [ [%html "<div class=\"content\">" cont "</div>"] ]
 
