@@ -11,8 +11,7 @@ let remove_now id t = StringMap.remove id t
 let filter_removed since t =
   StringMap.filter
     (fun _ -> function
-      | Some date when Int64.compare date since < 0 -> false
-      | _ -> true
+      | Some date when Int64.compare date since < 0 -> false | _ -> true
     )
     t
 

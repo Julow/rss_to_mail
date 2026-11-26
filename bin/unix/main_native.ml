@@ -55,10 +55,10 @@ let tagged tag arg = Term.app (Term.const (fun v -> (tag, v))) arg
 let disable_library_logs () =
   Logs.Src.list ()
   |> List.iter (fun src ->
-         match Logs.Src.name src with
-         | "ca-certs" -> Logs.Src.set_level src (Some Error)
-         | _ -> ()
-     )
+      match Logs.Src.name src with
+      | "ca-certs" -> Logs.Src.set_level src (Some Error)
+      | _ -> ()
+  )
 
 let verbose =
   let setup_log level =

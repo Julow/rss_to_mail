@@ -2,7 +2,8 @@ open Lwt.Syntax
 
 let () = Conduit_lwt_unix.(tls_library := OpenSSL)
 
-(** Wrapper around cohttp's [get] that support redirections and abstract errors. *)
+(** Wrapper around cohttp's [get] that support redirections and abstract errors.
+*)
 let rec get ?(max_redirect = 5) url =
   let open Cohttp in
   let open Cohttp_lwt in

@@ -115,7 +115,6 @@ let make_mail (conf : Feeds_config.t) (mail : Rss_to_mail.mail) =
           make Field_name.date Date
             (Date.of_ptime ~zone:GMT (ptime_of_int64 mail.timestamp));
         ]
-      
   in
 
   let parts =
@@ -147,9 +146,9 @@ let send ~io ~auth (conf : Feeds_config.t) mails =
             Sendmail_lwt.submit ~destination ~port ~domain ~authenticator:auth
               ~authentication from [ recipient ] stream
             |> Lwt.map (function
-                 | Error e -> Error (`Sendmail_error e)
-                 | Ok () as ok -> ok
-                 )
+              | Error e -> Error (`Sendmail_error e)
+              | Ok () as ok -> ok
+            )
             |> lwt_timeout ~io (fun () -> Lwt.return_error `Timeout) 15000
           )
           (fun exn -> Lwt.return_error (`Uncaught_exception exn))
@@ -172,11 +171,10 @@ let send ~io ~auth (conf : Feeds_config.t) mails =
   mails
   |> Lwt_list.map_p (fun t -> Lwt.map (handle_error t) (send t))
   |> Lwt.map (fun result ->
-         let unsent_mails = List.filter_map Fun.id result in
-         Logs.app (fun fmt ->
-             let tried = List.length mails
-             and failed = List.length unsent_mails in
-             fmt "%d/%d emails sent" (tried - failed) tried
-         );
-         unsent_mails
-     )
+      let unsent_mails = List.filter_map Fun.id result in
+      Logs.app (fun fmt ->
+          let tried = List.length mails and failed = List.length unsent_mails in
+          fmt "%d/%d emails sent" (tried - failed) tried
+      );
+      unsent_mails
+  )
