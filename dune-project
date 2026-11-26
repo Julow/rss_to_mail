@@ -49,5 +49,9 @@
   emile
   (mrmime
    (>= 0.3.2))
+  (astring
+   (>= 0.8.5))
+  (ppx_sexp_conv
+   (>= v0.15.1))
   (alcotest :with-test)
   (mdx :with-test)))
