@@ -18,7 +18,7 @@ let io =
     let now = Ptime_clock.now
     let sleep_ns ns = Lwt_unix.sleep (Int64.to_float ns /. 1_000_000.)
   end : Send_emails.IO
-  )
+)
 
 let authenticator () =
   match Ca_certs.authenticator () with
@@ -60,7 +60,6 @@ let send_test_email (conf : Feeds_config.t) =
         body_text = "This is a test email from rss_to_email.";
         timestamp = local_timestamp ();
       }
-    
   in
 
   let+ unsent_mail = Send_emails.send ~io ~auth conf [ mail ] in

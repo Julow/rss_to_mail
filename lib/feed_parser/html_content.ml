@@ -4,17 +4,17 @@ let map_css_styles f styles =
   let buf = Buffer.create (String.length styles) in
   String.split_on_char ';' styles
   |> List.iter (fun s ->
-         match String.index_opt s ':' with
-         | None -> Buffer.add_string buf s
-         | Some i ->
-             let key = String.trim (String.sub s 0 i) in
-             let value = String.sub s (i + 1) (String.length s - i - 1) in
-             let key, value = f key value in
-             Buffer.add_string buf key;
-             Buffer.add_char buf ':';
-             Buffer.add_string buf value;
-             Buffer.add_char buf ';'
-     );
+      match String.index_opt s ':' with
+      | None -> Buffer.add_string buf s
+      | Some i ->
+          let key = String.trim (String.sub s 0 i) in
+          let value = String.sub s (i + 1) (String.length s - i - 1) in
+          let key, value = f key value in
+          Buffer.add_string buf key;
+          Buffer.add_char buf ':';
+          Buffer.add_string buf value;
+          Buffer.add_char buf ';'
+  );
   Buffer.contents buf
 
 let filter_attrs ~resolve_uri tag attrs =

@@ -1,4 +1,5 @@
-(** Very simple conversion of html to text. Doesn't handle any kind of layout. *)
+(** Very simple conversion of html to text. Doesn't handle any kind of layout.
+*)
 
 open Astring
 

@@ -161,9 +161,9 @@ module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) = struct
       in
       Fetch.fetch uri
       |> Lwt.map (function
-           | Error e -> Error (`Fetch_error e)
-           | Ok contents -> parse_content contents
-           )
+        | Error e -> Error (`Fetch_error e)
+        | Ok contents -> parse_content contents
+      )
 
     let update ~now uri options feed previous_entries =
       let first_update, seen_ids =
@@ -185,20 +185,20 @@ module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) = struct
     let fetch uri scraper =
       Fetch.fetch uri
       |> Lwt.map (function
-           | Error e -> Error (`Fetch_error e)
-           | Ok contents ->
-               let resolve_uri = Uri.resolve "" uri in
-               Ok (Scraper.scrap ~resolve_uri scraper contents)
-           )
+        | Error e -> Error (`Fetch_error e)
+        | Ok contents ->
+            let resolve_uri = Uri.resolve "" uri in
+            Ok (Scraper.scrap ~resolve_uri scraper contents)
+      )
   end
 
   module Check_diff = struct
     let fetch uri =
       Fetch.fetch uri
       |> Lwt.map (function
-           | Error e -> Error (`Fetch_error e)
-           | Ok _ as contents -> contents
-           )
+        | Error e -> Error (`Fetch_error e)
+        | Ok _ as contents -> contents
+      )
   end
 
   type nonrec mail = mail
@@ -222,11 +222,11 @@ module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) = struct
     let x = State.get state feed_id key in
     f x
     |> Lwt.map (function
-         | Error _ as e -> ((fun s -> s), e)
-         | Ok (x, r) ->
-             let update_state state = State.set state feed_id key x in
-             (update_state, Ok r)
-         )
+      | Error _ as e -> ((fun s -> s), e)
+      | Ok (x, r) ->
+          let update_state state = State.set state feed_id key x in
+          (update_state, Ok r)
+    )
 
   let id_of_regular_feed (`Feed feed_url | `Scraper (feed_url, _)) =
     State.id_of_url feed_url
@@ -336,15 +336,15 @@ module Make (Fetch : FETCH) (State : STATE) (Diff : DIFF) = struct
   let check_all ~now state feeds =
     Lwt_list.map_p (check_feed ~now state) feeds
     |> Lwt.map (fun results ->
-           let datas, mails, updated, errors =
-             List.fold_left reduce_results (state, [], 0, 0) results
-           in
-           Logs.app (fun fmt ->
-               fmt "%d feeds updated, %d errors, %d new entries" updated errors
-                 (List.length mails)
-           );
-           (datas, mails)
-       )
+        let datas, mails, updated, errors =
+          List.fold_left reduce_results (state, [], 0, 0) results
+        in
+        Logs.app (fun fmt ->
+            fmt "%d feeds updated, %d errors, %d new entries" updated errors
+              (List.length mails)
+        );
+        (datas, mails)
+    )
 
   let fetch_one uri =
     let open Lwt.Syntax in

@@ -71,7 +71,6 @@ let thumbnail thumb =
             ();
         ];
     ]
-  
 
 let attachment_table =
   let attachment ts =
@@ -95,7 +94,8 @@ let body ~sender ?hidden_summary entries =
           [%html
             "<span \
              style=\"display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;\">"
-            [ Html.txt s ] "</span>"];
+              [ Html.txt s ]
+              "</span>"];
         ]
     | None -> []
   in

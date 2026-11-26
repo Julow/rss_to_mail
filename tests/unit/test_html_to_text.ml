@@ -33,7 +33,6 @@ let lists () =
         e "ul" [ e "li" [ txt "Foo" ]; e "li" [ txt "Bar" ] ];
         txt ".";
       ]
-    
     "List:\n\n- Foo\n- Bar\n\n.";
   ()
 
